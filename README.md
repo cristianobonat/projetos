@@ -13,7 +13,10 @@ Repositório de projetos e estudos:
 * > * Para ler via *cÊ sabe Jah*:
   >
   > <img src="https://cristianobonat.github.io/projetos/cocotavcity-400.png" width="150" height="150"/>
-* Visão alternativa do estudo: [Cocota_VCity Infográfico Interativo](https://cristianobonat.github.io/projetos/cocota_Virtual_City_Info_Interativo.html)
+* Visão alternativa do estudo: [Cocota_VCity Infográfico Interativo](https://tinyurl.com/cocotavcInfo)
+* > * Para ler *fora daqui*:
+  >
+  > <img src="https://cristianobonat.github.io/projetos/cocotavcInfo-400.png" width="150" height="150"/>
 * ... Bits trabalhando ... Comming soon ...
   >
   > ... humanos ao fundo? tô nessa!;-)) Engaje-se))
