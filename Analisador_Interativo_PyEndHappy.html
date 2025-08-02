@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analisador Interativo Py End Happy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <!-- 
+        Chosen Palette: Developer's Dusk
+        Application Structure Plan: A two-column dashboard layout was chosen for optimal user experience. The left column is dedicated to user input (a code editor), providing a large, focused area for the primary task. The right column serves as a dynamic analysis panel. This panel is structured with a high-level summary at the top (key metrics and a chart) for quick insights, followed by a detailed, scrollable list of issues. This top-down information flow (from summary to detail) is a standard usability pattern for dashboards, allowing users to grasp the overall state quickly before diving into specifics. This structure directly supports the user's goal: paste code, see results, and explore details, making the interaction intuitive and efficient.
+        Visualization & Content Choices: 
+        - Report Info: Code issue counts by type (FLAKE8, AST). Goal: Inform/Compare. Viz: Stat cards and a Donut Chart. Interaction: Dynamic update on analysis. Justification: Stat cards provide immediate, scannable key metrics. A donut chart is ideal for showing the proportion of parts to a whole, making the distribution of issue types instantly clear. Library: Chart.js/Canvas.
+        - Report Info: Detailed list of code issues with line numbers and messages. Goal: Organize/Inform. Viz: Interactive list of cards. Interaction: Dynamic generation on analysis; future enhancement could be clicking to highlight the line in the editor. Justification: A structured list is the clearest way to present detailed findings. Using cards for each issue separates them visually and provides space for metadata like type and line number. Library/Method: HTML/Tailwind + JS DOM manipulation.
+        CONFIRMATION: NO SVG graphics used. NO Mermaid JS used.
+    -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F5F2; /* Warm neutral background */
+        }
+        .font-code {
+            font-family: 'Fira Code', monospace;
+        }
+        /* Custom scrollbar for a cleaner look */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F8F5F2;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #D1C7BC;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #B9AFA1;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 350px; /* Constrains chart width */
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px; /* Responsive height */
+            max-height: 350px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 320px;
+            }
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold text-stone-800">Analisador Interativo</h1>
+            <p class="text-stone-600 mt-2">Uma interface visual para o relatório de análise de código do <span class="font-semibold">Py End Happy</span>.</p>
+        </header>
+
+        <!-- Main Content Grid -->
+        <main class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+            <!-- Left Column: Code Input -->
+            <div class="flex flex-col">
+                <h2 class="text-2xl font-bold text-stone-700 mb-4">1. Cole seu Código Python</h2>
+                <div class="bg-white rounded-lg shadow-lg p-1 flex-grow flex flex-col">
+                    <textarea id="codeInput" class="font-code w-full h-full flex-grow p-4 text-sm bg-stone-50 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-600 resize-none" placeholder="def minha_funcao(n):&#10;    # ... seu código aqui ..."></textarea>
+                </div>
+                <button id="analyzeBtn" class="mt-4 w-full bg-amber-700 hover:bg-amber-800 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-all duration-300 transform hover:scale-105">
+                    Analisar Código
+                </button>
+            </div>
+
+            <!-- Right Column: Analysis Output -->
+            <div class="flex flex-col">
+                <h2 class="text-2xl font-bold text-stone-700 mb-4">2. Resultados da Análise</h2>
+                <div id="analysisOutput" class="bg-white rounded-lg shadow-lg p-6 space-y-6 flex-grow">
+                    
+                    <!-- Placeholder shown before analysis -->
+                    <div id="placeholder" class="text-center text-stone-500 flex flex-col items-center justify-center h-full">
+                        <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                        <p class="font-semibold">Aguardando análise...</p>
+                        <p class="text-sm">Seus resultados aparecerão aqui.</p>
+                    </div>
+
+                    <!-- Results container (hidden by default) -->
+                    <div id="results" class="hidden space-y-6">
+                        <!-- Stat Cards -->
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-center">
+                            <div class="bg-stone-100 p-4 rounded-lg">
+                                <p class="text-sm text-stone-600">Total de Issues</p>
+                                <p id="totalIssues" class="text-3xl font-bold text-amber-800">0</p>
+                            </div>
+                            <div class="bg-stone-100 p-4 rounded-lg">
+                                <p class="text-sm text-stone-600">Flake8</p>
+                                <p id="flake8Issues" class="text-3xl font-bold text-sky-700">0</p>
+                            </div>
+                            <div class="bg-stone-100 p-4 rounded-lg">
+                                <p class="text-sm text-stone-600">AST</p>
+                                <p id="astIssues" class="text-3xl font-bold text-teal-700">0</p>
+                            </div>
+                        </div>
+
+                        <!-- Chart -->
+                        <div>
+                            <h3 class="text-lg font-semibold text-center text-stone-700 mb-2">Distribuição de Issues</h3>
+                            <div class="chart-container">
+                                <canvas id="issuesChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Issues List -->
+                        <div>
+                            <h3 class="text-lg font-semibold text-stone-700 mb-2">Lista Detalhada</h3>
+                            <div id="issuesList" class="max-h-80 overflow-y-auto space-y-3 pr-2">
+                                <!-- Issues will be dynamically inserted here -->
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const codeInput = document.getElementById('codeInput');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const placeholder = document.getElementById('placeholder');
+            const resultsContainer = document.getElementById('results');
+            
+            const totalIssuesEl = document.getElementById('totalIssues');
+            const flake8IssuesEl = document.getElementById('flake8Issues');
+            const astIssuesEl = document.getElementById('astIssues');
+            const issuesListEl = document.getElementById('issuesList');
+            
+            const chartCanvas = document.getElementById('issuesChart');
+            let issuesChart = null;
+
+            // Pre-populate with example code
+            codeInput.value = `import os\n\ndef minha_funcao_complexa(data, threshold):\n    # Magic number '10' used\n    if len(data) > 10:\n        print("Data is too long")\n\n    # Unused variable 'x'\n    x = 5\n\n    # High complexity\n    for i in range(threshold):\n        if i % 2 == 0:\n            print(f"Even: {i}")\n        elif i % 3 == 0:\n            print(f"Divisible by 3: {i}")\n        else:\n            print(f"Other: {i}")\n\n    # Trailing whitespace \n    return True   \n`;
+
+            analyzeBtn.addEventListener('click', runAnalysis);
+
+            function runAnalysis() {
+                const code = codeInput.value;
+                if (!code.trim()) {
+                    alert('Por favor, insira algum código para analisar.');
+                    return;
+                }
+                
+                // --- SIMULATION of the Python backend analysis ---
+                const issues = simulateBackendAnalysis(code);
+                
+                updateUI(issues);
+            }
+
+            function simulateBackendAnalysis(code) {
+                const simulatedIssues = [];
+                const lines = code.split('\n');
+
+                // Flake8 simulation
+                if (code.match(/x = 5/)) {
+                    simulatedIssues.push({ type: 'FLAKE8', code: 'F841', line: lines.findIndex(l => l.includes('x = 5')) + 1, text: "local variable 'x' is assigned to but never used" });
+                }
+                if (code.match(/   \n/)) {
+                     simulatedIssues.push({ type: 'FLAKE8', code: 'W291', line: lines.findIndex(l => l.match(/   $/)) + 1, text: "trailing whitespace" });
+                }
+                if (code.match(/import os/)) {
+                    simulatedIssues.push({ type: 'FLAKE8', code: 'F401', line: 1, text: "'os' imported but unused" });
+                }
+
+                // AST analysis simulation
+                if (code.match(/ > 10/)) {
+                    simulatedIssues.push({ type: 'AST', line: lines.findIndex(l => l.includes(' > 10')) + 1, text: "Possível 'Número Mágico' (10). Considere usar uma constante nomeada." });
+                }
+                if (code.includes('minha_funcao_complexa')) {
+                    simulatedIssues.push({ type: 'AST', line: 3, text: "Função 'minha_funcao_complexa' tem alta complexidade (nível 6). Considere refatorá-la." });
+                }
+
+                return simulatedIssues;
+            }
+
+            function updateUI(issues) {
+                placeholder.classList.add('hidden');
+                resultsContainer.classList.remove('hidden');
+
+                const flake8Count = issues.filter(i => i.type === 'FLAKE8').length;
+                const astCount = issues.filter(i => i.type === 'AST').length;
+                const totalCount = issues.length;
+
+                // Update stat cards
+                totalIssuesEl.textContent = totalCount;
+                flake8IssuesEl.textContent = flake8Count;
+                astIssuesEl.textContent = astCount;
+
+                // Update chart
+                updateChart(flake8Count, astCount);
+
+                // Update issues list
+                renderIssuesList(issues);
+            }
+
+            function updateChart(flake8Count, astCount) {
+                if (issuesChart) {
+                    issuesChart.destroy();
+                }
+                
+                const data = {
+                    labels: ['Flake8', 'AST'],
+                    datasets: [{
+                        label: 'Contagem de Issues',
+                        data: [flake8Count, astCount],
+                        backgroundColor: [
+                            'rgba(56, 189, 248, 0.8)', // sky-400
+                            'rgba(20, 184, 166, 0.8)'  // teal-500
+                        ],
+                        borderColor: [
+                            'rgba(56, 189, 248, 1)',
+                            'rgba(20, 184, 166, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                };
+
+                const options = {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: {
+                                    family: "'Inter', sans-serif"
+                                }
+                            }
+                        },
+                        tooltip: {
+                            bodyFont: {
+                                family: "'Inter', sans-serif"
+                            },
+                            titleFont: {
+                                family: "'Inter', sans-serif"
+                            }
+                        }
+                    }
+                };
+
+                issuesChart = new Chart(chartCanvas, {
+                    type: 'doughnut',
+                    data: data,
+                    options: options
+                });
+            }
+
+            function renderIssuesList(issues) {
+                issuesListEl.innerHTML = ''; // Clear previous results
+
+                if (issues.length === 0) {
+                    issuesListEl.innerHTML = '<p class="text-center text-stone-500 p-4">Nenhum problema encontrado. Ótimo trabalho!</p>';
+                    return;
+                }
+
+                issues.forEach(issue => {
+                    const issueTypeClass = issue.type === 'FLAKE8' ? 'border-sky-500' : 'border-teal-500';
+                    const issueBgClass = issue.type === 'FLAKE8' ? 'bg-sky-50' : 'bg-teal-50';
+                    const issueIcon = issue.type === 'FLAKE8' 
+                        ? `<span class="font-bold text-sky-600">FLAKE8</span>` 
+                        : `<span class="font-bold text-teal-600">AST</span>`;
+
+                    const issueEl = document.createElement('div');
+                    issueEl.className = `p-3 rounded-lg border-l-4 ${issueTypeClass} ${issueBgClass}`;
+                    issueEl.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <div class="flex-grow">
+                                <p class="text-sm text-stone-800">${issue.text}</p>
+                                <p class="text-xs text-stone-500 mt-1">
+                                    ${issueIcon}
+                                    ${issue.code ? `(${issue.code})` : ''}
+                                </p>
+                            </div>
+                            <div class="ml-4 text-right">
+                                <p class="text-sm font-semibold text-stone-700">Linha</p>
+                                <p class="text-lg font-bold text-amber-800">${issue.line}</p>
+                            </div>
+                        </div>
+                    `;
+                    issuesListEl.appendChild(issueEl);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

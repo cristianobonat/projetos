@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guia de Mobilidade Pessoal - Infográfico Interativo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+        .chart-container { position: relative; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto; height: 320px; max-height: 450px; }
+        @media (min-width: 768px) { .chart-container { height: 400px; } }
+        .stat-card { background-color: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); }
+        .section-title { text-shadow: 1px 1px 3px rgba(0,0,0,0.1); }
+        .nav-link.active { color: #F59E0B; border-bottom-color: #F59E0B; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800">
+    <!-- Chosen Palette: Energetic & Playful (Slate, Amber, Sky Blue, Emerald) -->
+    <!-- Application Structure Plan: The infographic follows a narrative designed for decision-making. It starts with a high-level hook (big numbers), moves to a broad comparison of all transport modes, then drills down into the most complex option (car ownership) with an interactive calculator. It concludes with personalized, actionable advice based on user profiles. This structure guides the user from general awareness to specific, personal analysis, making the report's dense information digestible and directly applicable. A sticky navigation bar facilitates easy movement between these logical sections. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Key costs (public transport, financing, etc.) -> Goal: Inform/Hook -> Viz/Method: Large, bold text in "stat cards" (HTML/CSS) -> Justification: Immediately grabs attention with impactful, standalone data points from the report.
+        - Report Info: Comparison of transport modes -> Goal: Compare -> Viz/Method: Horizontal Bar Chart (Chart.js) -> Interaction: Tooltips on hover -> Justification: The best non-SVG method to compare multiple categories (modes) across multiple criteria (cost, convenience, flexibility).
+        - Report Info: Total Cost of Ownership (TCO) breakdown -> Goal: Show composition -> Viz/Method: Dynamic Donut Chart (Chart.js) -> Interaction: Updates in real-time with calculator inputs -> Justification: Visually demonstrates the weight of "hidden" costs like depreciation, a core concept of the TCO analysis.
+        - Report Info: User profiles and recommendations -> Goal: Organize/Advise -> Viz/Method: Structured HTML/CSS cards in a grid -> Interaction: None, presented clearly for comparison -> Justification: A clean, organized layout is sufficient to present these distinct scenarios without needing complex interaction, focusing on readability.
+        - Report Info: Intercity travel cost comparison -> Goal: Compare -> Viz/Method: Clear, styled HTML table -> Justification: A table is the most effective and direct way to present this specific set of comparative numerical data.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <header class="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+            <h1 class="text-xl font-bold text-slate-900">Guia de Mobilidade</h1>
+            <div class="hidden md:flex items-baseline space-x-6">
+                <a href="#comparativo" class="nav-link text-sm font-medium text-slate-600 hover:text-amber-500 border-b-2 border-transparent pb-1 transition-colors duration-300">Comparativo</a>
+                <a href="#custo-real" class="nav-link text-sm font-medium text-slate-600 hover:text-amber-500 border-b-2 border-transparent pb-1 transition-colors duration-300">Custo Real</a>
+                <a href="#cenarios" class="nav-link text-sm font-medium text-slate-600 hover:text-amber-500 border-b-2 border-transparent pb-1 transition-colors duration-300">Cenários de Uso</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+        <section id="intro" class="text-center py-12">
+            <h2 class="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4 section-title">A decisão sobre sua mobilidade começa aqui.</h2>
+            <p class="max-w-3xl mx-auto text-lg text-slate-600">Este guia transforma dados complexos em insights visuais para ajudar você a escolher o transporte ideal para sua vida em Porto Alegre.</p>
+            <div class="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="stat-card p-6 rounded-xl border border-slate-200 shadow-lg">
+                    <p class="text-4xl font-bold text-emerald-600">R$ 220</p>
+                    <p class="mt-2 font-medium text-slate-700">Custo mensal fixo do transporte público para o trajeto diário.</p>
+                </div>
+                <div class="stat-card p-6 rounded-xl border border-slate-200 shadow-lg">
+                    <p class="text-4xl font-bold text-sky-600">75%</p>
+                    <p class="mt-2 font-medium text-slate-700">Economia no custo por km de um carro elétrico vs. gasolina.</p>
+                </div>
+                <div class="stat-card p-6 rounded-xl border border-slate-200 shadow-lg">
+                    <p class="text-4xl font-bold text-amber-600">29,5%</p>
+                    <p class="mt-2 font-medium text-slate-700">Taxa de juros anual média que pode tornar seu carro até 50% mais caro.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="comparativo" class="py-16 scroll-mt-16">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold text-slate-900 section-title">Visão Geral: Custo vs. Conveniência</h3>
+                <p class="mt-3 max-w-2xl mx-auto text-md text-slate-600">Cada modal de transporte oferece um equilíbrio diferente. O gráfico abaixo compara as principais opções em três critérios essenciais para você entender rapidamente os prós e contras de cada um.</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-xl">
+                <div class="chart-container">
+                    <canvas id="modalsChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="custo-real" class="py-16 scroll-mt-16">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold text-slate-900 section-title">O Custo Real de um Carro na Garagem</h3>
+                <p class="mt-3 max-w-2xl mx-auto text-md text-slate-600">O preço de compra é só o começo. Use a calculadora abaixo para descobrir o Custo Total de Propriedade (TCO) e veja para onde seu dinheiro realmente vai.</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-xl grid lg:grid-cols-5 gap-8">
+                <div class="lg:col-span-2 space-y-4">
+                    <div>
+                        <label for="vehiclePrice" class="block text-sm font-medium text-slate-700">Valor do Veículo (R$)</label>
+                        <input type="number" id="vehiclePrice" value="85000" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="annualMileage" class="block text-sm font-medium text-slate-700">Km Anual</label>
+                        <input type="number" id="annualMileage" value="15000" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="fuelConsumption" class="block text-sm font-medium text-slate-700">Consumo (km/L)</label>
+                        <input type="number" id="fuelConsumption" value="13" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="insuranceCost" class="block text-sm font-medium text-slate-700">Seguro Anual (R$)</label>
+                        <input type="number" id="insuranceCost" value="2400" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm">
+                    </div>
+                </div>
+                <div class="lg:col-span-3 flex flex-col items-center justify-center">
+                    <div class="chart-container h-64 md:h-80 w-full">
+                        <canvas id="tcoChart"></canvas>
+                    </div>
+                    <div class="mt-6 text-center">
+                        <p class="text-slate-600">Custo Mensal Estimado:</p>
+                        <p class="text-4xl font-bold text-amber-600" id="monthlyCostResult">R$ 0,00</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="cenarios" class="py-16 scroll-mt-16">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold text-slate-900 section-title">Estratégias para seu Estilo de Vida</h3>
+                <p class="mt-3 max-w-2xl mx-auto text-md text-slate-600">Sua rotina define sua necessidade. Veja a análise para diferentes perfis e descubra a abordagem mais inteligente para você.</p>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-xl shadow-xl flex flex-col">
+                    <h4 class="text-xl font-bold text-emerald-600 mb-3">Profissional Solteiro Urbano</h4>
+                    <p class="text-slate-600 mb-4 flex-grow">Mora e trabalha em áreas bem servidas por transporte público. O carro ficaria mais tempo parado.</p>
+                    <div class="mt-auto bg-emerald-50 p-4 rounded-lg border-l-4 border-emerald-500">
+                        <p class="font-semibold text-emerald-800">Estratégia Híbrida:</p>
+                        <ul class="list-disc list-inside text-sm text-emerald-700 mt-1">
+                            <li>Base: Transporte Público</li>
+                            <li>Conveniência: Apps</li>
+                            <li>Lazer: Carro Alugado</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-xl flex flex-col">
+                    <h4 class="text-xl font-bold text-sky-600 mb-3">Casal sem Filhos</h4>
+                    <p class="text-slate-600 mb-4 flex-grow">Rotina mista e necessidade de carro para compras e viagens intermunicipais frequentes.</p>
+                    <div class="mt-auto bg-sky-50 p-4 rounded-lg border-l-4 border-sky-500">
+                        <p class="font-semibold text-sky-800">Flexibilidade como Serviço:</p>
+                        <ul class="list-disc list-inside text-sm text-sky-700 mt-1">
+                            <li>Opção 1: Assinatura de Carro</li>
+                            <li>Opção 2: Compra de Seminovo</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-xl flex flex-col">
+                    <h4 class="text-xl font-bold text-amber-600 mb-3">Família com Filhos</h4>
+                    <p class="text-slate-600 mb-4 flex-grow">Logística complexa com escola e atividades. Segurança e capacidade são prioridades.</p>
+                    <div class="mt-auto bg-amber-50 p-4 rounded-lg border-l-4 border-amber-500">
+                        <p class="font-semibold text-amber-800">Propriedade Justificada:</p>
+                        <ul class="list-disc list-inside text-sm text-amber-700 mt-1">
+                            <li>Foco: Carro próprio é essencial</li>
+                            <li>Alerta: Evitar financiamento</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-12 bg-white p-6 rounded-xl shadow-xl">
+                 <h4 class="text-xl font-bold text-center mb-4">Viagem de Fim de Semana: POA ↔ Gramado</h4>
+                 <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="border-b">
+                                <th class="p-2 font-semibold">Modal</th>
+                                <th class="p-2 font-semibold text-right">Custo Total (Estimado)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-slate-100">
+                                <td class="p-2">🚍 Ônibus (1 pessoa)</td>
+                                <td class="p-2 text-right font-mono">R$ 160,00</td>
+                            </tr>
+                            <tr class="border-b border-slate-100">
+                                <td class="p-2">🚘 Carro Próprio (Gasolina)</td>
+                                <td class="p-2 text-right font-mono">R$ 175,00</td>
+                            </tr>
+                            <tr class="border-b border-slate-100">
+                                <td class="p-2">⚡ Carro Próprio (Elétrico)</td>
+                                <td class="p-2 text-right font-mono text-emerald-600 font-bold">R$ 70,00</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2">🔑 Carro Alugado (2 dias)</td>
+                                <td class="p-2 text-right font-mono">R$ 350,00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                 </div>
+            </div>
+        </section>
+
+    </main>
+    
+    <footer class="bg-slate-800 text-white mt-16">
+        <div class="container mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-sm text-slate-400">
+            <p>Infográfico Interativo de Mobilidade Pessoal. Uma ferramenta de decisão baseada no relatório analítico para o cidadão de Porto Alegre.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const processLabel = (label) => {
+                if (label.length <= 16) return label;
+                const words = label.split(' ');
+                const lines = [];
+                let currentLine = '';
+                for (const word of words) {
+                    if ((currentLine + word).length > 16) {
+                        lines.push(currentLine.trim());
+                        currentLine = '';
+                    }
+                    currentLine += word + ' ';
+                }
+                lines.push(currentLine.trim());
+                return lines;
+            };
+
+            const tooltipTitleCallback = (tooltipItems) => {
+                const item = tooltipItems[0];
+                let label = item.chart.data.labels[item.dataIndex];
+                return Array.isArray(label) ? label.join(' ') : label;
+            };
+
+            const modalsData = {
+                labels: ['Transporte Público', 'Apps de Transporte', 'Assinatura de Carro', 'Carro Próprio'].map(processLabel),
+                datasets: [
+                    { label: 'Custo', data: [1, 3, 4, 5], backgroundColor: '#f59e0b' },
+                    { label: 'Conveniência', data: [2, 5, 4.5, 5], backgroundColor: '#0ea5e9' },
+                    { label: 'Flexibilidade', data: [2, 4, 5, 5], backgroundColor: '#10b981' }
+                ]
+            };
+            const modalsCtx = document.getElementById('modalsChart').getContext('2d');
+            new Chart(modalsCtx, {
+                type: 'bar',
+                data: modalsData,
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { x: { beginAtZero: true, max: 5, grid: { display: false } }, y: { grid: { display: false } } },
+                    plugins: { legend: { position: 'bottom' }, tooltip: { callbacks: { title: tooltipTitleCallback } } }
+                }
+            });
+
+            const tcoCtx = document.getElementById('tcoChart').getContext('2d');
+            let tcoChart;
+            const vehiclePriceInput = document.getElementById('vehiclePrice');
+            const annualMileageInput = document.getElementById('annualMileage');
+            const fuelConsumptionInput = document.getElementById('fuelConsumption');
+            const insuranceCostInput = document.getElementById('insuranceCost');
+            const monthlyCostResultEl = document.getElementById('monthlyCostResult');
+
+            function calculateAndDisplayTCO() {
+                const price = parseFloat(vehiclePriceInput.value) || 0;
+                const mileage = parseFloat(annualMileageInput.value) || 0;
+                const consumption = parseFloat(fuelConsumptionInput.value) || 1;
+                const insurance = parseFloat(insuranceCostInput.value) || 0;
+                const fuelPrice = 6.35;
+                const ipvaRate = 0.03;
+                const depreciationRate = 0.15;
+
+                const annualDepreciation = price * depreciationRate;
+                const annualIpva = price * ipvaRate;
+                const annualFuelCost = (mileage / consumption) * fuelPrice;
+                const annualMaintenance = price * 0.015 + (mileage / 10000) * 370;
+
+                const annualTotalCost = annualDepreciation + annualIpva + insurance + annualFuelCost + annualMaintenance;
+                const monthlyTotalCost = annualTotalCost / 12;
+
+                monthlyCostResultEl.textContent = monthlyTotalCost.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                updateTCOChart({
+                    depreciation: annualDepreciation,
+                    ipva: annualIpva,
+                    insurance: insurance,
+                    fuel: annualFuelCost,
+                    maintenance: annualMaintenance,
+                });
+            }
+
+            function updateTCOChart(costs) {
+                if (tcoChart) tcoChart.destroy();
+                const data = {
+                    labels: ['Depreciação', 'IPVA', 'Seguro', 'Combustível', 'Manutenção'],
+                    datasets: [{
+                        data: [costs.depreciation, costs.ipva, costs.insurance, costs.fuel, costs.maintenance],
+                        backgroundColor: ['#ef4444', '#f59e0b', '#0ea5e9', '#10b981', '#8b5cf6'],
+                        borderColor: '#fff',
+                        borderWidth: 3
+                    }]
+                };
+                tcoChart = new Chart(tcoCtx, {
+                    type: 'doughnut',
+                    data: data,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '60%',
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    title: tooltipTitleCallback,
+                                    label: (context) => `${context.label}: ${context.raw.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            [vehiclePriceInput, annualMileageInput, fuelConsumptionInput, insuranceCostInput].forEach(input => {
+                input.addEventListener('input', calculateAndDisplayTCO);
+            });
+            calculateAndDisplayTCO();
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('main section[id]');
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 80) {
+                        current = section.getAttribute('id');
+                    }
+                });
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').substring(1) === current) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
