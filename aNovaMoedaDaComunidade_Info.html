@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infográfico: A Nova Moeda da Comunidade</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Chosen Palette: Energetic & Playful -->
+    <!-- Application Structure Plan: A narrative, top-down structure was chosen to guide the user from a high-level, attention-grabbing introduction to more detailed concepts and data. The flow is: 1) Hook with big numbers, 2) Define key concepts, 3) Showcase the market players and scale, 4) Explain core challenges, and 5) Present actionable recommendations. This structure tells a coherent story, making the complex report information digestible and engaging for a broader audience. A sticky navigation aids non-linear exploration for users who want to jump to specific sections. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Overall scale of social currencies in Brazil. Goal: Inform/Impress. Viz: Large, bold text numbers ("Single Big Number"). Justification: Immediate high impact. Method: HTML/CSS.
+        - Report Info: Economia Solidária vs. Colaborativa. Goal: Compare. Viz: Side-by-side styled cards. Justification: Clear, direct comparison of two core concepts. Method: HTML/CSS with Flexbox.
+        - Report Info: Key metrics of the ecosystem. Goal: Compare. Viz: Bar Chart. Justification: Best for comparing discrete values across different categories (currencies, people, value). Library: Chart.js (Canvas).
+        - Report Info: Platform categories. Goal: Organize. Viz: Flowchart-style diagram. Justification: More visually engaging than a list, shows categorization clearly. Method: Structured HTML/CSS with Grid/Flexbox. NO SVG/Mermaid.
+        - Report Info: Legal environment paradox. Goal: Compare/Explain. Viz: Two-column layout with contrasting color-coded cards. Justification: Visually represents the duality and conflict in the legal situation. Method: HTML/CSS.
+        - Report Info: Recommendations for stakeholders. Goal: Organize/Inform. Viz: Interactive accordion. Justification: Presents dense information compactly, allowing users to explore based on interest. Method: Vanilla JS.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #F4F1DE;
+            color: #3A3A3A;
+        }
+        .palette-bg-light { background-color: #F4F1DE; }
+        .palette-bg-teal { background-color: #4ECDC4; }
+        .palette-bg-blue { background-color: #45B7D1; }
+        .palette-bg-red { background-color: #FF6B6B; }
+        .palette-bg-yellow { background-color: #FED766; }
+        .palette-text-dark { color: #3A3A3A; }
+        .palette-text-light { color: #FFFFFF; }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            line-height: 1.2;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        @media (min-width: 768px) {
+            .section-title {
+                font-size: 3rem;
+            }
+        }
+        .section-subtitle {
+            font-size: 1.125rem;
+            text-align: center;
+            max-width: 42rem;
+            margin: 0 auto 3rem auto;
+            color: #5e5e5e;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            height: 300px;
+            max-height: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out;
+        }
+        .accordion-item.open .accordion-content {
+            max-height: 500px;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+        .accordion-item.open .accordion-icon {
+            transform: rotate(45deg);
+        }
+    </style>
+</head>
+<body class="palette-bg-light palette-text-dark">
+
+    <nav id="navbar" class="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+        <div class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <a href="#" class="font-bold text-xl text-[#FF6B6B]">A Nova Moeda</a>
+            <div class="hidden md:flex space-x-6">
+                <a href="#conceitos" class="hover:text-[#FF6B6B] transition-colors">Conceitos</a>
+                <a href="#ecossistema" class="hover:text-[#FF6B6B] transition-colors">Ecossistema</a>
+                <a href="#desafios" class="hover:text-[#FF6B6B] transition-colors">Desafios</a>
+                <a href="#futuro" class="hover:text-[#FF6B6B] transition-colors">Futuro</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <section id="hero" class="py-20 md:py-28 text-center">
+            <div class="container mx-auto px-6">
+                <h1 class="text-4xl md:text-6xl font-extrabold mb-4">A Economia Cooperativa <br> <span class="text-[#4ECDC4]">Floresce no Brasil</span></h1>
+                <p class="section-subtitle">A tecnologia está revivendo práticas ancestrais de troca e cooperação, criando um vibrante ecossistema digital. Explore os números, os conceitos e os desafios deste movimento transformador.</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto mt-12">
+                    <div class="bg-white rounded-xl shadow-lg p-6 border-b-4 border-[#FF6B6B]">
+                        <p class="text-4xl md:text-5xl font-bold text-[#FF6B6B]">161</p>
+                        <p class="mt-2 font-semibold">Moedas Sociais Ativas</p>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6 border-b-4 border-[#4ECDC4]">
+                        <p class="text-4xl md:text-5xl font-bold text-[#4ECDC4]">235 mil</p>
+                        <p class="mt-2 font-semibold">Pessoas Envolvidas</p>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6 border-b-4 border-[#45B7D1]">
+                        <p class="text-4xl md:text-5xl font-bold text-[#45B7D1]">R$ 1 Bi</p>
+                        <p class="mt-2 font-semibold">Movimentados em 2024</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="conceitos" class="py-20 md:py-24 bg-white">
+            <div class="container mx-auto px-6">
+                <h2 class="section-title">Decodificando a Cooperação</h2>
+                <p class="section-subtitle">Dois modelos principais impulsionam a economia alternativa, cada um com uma filosofia distinta. Entender essa diferença é crucial para navegar neste novo cenário.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                    <div class="bg-[#F4F1DE] rounded-lg p-8">
+                        <h3 class="text-2xl font-bold mb-4 text-[#FF6B6B]">Economia Solidária</h3>
+                        <p class="mb-4">É um projeto político e social de transformação. O foco é a autogestão, a cooperação e o bem-estar da comunidade, não o lucro.</p>
+                        <ul class="space-y-2">
+                            <li class="flex items-start"><span class="text-[#FF6B6B] mr-2">🤝</span><span>**Princípio:** Justiça social e desenvolvimento humano.</span></li>
+                            <li class="flex items-start"><span class="text-[#FF6B6B] mr-2">🎯</span><span>**Objetivo:** Fortalecer laços e gerar trabalho e renda localmente.</span></li>
+                            <li class="flex items-start"><span class="text-[#FF6B6B] mr-2">🌱</span><span>**Ethos:** Comunitário e transformador.</span></li>
+                        </ul>
+                    </div>
+                    <div class="bg-[#F4F1DE] rounded-lg p-8">
+                        <h3 class="text-2xl font-bold mb-4 text-[#4ECDC4]">Economia Colaborativa</h3>
+                        <p class="mb-4">É um modelo de negócio eficiente, impulsionado pela tecnologia. O foco é otimizar o acesso a bens e serviços ociosos.</p>
+                        <ul class="space-y-2">
+                            <li class="flex items-start"><span class="text-[#4ECDC4] mr-2">📈</span><span>**Princípio:** Eficiência de mercado e escalabilidade.</span></li>
+                            <li class="flex items-start"><span class="text-[#4ECDC4] mr-2">🎯</span><span>**Objetivo:** Monetizar ativos ociosos através de plataformas digitais.</span></li>
+                            <li class="flex items-start"><span class="text-[#4ECDC4] mr-2">📱</span><span>**Ethos:** Tecnológico e orientado ao mercado.</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="ecossistema" class="py-20 md:py-24">
+            <div class="container mx-auto px-6">
+                <h2 class="section-title">O Ecossistema Digital do Escambo</h2>
+                <p class="section-subtitle">O Brasil possui um mercado diversificado de plataformas de troca, cada uma com um foco e modelo de negócio específico. Desde grandes redes B2B até aplicativos de nicho, a inovação está em toda parte.</p>
+                
+                <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-12">
+                    <h3 class="text-xl md:text-2xl font-bold text-center mb-6">Métricas do Ecossistema de Moedas Sociais (2024)</h3>
+                    <div class="chart-container">
+                        <canvas id="ecosystemChart"></canvas>
+                    </div>
+                    <p class="text-center text-sm text-gray-500 mt-4">O gráfico compara o número de moedas sociais ativas, o total de pessoas envolvidas (em milhares) e o valor total movimentado (em bilhões de R$). A visualização destaca a escala e o impacto social e financeiro do movimento no Brasil.</p>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6 md:p-8">
+                    <h3 class="text-xl md:text-2xl font-bold text-center mb-8">Tipos de Plataformas de Troca</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-center">
+                        <div class="flex flex-col items-center">
+                            <div class="w-24 h-24 palette-bg-red rounded-full flex items-center justify-center text-white text-3xl mb-4 shadow-md">🏢</div>
+                            <h4 class="font-bold text-lg">B2B / B2C</h4>
+                            <p class="text-sm text-gray-600">Focadas em empresas e profissionais, monetizando capacidade ociosa.</p>
+                            <p class="font-semibold text-xs mt-2 text-[#FF6B6B]">Ex: XporY, Permuto</p>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div class="w-24 h-24 palette-bg-teal rounded-full flex items-center justify-center text-white text-3xl mb-4 shadow-md">🏘️</div>
+                            <h4 class="font-bold text-lg">Hiperlocal</h4>
+                            <p class="text-sm text-gray-600">Exploram a confiança em comunidades próximas, como condomínios.</p>
+                            <p class="font-semibold text-xs mt-2 text-[#4ECDC4]">Ex: Escambo Marketplace</p>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div class="w-24 h-24 palette-bg-blue rounded-full flex items-center justify-center text-white text-3xl mb-4 shadow-md">🎯</div>
+                            <h4 class="font-bold text-lg">Nicho</h4>
+                            <p class="text-sm text-gray-600">Resolvem um problema específico de um grupo profissional definido.</p>
+                            <p class="font-semibold text-xs mt-2 text-[#45B7D1]">Ex: Permute (Saúde)</p>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div class="w-24 h-24 palette-bg-yellow rounded-full flex items-center justify-center text-white text-3xl mb-4 shadow-md">💡</div>
+                            <h4 class="font-bold text-lg">Habilidades</h4>
+                            <p class="text-sm text-gray-600">Usam o tempo como moeda para troca de conhecimento e serviços.</p>
+                            <p class="font-semibold text-xs mt-2 text-[#D1A045]">Ex: Bliive</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="desafios" class="py-20 md:py-24 bg-white">
+            <div class="container mx-auto px-6">
+                <h2 class="section-title">O Labirinto Regulatório</h2>
+                <p class="section-subtitle">Empreendedores de plataformas de troca operam em um ambiente jurídico paradoxal: a tributação sobre a permuta é clara e favorável, mas a regulação geral da economia colaborativa é um vácuo caótico.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                    <div class="bg-green-100 border-l-4 border-green-500 rounded-r-lg p-6">
+                        <h3 class="text-xl font-bold text-green-800 mb-2">✅ Tributação da Permuta</h3>
+                        <p class="text-green-700">O Judiciário decidiu: a troca pura (sem dinheiro extra) não gera receita e é **isenta de IRPJ, CSLL, PIS e COFINS**. Esta é uma grande vitória que oferece segurança fiscal para as operações de escambo.</p>
+                    </div>
+                    <div class="bg-amber-100 border-l-4 border-amber-500 rounded-r-lg p-6">
+                        <h3 class="text-xl font-bold text-amber-800 mb-2">⚠️ Vácuo Regulatório Geral</h3>
+                        <p class="text-amber-700">Não há um marco legal federal para a economia colaborativa. Isso cria **insegurança jurídica** e abre portas para leis municipais restritivas que podem sufocar a inovação.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="futuro" class="py-20 md:py-24">
+            <div class="container mx-auto px-6">
+                <h2 class="section-title">Plano de Ação para o Futuro</h2>
+                <p class="section-subtitle">Para que o potencial da economia cooperativa digital seja realizado, ações coordenadas são necessárias por parte de todos os envolvidos. Explore as recomendações para cada grupo.</p>
+                <div class="max-w-3xl mx-auto space-y-4">
+                    <div class="accordion-item bg-white rounded-lg shadow-md">
+                        <button class="accordion-header w-full flex justify-between items-center p-5 text-left">
+                            <span class="font-bold text-lg">Para Empreendedores</span>
+                            <span class="accordion-icon text-2xl font-light text-[#FF6B6B] transition-transform">+</span>
+                        </button>
+                        <div class="accordion-content px-5 text-gray-600">
+                            <ul class="list-disc list-inside space-y-2">
+                                <li>Construa a confiança como seu ativo principal.</li>
+                                <li>Defina sua ideologia: mercado ou comunidade?</li>
+                                <li>Projete seu negócio para a realidade jurídica brasileira.</li>
+                                <li>Comece por um nicho de alta confiança antes de expandir.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="accordion-item bg-white rounded-lg shadow-md">
+                        <button class="accordion-header w-full flex justify-between items-center p-5 text-left">
+                            <span class="font-bold text-lg">Para Reguladores</span>
+                            <span class="accordion-icon text-2xl font-light text-[#4ECDC4] transition-transform">+</span>
+                        </button>
+                        <div class="accordion-content px-5 text-gray-600">
+                            <ul class="list-disc list-inside space-y-2">
+                                <li>Adote o princípio "primeiro, não prejudicar".</li>
+                                <li>Desenvolva um marco regulatório claro e habilitador.</li>
+                                <li>Promova o setor, não apenas regule.</li>
+                                <li>Considere a criação de "sandboxes regulatórios".</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="accordion-item bg-white rounded-lg shadow-md">
+                        <button class="accordion-header w-full flex justify-between items-center p-5 text-left">
+                            <span class="font-bold text-lg">Para Usuários e Comunidades</span>
+                            <span class="accordion-icon text-2xl font-light text-[#45B7D1] transition-transform">+</span>
+                        </button>
+                        <div class="accordion-content px-5 text-gray-600">
+                            <ul class="list-disc list-inside space-y-2">
+                                <li>Eduque-se sobre as regras e termos de cada plataforma.</li>
+                                <li>Use as plataformas como ferramenta de resiliência local.</li>
+                                <li>Organize feiras de troca e apoie comerciantes da vizinhança.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-[#3A3A3A] text-white py-8">
+        <div class="container mx-auto px-6 text-center">
+            <p>Infográfico interativo criado com base no relatório "A Nova Moeda da Comunidade".</p>
+            <p class="text-sm opacity-70 mt-2">Visualizando o futuro da economia cooperativa no Brasil.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const ecosystemChartCanvas = document.getElementById('ecosystemChart');
+            if (ecosystemChartCanvas) {
+                const labels = ['Moedas Sociais Ativas', ['Pessoas Envolvidas', '(em milhares)'], ['Valor Movimentado', '(R$ Bilhões)']];
+                new Chart(ecosystemChartCanvas, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Métricas do Ecossistema',
+                            data: [161, 235, 1],
+                            backgroundColor: ['#FF6B6B', '#4ECDC4', '#45B7D1'],
+                            borderRadius: 4,
+                            barPercentage: 0.6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        indexAxis: 'y',
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                grid: {
+                                    drawOnChartArea: false,
+                                    borderColor: '#e0e0e0'
+                                },
+                                ticks: {
+                                    font: {
+                                        family: "'Poppins', sans-serif"
+                                    }
+                                }
+                            },
+                            y: {
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    font: {
+                                        family: "'Poppins', sans-serif",
+                                        size: 14
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                enabled: true,
+                                bodyFont: {
+                                    family: "'Poppins', sans-serif"
+                                },
+                                titleFont: {
+                                    family: "'Poppins', sans-serif"
+                                },
+                                callbacks: {
+                                    title: function(tooltipItems) {
+                                        const item = tooltipItems[0];
+                                        let label = item.chart.data.labels[item.dataIndex];
+                                        if (Array.isArray(label)) {
+                                          return label.join(' ');
+                                        } else {
+                                          return label;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            const accordionItems = document.querySelectorAll('.accordion-item');
+            accordionItems.forEach(item => {
+                const header = item.querySelector('.accordion-header');
+                header.addEventListener('click', () => {
+                    const currentlyOpen = document.querySelector('.accordion-item.open');
+                    if (currentlyOpen && currentlyOpen !== item) {
+                        currentlyOpen.classList.remove('open');
+                    }
+                    item.classList.toggle('open');
+                });
+            });
+
+            const navLinks = document.querySelectorAll('#navbar a[href^="#"]');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    let target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
