@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analisador Interativo de Mobilidade Pessoal - Porto Alegre</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #0891b2; 
+            border-bottom-color: #0891b2;
+        }
+        .profile-btn.active {
+            background-color: #0891b2;
+            color: white;
+            border-color: #0891b2;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+    <!-- Chosen Palette: Warm Neutrals (Slate) with Cyan Accent -->
+    <!-- Application Structure Plan: A task-oriented, single-page application designed to answer the user's key questions directly. The structure abandons the linear report format in favor of interactive sections: 1) A visual comparison of all transport modes ('Comparar Modais'). 2) An interactive TCO calculator ('Custo do Carro') for deep financial analysis. 3) A profile-based recommender ('Meu Perfil') for personalized advice. This user-centric design prioritizes quick access to relevant information and tools, enhancing usability and decision-making efficiency. Navigation is handled by a sticky header, allowing seamless movement between these analytical tools. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: General comparison of transport modes -> Goal: Compare options across qualitative/quantitative criteria -> Viz/Method: Interactive Horizontal Bar Chart (Chart.js) -> Interaction: Hover tooltips for detailed values -> Justification: Excellent for comparing categories and their trade-offs (cost vs. convenience).
+        - Report Info: Total Cost of Ownership (TCO) breakdown -> Goal: Show the composition of total cost -> Viz/Method: Dynamic Donut Chart (Chart.js) -> Interaction: Chart updates in real-time based on user input from the calculator form -> Justification: Powerfully illustrates the impact of "hidden" costs like depreciation, a core message of the source report.
+        - Report Info: User profiles/scenarios -> Goal: Present relatable use cases and targeted advice -> Viz/Method: Interactive content cards with a tab-like button interface (HTML/CSS/JS) -> Interaction: Clicking a profile button reveals the corresponding analysis -> Justification: Allows users to self-identify and receive tailored recommendations without reading through irrelevant scenarios.
+        - Report Info: Intercity travel cost comparison -> Goal: Provide a concrete cost analysis for a common use case -> Viz/Method: Clear, static HTML table -> Interaction: None -> Justification: A table is the most direct and clear format for presenting this specific set of numerical data.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <header class="bg-white/80 backdrop-blur-lg shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl font-bold text-cyan-700">Mobilidade POA</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#comparar-modais" class="nav-link px-3 py-2 text-sm font-medium text-slate-600 border-b-2 border-transparent">Comparar Modais</a>
+                        <a href="#custo-carro" class="nav-link px-3 py-2 text-sm font-medium text-slate-600 border-b-2 border-transparent">Custo do Carro</a>
+                        <a href="#meu-perfil" class="nav-link px-3 py-2 text-sm font-medium text-slate-600 border-b-2 border-transparent">Meu Perfil</a>
+                        <a href="#conclusao" class="nav-link px-3 py-2 text-sm font-medium text-slate-600 border-b-2 border-transparent">Conclusão</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <section class="text-center mb-16">
+            <h2 class="text-4xl md:text-5xl font-bold text-slate-900 mb-4">Sua Mobilidade, Sua Escolha.</h2>
+            <p class="max-w-3xl mx-auto text-lg text-slate-600">Uma análise interativa para ajudar você a navegar pelas opções de transporte em Porto Alegre e tomar a decisão mais inteligente para o seu bolso e seu estilo de vida.</p>
+        </section>
+
+        <section id="comparar-modais" class="mb-20 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold text-slate-900">Comparativo Geral dos Modais</h3>
+                <p class="mt-2 text-md text-slate-500">Cada opção de transporte possui um balanço único entre custo, conveniência e flexibilidade. Esta seção oferece uma visão geral para ajudar a entender os pontos fortes e fracos de cada modal, permitindo uma comparação inicial rápida e eficaz antes de aprofundar a análise.</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <div class="chart-container mx-auto h-96 md:h-[450px]">
+                    <canvas id="modalsChart"></canvas>
+                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
+                    <div class="bg-slate-50 p-4 rounded-lg">
+                        <h4 class="font-bold text-lg mb-2">🚍 Transporte Público</h4>
+                        <p class="text-sm text-slate-600">Imbatível no custo para rotinas diárias. Com tarifa subsidiada de R$ 5,00, o custo mensal para quem trabalha presencialmente é de R$ 220. É a base para uma mobilidade econômica, mas com baixa flexibilidade de rotas e horários.</p>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-lg">
+                        <h4 class="font-bold text-lg mb-2">📱 Apps de Transporte</h4>
+                        <p class="text-sm text-slate-600">Máxima conveniência porta a porta, mas com custos variáveis e imprevisíveis. Ideal para usos pontuais e para cobrir lacunas do transporte público, não como solução principal para o dia a dia, pois o custo pode quadruplicar em relação ao ônibus.</p>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-lg">
+                        <h4 class="font-bold text-lg mb-2">🚗 Aluguel e Assinatura</h4>
+                        <p class="text-sm text-slate-600">A flexibilidade do carro sem os custos e a complexidade da posse. O aluguel é perfeito para viagens. A assinatura (a partir de ~R$ 1.840/mês) é uma alternativa direta à compra, cobrindo seguro, IPVA e manutenção.</p>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-lg">
+                        <h4 class="font-bold text-lg mb-2">🚘 Carro Próprio</h4>
+                        <p class="text-sm text-slate-600">Oferece autonomia total, mas é a opção com maior Custo Total de Propriedade (TCO), envolvendo depreciação, impostos, seguro e manutenção. A decisão de compra deve ir além do custo do trajeto diário.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="custo-carro" class="mb-20 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold text-slate-900">Calculadora: O Custo Real do Seu Carro</h3>
+                 <p class="mt-2 text-md text-slate-500">O preço na etiqueta é apenas o começo. Use esta ferramenta para calcular o Custo Total de Propriedade (TCO) de um veículo. Insira os dados para visualizar uma estimativa realista dos gastos mensais e anuais, incluindo custos "invisíveis" como a depreciação, que é uma das maiores despesas.</p>
+            </div>
+            <div class="grid lg:grid-cols-5 gap-8 bg-white p-6 rounded-xl shadow-lg">
+                <div class="lg:col-span-2 space-y-4">
+                    <div>
+                        <label for="vehiclePrice" class="block text-sm font-medium text-slate-700">Valor do Veículo (R$)</label>
+                        <input type="number" id="vehiclePrice" value="85000" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="annualMileage" class="block text-sm font-medium text-slate-700">Quilometragem Anual (km)</label>
+                        <input type="number" id="annualMileage" value="15000" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="fuelConsumption" class="block text-sm font-medium text-slate-700">Consumo (km/L ou km/kWh)</label>
+                        <input type="number" id="fuelConsumption" value="13" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="fuelPrice" class="block text-sm font-medium text-slate-700">Preço Combustível/Energia (R$/L ou R$/kWh)</label>
+                        <input type="number" id="fuelPrice" value="6.35" step="0.01" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500 sm:text-sm">
+                    </div>
+                     <div>
+                        <label for="insuranceCost" class="block text-sm font-medium text-slate-700">Seguro Anual (R$)</label>
+                        <input type="number" id="insuranceCost" value="2400" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="garageCost" class="block text-sm font-medium text-slate-700">Garagem Mensal (R$)</label>
+                        <input type="number" id="garageCost" value="150" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500 sm:text-sm">
+                    </div>
+                </div>
+                <div class="lg:col-span-3 flex flex-col items-center justify-center">
+                    <div class="chart-container w-full h-64 md:h-80">
+                        <canvas id="tcoChart"></canvas>
+                    </div>
+                    <div class="mt-6 text-center">
+                        <p class="text-slate-600">Custo Mensal Estimado:</p>
+                        <p class="text-4xl font-bold text-cyan-600" id="monthlyCostResult">R$ 0,00</p>
+                        <p class="text-slate-500 text-sm mt-1">Custo Anual: <span id="annualCostResult">R$ 0,00</span></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="meu-perfil" class="mb-20 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold text-slate-900">Qual é o seu Perfil de Mobilidade?</h3>
+                <p class="mt-2 text-md text-slate-500">Sua rotina e suas necessidades de vida são os fatores mais importantes na escolha do transporte ideal. Selecione o perfil que mais se aproxima da sua realidade para ver uma análise e recomendação de estratégia de mobilidade, baseada nos cenários estudados no relatório.</p>
+            </div>
+            <div class="flex justify-center space-x-2 md:space-x-4 mb-8">
+                <button data-profile="solteiro" class="profile-btn active text-sm md:text-base px-4 py-2 font-semibold border-2 border-slate-300 rounded-full transition">Profissional Solteiro</button>
+                <button data-profile="casal" class="profile-btn text-sm md:text-base px-4 py-2 font-semibold border-2 border-slate-300 rounded-full transition">Casal sem Filhos</button>
+                <button data-profile="familia" class="profile-btn text-sm md:text-base px-4 py-2 font-semibold border-2 border-slate-300 rounded-full transition">Família com Filhos</button>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-lg min-h-[280px]">
+                <div id="profile-solteiro" class="profile-content">
+                    <h4 class="text-2xl font-bold mb-3">Cenário A: O Profissional Solteiro Urbano</h4>
+                    <p class="text-slate-600 mb-4">Reside em área central, com bom acesso a transporte público para o trabalho. A rotina é previsível e o carro ficaria ocioso a maior parte do tempo.</p>
+                    <h5 class="font-semibold mb-2">Estratégia Recomendada: Mobilidade Híbrida</h5>
+                    <ul class="list-disc list-inside text-slate-600 space-y-1">
+                        <li><span class="font-medium">Base:</span> Transporte público para o trajeto diário (custo fixo ~R$220/mês).</li>
+                        <li><span class="font-medium">Conveniência:</span> Apps de transporte para saídas noturnas ou emergências.</li>
+                        <li><span class="font-medium">Lazer:</span> Aluguel de carro pontual para viagens de fim de semana.</li>
+                    </ul>
+                </div>
+                <div id="profile-casal" class="profile-content hidden">
+                    <h4 class="text-2xl font-bold mb-3">Cenário B: O Casal sem Filhos</h4>
+                    <p class="text-slate-600 mb-4">Rotina mista com home office e deslocamentos, além de necessidade de carro para compras e visitas a familiares em outras cidades.</p>
+                    <h5 class="font-semibold mb-2">Estratégia Recomendada: Flexibilidade como Serviço ou Posse Inteligente</h5>
+                    <ul class="list-disc list-inside text-slate-600 space-y-1">
+                        <li><span class="font-medium">Opção 1 (Sem preocupação):</span> Assinatura de carro. Custo mensal fixo com tudo incluso (seguro, IPVA, manutenção), oferecendo a conveniência de um carro sempre disponível.</li>
+                        <li><span class="font-medium">Opção 2 (Menor Custo a Longo Prazo):</span> Compra de um seminovo confiável (1 a 3 anos de uso) via consórcio ou à vista para evitar juros altos.</li>
+                    </ul>
+                </div>
+                <div id="profile-familia" class="profile-content hidden">
+                    <h4 class="text-2xl font-bold mb-3">Cenário C: A Família com Filhos</h4>
+                    <p class="text-slate-600 mb-4">Rotina logística complexa, envolvendo escola, atividades extracurriculares e viagens em família. A necessidade de flexibilidade, segurança e capacidade de carga é alta.</p>
+                    <h5 class="font-semibold mb-2">Estratégia Recomendada: Propriedade Justificada</h5>
+                    <ul class="list-disc list-inside text-slate-600 space-y-1">
+                        <li><span class="font-medium">Necessidade:</span> O carro particular torna-se quase indispensável para a gestão da rotina familiar. O Custo Total de Propriedade se justifica pela utilidade e qualidade de vida.</li>
+                        <li><span class="font-medium">Foco da Decisão:</span> A escolha se concentra em novo vs. seminovo e, crucialmente, no método de aquisição.</li>
+                        <li><span class="font-medium text-red-600">Alerta Financeiro:</span> Evitar financiamentos com juros altos é a prioridade para não comprometer o orçamento familiar. Planejar a compra via consórcio ou à vista é a estratégia mais sólida.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        
+        <section id="conclusao" class="scroll-mt-20">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold text-slate-900">Conclusão: Construindo sua Estratégia Pessoal</h3>
+                <p class="mt-2 text-md text-slate-500">Não existe uma resposta única. A decisão mais inteligente raramente é escolher um único meio de transporte, mas sim combinar as ferramentas certas para cada necessidade. Esta seção resume as recomendações finais para uma mobilidade eficiente e financeiramente saudável.</p>
+            </div>
+            <div class="bg-white p-8 rounded-xl shadow-lg">
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="text-center">
+                        <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-cyan-100 mb-4">
+                           <span class="text-2xl">💰</span>
+                        </div>
+                        <h4 class="text-lg font-semibold">A Base é Pública</h4>
+                        <p class="mt-1 text-slate-600">Para a rotina diária, o transporte público é a opção mais econômica e racional. Use-o como a fundação da sua mobilidade.</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-cyan-100 mb-4">
+                            <span class="text-2xl">⚡️</span>
+                        </div>
+                        <h4 class="text-lg font-semibold">A Conveniência é Sob Demanda</h4>
+                        <p class="mt-1 text-slate-600">Use apps de transporte de forma estratégica para situações pontuais, como emergências ou saídas noturnas, sem comprometer seu orçamento.</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-cyan-100 mb-4">
+                            <span class="text-2xl">🔑</span>
+                        </div>
+                        <h4 class="text-lg font-semibold">A Regra de Ouro Financeira</h4>
+                        <p class="mt-1 text-slate-600">Se precisar de um carro, o método de compra é crucial. Evite financiamentos com juros altos. Planeje-se para um consórcio ou compra à vista.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-800 text-white mt-20">
+        <div class="container mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-sm text-slate-400">
+            <p>Analisador Interativo de Mobilidade Pessoal. Dados e análises baseados no relatório de mobilidade para Porto Alegre.</p>
+            <p>&copy; 2025. Ferramenta criada para fins de demonstração e auxílio à decisão.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            const modalsData = {
+                labels: ['Transporte Público', 'Apps de Transporte', 'Assinatura de Carro', 'Carro Próprio'],
+                datasets: [
+                    {
+                        label: 'Custo Mensal Estimado (0-5)',
+                        data: [0.5, 3, 4, 5],
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Conveniência (0-5)',
+                        data: [1, 5, 4.5, 5],
+                        backgroundColor: 'rgba(255, 159, 64, 0.6)',
+                        borderColor: 'rgba(255, 159, 64, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Flexibilidade (0-5)',
+                        data: [1, 4, 5, 5],
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            };
+
+            const modalsCtx = document.getElementById('modalsChart').getContext('2d');
+            new Chart(modalsCtx, {
+                type: 'bar',
+                data: modalsData,
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 5,
+                            title: { display: true, text: 'Pontuação (0 a 5)' }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Avaliação Comparativa de Modais de Transporte'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.x !== null) {
+                                        label += context.parsed.x.toFixed(1);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            const tcoCtx = document.getElementById('tcoChart').getContext('2d');
+            let tcoChart;
+
+            const vehiclePriceInput = document.getElementById('vehiclePrice');
+            const annualMileageInput = document.getElementById('annualMileage');
+            const fuelConsumptionInput = document.getElementById('fuelConsumption');
+            const fuelPriceInput = document.getElementById('fuelPrice');
+            const insuranceCostInput = document.getElementById('insuranceCost');
+            const garageCostInput = document.getElementById('garageCost');
+
+            const monthlyCostResultEl = document.getElementById('monthlyCostResult');
+            const annualCostResultEl = document.getElementById('annualCostResult');
+
+            function formatCurrency(value) {
+                return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            }
+
+            function calculateAndDisplayTCO() {
+                const price = parseFloat(vehiclePriceInput.value) || 0;
+                const mileage = parseFloat(annualMileageInput.value) || 0;
+                const consumption = parseFloat(fuelConsumptionInput.value) || 1;
+                const fuelPrice = parseFloat(fuelPriceInput.value) || 0;
+                const insurance = parseFloat(insuranceCostInput.value) || 0;
+                const garage = parseFloat(garageCostInput.value) * 12 || 0;
+
+                const depreciationRate = 0.15;
+                const maintenanceRate = 0.015; 
+
+                const annualDepreciation = price * depreciationRate;
+                const annualIpva = price * 0.03; 
+                const annualLicensing = 109.27;
+                const annualFuelCost = (mileage / consumption) * fuelPrice;
+                const annualMaintenance = price * maintenanceRate + (mileage / 10000) * 370;
+
+                const annualTotalCost = annualDepreciation + annualIpva + annualLicensing + insurance + garage + annualFuelCost + annualMaintenance;
+                const monthlyTotalCost = annualTotalCost / 12;
+
+                monthlyCostResultEl.textContent = formatCurrency(monthlyTotalCost);
+                annualCostResultEl.textContent = formatCurrency(annualTotalCost);
+
+                updateTCOChart({
+                    depreciation: annualDepreciation,
+                    ipvaLicensing: annualIpva + annualLicensing,
+                    insuranceGarage: insurance + garage,
+                    fuel: annualFuelCost,
+                    maintenance: annualMaintenance,
+                });
+            }
+
+            function updateTCOChart(costs) {
+                if (tcoChart) {
+                    tcoChart.destroy();
+                }
+
+                const data = {
+                    labels: ['Depreciação', 'Impostos e Taxas', 'Seguro e Garagem', 'Combustível/Energia', 'Manutenção'],
+                    datasets: [{
+                        data: [costs.depreciation, costs.ipvaLicensing, costs.insuranceGarage, costs.fuel, costs.maintenance],
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.7)',
+                            'rgba(255, 206, 86, 0.7)',
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(75, 192, 192, 0.7)',
+                            'rgba(153, 102, 255, 0.7)'
+                        ],
+                        borderColor: '#fff',
+                        borderWidth: 2
+                    }]
+                };
+
+                tcoChart = new Chart(tcoCtx, {
+                    type: 'doughnut',
+                    data: data,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    boxWidth: 12,
+                                    padding: 15
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Composição do Custo Anual do Veículo'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        const value = context.raw;
+                                        label += formatCurrency(value);
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            [vehiclePriceInput, annualMileageInput, fuelConsumptionInput, fuelPriceInput, insuranceCostInput, garageCostInput].forEach(input => {
+                input.addEventListener('input', calculateAndDisplayTCO);
+            });
+
+            calculateAndDisplayTCO();
+
+            const profileButtons = document.querySelectorAll('.profile-btn');
+            const profileContents = document.querySelectorAll('.profile-content');
+
+            profileButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetProfile = button.dataset.profile;
+
+                    profileButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+
+                    profileContents.forEach(content => {
+                        if (content.id === `profile-${targetProfile}`) {
+                            content.classList.remove('hidden');
+                        } else {
+                            content.classList.add('hidden');
+                        }
+                    });
+                });
+            });
+
+            const navLinks = document.querySelectorAll('nav a');
+            const sections = document.querySelectorAll('main section');
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 80) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').substring(1) === current) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
