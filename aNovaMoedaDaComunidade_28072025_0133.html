@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Estratégico | COCOTA_Software</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals & Civic Blue -->
+    <!-- Application Structure Plan: A top-down narrative dashboard. Starts with a high-level vision (Oportunidade), then drills down into the core components of the strategy. 1. Visão Geral: Quick summary and key takeaways. 2. Análise de Mercado: Interactive competitor comparison to highlight the market gap. 3. A Proposta COCOTA: A tabbed view to explain the three core pillars (Catálogo, Social, Confiança). This breaks down the complex product vision into digestible parts. 4. Estratégia de Lançamento: A visual, step-by-step roadmap for the MVP and future phases. 5. Modelo de Negócio: Interactive toggles to compare monetization strategies (B2C vs. B2B). This structure guides the user from the "why" (market opportunity) to the "what" (the product) and finally the "how" (launch and monetization), making the dense report actionable and understandable. -->
+    <!-- Visualization & Content Choices: 1. Análise Competitiva -> Goal: Compare -> Viz: Interactive Radar Chart (Chart.js) -> Interaction: Buttons to select competitor data, updating the chart dynamically. Justification: A radar chart is excellent for comparing multiple entities across multiple common features, visually highlighting strengths and weaknesses. 2. Ciclo do MVP -> Goal: Organize/Change -> Viz: Styled HTML/CSS diagram -> Interaction: Hover effects on steps to show details. Justification: A visual flowchart is more intuitive for understanding a process than a text list. 3. Modelo de Negócio -> Goal: Compare -> Viz: Two-column layout with toggles -> Interaction: Clicking toggles reveals detailed text for B2C/B2B models. Justification: This allows for a direct, side-by-side comparison of the dual revenue streams, a key strategic point. All text is summarized from the report for clarity. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F7F4;
+            color: #333D4B;
+        }
+        .nav-link {
+            position: relative;
+            transition: color 0.3s;
+        }
+        .nav-link.active, .nav-link:hover {
+            color: #2563EB;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #2563EB;
+            transition: width 0.3s;
+        }
+        .nav-link.active::after, .nav-link:hover::after {
+            width: 100%;
+        }
+        .card {
+            background-color: #FFFFFF;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1);
+        }
+        .tab-button {
+            transition: all 0.3s;
+            border-bottom: 2px solid transparent;
+        }
+        .tab-button.active {
+            color: #2563EB;
+            border-bottom-color: #2563EB;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .roadmap-step {
+            border-left: 3px solid #DBEAFE;
+            transition: border-color 0.3s;
+        }
+        .roadmap-step:hover {
+            border-left-color: #2563EB;
+        }
+        .roadmap-step-content {
+            transition: background-color 0.3s;
+        }
+        .roadmap-step:hover .roadmap-step-content {
+            background-color: #EFF6FF;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-gray-800">
+                COCOTA<span class="text-blue-600">.</span>
+            </h1>
+            <div class="hidden md:flex space-x-8">
+                <a href="#oportunidade" class="nav-link active">Visão Geral</a>
+                <a href="#mercado" class="nav-link">Análise de Mercado</a>
+                <a href="#proposta" class="nav-link">A Proposta</a>
+                <a href="#lancamento" class="nav-link">Lançamento</a>
+                <a href="#negocio" class="nav-link">Modelo de Negócio</a>
+            </div>
+            <button id="mobile-menu-button" class="md:hidden text-gray-700 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden px-6 pb-4">
+            <a href="#oportunidade" class="block py-2 nav-link-mobile">Visão Geral</a>
+            <a href="#mercado" class="block py-2 nav-link-mobile">Análise de Mercado</a>
+            <a href="#proposta" class="block py-2 nav-link-mobile">A Proposta</a>
+            <a href="#lancamento" class="block py-2 nav-link-mobile">Lançamento</a>
+            <a href="#negocio" class="block py-2 nav-link-mobile">Modelo de Negócio</a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+
+        <section id="oportunidade" class="text-center mb-24 scroll-mt-24">
+            <h2 class="text-4xl font-bold mb-4 text-gray-800">A Ágora Digital Urbana</h2>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto mb-8">
+                Uma análise interativa da estratégia para a COCOTA_Software. Traduzimos um relatório complexo numa exploração visual das oportunidades de mercado, diferenciais competitivos e do caminho para criar um guia urbano verdadeiramente colaborativo e confiável.
+            </p>
+            <div class="grid md:grid-cols-3 gap-8 text-left">
+                <div class="card p-6">
+                    <h3 class="font-bold text-xl mb-2 text-blue-600">🎯 A Lacuna de Mercado</h3>
+                    <p class="text-gray-600">O mercado está dividido entre guias comerciais (Yelp) que carecem de confiança e propósito cívico, e plataformas cívicas (gov.br) com baixo engajamento. A COCOTA posiciona-se exatamente nesta lacuna.</p>
+                </div>
+                <div class="card p-6">
+                    <h3 class="font-bold text-xl mb-2 text-blue-600">💎 Diferencial Chave</h3>
+                    <p class="text-gray-600">A combinação de um catálogo expansivo (bens tangíveis e intangíveis) com um "Motor de Confiança" baseado na verificação comunitária é uma proposta de valor única e poderosa que nenhum concorrente oferece.</p>
+                </div>
+                <div class="card p-6">
+                    <h3 class="font-bold text-xl mb-2 text-blue-600">🚀 Proposta de Valor</h3>
+                    <p class="text-gray-600">Construir um gémeo digital completo e confiável da vida de uma cidade, capacitando cidadãos a co-criar e verificar o conhecimento urbano, gerando um recurso sem paralelo para todos.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="mercado" class="mb-24 scroll-mt-24">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-800">Análise Competitiva Interativa</h2>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto mt-2">
+                    Nenhum concorrente equilibra com sucesso a abrangência de um guia comercial com a confiança de uma plataforma cívica. O gráfico abaixo ilustra o posicionamento da COCOTA. Selecione um concorrente para ver a sua análise comparativa.
+                </p>
+            </div>
+            <div class="flex flex-col lg:flex-row gap-8 items-center">
+                <div class="w-full lg:w-2/3">
+                    <div class="chart-container bg-white rounded-lg shadow-lg p-4">
+                        <canvas id="competitorChart"></canvas>
+                    </div>
+                </div>
+                <div class="w-full lg:w-1/3">
+                    <div class="space-y-4">
+                        <p class="font-semibold text-center text-gray-700">Selecione para comparar:</p>
+                        <button class="competitor-btn w-full text-left p-4 rounded-lg bg-white shadow-md hover:bg-blue-50 transition" data-competitor="cocota">
+                            <h4 class="font-bold text-blue-600">COCOTA (Proposta)</h4>
+                            <p class="text-sm text-gray-600">Equilíbrio entre comercial, cívico e confiança.</p>
+                        </button>
+                        <button class="competitor-btn w-full text-left p-4 rounded-lg bg-white shadow-md hover:bg-blue-50 transition" data-competitor="yelp">
+                            <h4 class="font-bold text-gray-700">Yelp</h4>
+                            <p class="text-sm text-gray-600">Forte em comercial, fraco em confiança e cívico.</p>
+                        </button>
+                        <button class="competitor-btn w-full text-left p-4 rounded-lg bg-white shadow-md hover:bg-blue-50 transition" data-competitor="nextdoor">
+                            <h4 class="font-bold text-gray-700">Nextdoor</h4>
+                            <p class="text-sm text-gray-600">Forte em social hiperlocal, mas fechado e limitado.</p>
+                        </button>
+                        <button class="competitor-btn w-full text-left p-4 rounded-lg bg-white shadow-md hover:bg-blue-50 transition" data-competitor="google">
+                            <h4 class="font-bold text-gray-700">Google Maps</h4>
+                            <p class="text-sm text-gray-600">Ubíquo, mas com verificação e comunidade fracas.</p>
+                        </button>
+                         <button class="competitor-btn w-full text-left p-4 rounded-lg bg-white shadow-md hover:bg-blue-50 transition" data-competitor="civic">
+                            <h4 class="font-bold text-gray-700">Plataformas Cívicas</h4>
+                            <p class="text-sm text-gray-600">Focadas no bem público, mas com baixo engajamento.</p>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="proposta" class="mb-24 scroll-mt-24">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-800">Os Três Pilares da COCOTA</h2>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto mt-2">
+                    A plataforma assenta em três funcionalidades interligadas que, em conjunto, criam uma experiência única. Navegue pelas abas para explorar cada pilar.
+                </p>
+            </div>
+            <div class="bg-white rounded-lg shadow-lg p-6 md:p-8">
+                <div class="border-b border-gray-200 mb-6">
+                    <nav class="-mb-px flex space-x-6" aria-label="Tabs">
+                        <button class="tab-button active py-4 px-1 font-medium text-lg" data-tab="catalogo">
+                            1. Catálogo Colaborativo
+                        </button>
+                        <button class="tab-button py-4 px-1 font-medium text-lg" data-tab="social">
+                            2. Camada Social
+                        </button>
+                        <button class="tab-button py-4 px-1 font-medium text-lg" data-tab="confianca">
+                            3. Motor de Confiança
+                        </button>
+                    </nav>
+                </div>
+                <div id="tab-content">
+                </div>
+            </div>
+        </section>
+
+        <section id="lancamento" class="mb-24 scroll-mt-24">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-800">Estratégia de Lançamento em Fases</h2>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto mt-2">
+                    O maior risco é tentar fazer tudo de uma só vez. A recomendação é um lançamento focado para validar o modelo, mitigar riscos e construir uma base de utilizadores apaixonada antes de escalar.
+                </p>
+            </div>
+            <div class="relative">
+                <div id="mvp-cycle" class="grid md:grid-cols-4 gap-8">
+                    <div class="roadmap-step p-6">
+                        <div class="roadmap-step-content rounded-lg p-4">
+                            <span class="text-blue-600 font-bold text-lg">Passo 1</span>
+                            <h4 class="font-bold text-xl my-2">Contribuir</h4>
+                            <p class="text-gray-600">Utilizadores mapeiam um ativo (ex: um parque) com informações básicas. Ação simples e de baixo atrito.</p>
+                        </div>
+                    </div>
+                    <div class="roadmap-step p-6">
+                         <div class="roadmap-step-content rounded-lg p-4">
+                            <span class="text-blue-600 font-bold text-lg">Passo 2</span>
+                            <h4 class="font-bold text-xl my-2">Enriquecer</h4>
+                            <p class="text-gray-600">Outros adicionam fotos, detalhes (acessibilidade, comodidades) e contexto histórico.</p>
+                        </div>
+                    </div>
+                    <div class="roadmap-step p-6">
+                         <div class="roadmap-step-content rounded-lg p-4">
+                            <span class="text-blue-600 font-bold text-lg">Passo 3</span>
+                            <h4 class="font-bold text-xl my-2">Verificar</h4>
+                            <p class="text-gray-600">A comunidade "certifica" a informação, construindo o motor de confiança e a reputação.</p>
+                        </div>
+                    </div>
+                    <div class="roadmap-step p-6">
+                         <div class="roadmap-step-content rounded-lg p-4">
+                            <span class="text-blue-600 font-bold text-lg">Passo 4</span>
+                            <h4 class="font-bold text-xl my-2">Socializar</h4>
+                            <p class="text-gray-600">Iniciam-se conversas públicas ligadas ao local, dando-lhe vida e contexto em tempo real.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mt-8 bg-blue-50 text-blue-800 rounded-lg p-6">
+                    <h4 class="font-bold">Foco do MVP (Produto Mínimo Viável)</h4>
+                    <p>Lançar num único bairro com foco exclusivo em **Espaços Públicos e Arte Pública**. Isto prova o ciclo de interação central com recursos mínimos e reforça o ethos cívico da plataforma desde o início.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="negocio" class="scroll-mt-24">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-800">Caminhos para a Sustentabilidade</h2>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto mt-2">
+                    Para evitar o destino de projetos cívicos que desaparecem, a COCOTA deve ser uma empresa sustentável. A estratégia é um modelo de negócio híbrido, equilibrando o valor para a comunidade e a geração de receita.
+                </p>
+            </div>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="card p-8">
+                    <h3 class="text-2xl font-bold mb-4 text-center">Para a Comunidade (B2C)</h3>
+                    <div class="flex items-center justify-center mb-6">
+                        <span class="mr-3 font-medium">Gratuito</span>
+                        <label class="inline-flex relative items-center cursor-pointer">
+                            <input type="checkbox" id="b2c-toggle" class="sr-only peer">
+                            <div class="w-14 h-7 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                        <span class="ml-3 font-medium">Premium</span>
+                    </div>
+                    <div id="b2c-content" class="text-gray-600">
+                        <p>A plataforma base será sempre gratuita para maximizar o crescimento. Funções premium podem incluir filtros avançados, exportação de dados para roteiros pessoais e uma experiência sem anúncios.</p>
+                    </div>
+                </div>
+                <div class="card p-8">
+                    <h3 class="text-2xl font-bold mb-4 text-center">Para Empresas (B2B)</h3>
+                     <div class="flex items-center justify-center mb-6">
+                        <span class="mr-3 font-medium">Perfis Melhorados</span>
+                        <label class="inline-flex relative items-center cursor-pointer">
+                            <input type="checkbox" id="b2b-toggle" class="sr-only peer">
+                            <div class="w-14 h-7 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-green-600"></div>
+                        </label>
+                        <span class="ml-3 font-medium">Dados & Insights</span>
+                    </div>
+                    <div id="b2b-content" class="text-gray-600">
+                        <p>Negócios locais pagam uma assinatura para gerir as suas páginas, responder a comentários e publicar eventos. Este é um modelo de receita comprovado (Yelp, Nextdoor).</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-24">
+        <div class="container mx-auto px-6 py-8 text-center">
+            <p>&copy; 2025 COCOTA_Software. Uma visualização estratégica baseada no relatório "A Ágora Digital Urbana".</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            const competitorData = {
+                cocota: {
+                    label: 'COCOTA (Proposta)',
+                    data: [5, 4, 5, 5, 4],
+                    borderColor: 'rgba(37, 99, 235, 1)',
+                    backgroundColor: 'rgba(37, 99, 235, 0.2)',
+                },
+                yelp: {
+                    label: 'Yelp',
+                    data: [5, 2, 1, 2, 1],
+                    borderColor: 'rgba(217, 4, 41, 1)',
+                    backgroundColor: 'rgba(217, 4, 41, 0.2)',
+                },
+                nextdoor: {
+                    label: 'Nextdoor',
+                    data: [3, 4, 3, 2, 2],
+                    borderColor: 'rgba(22, 163, 74, 1)',
+                    backgroundColor: 'rgba(22, 163, 74, 0.2)',
+                },
+                google: {
+                    label: 'Google Maps',
+                    data: [4, 5, 1, 1, 3],
+                    borderColor: 'rgba(249, 115, 22, 1)',
+                    backgroundColor: 'rgba(249, 115, 22, 0.2)',
+                },
+                civic: {
+                    label: 'Plataformas Cívicas',
+                    data: [1, 2, 4, 5, 1],
+                    borderColor: 'rgba(107, 114, 128, 1)',
+                    backgroundColor: 'rgba(107, 114, 128, 0.2)',
+                }
+            };
+
+            const chartCtx = document.getElementById('competitorChart').getContext('2d');
+            let competitorChart = new Chart(chartCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['Alcance Comercial', 'Alcance Social', 'Foco Cívico', 'Confiança/Verificação', 'Engajamento'],
+                    datasets: [competitorData.cocota]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            pointLabels: {
+                                font: {
+                                    size: 12,
+                                    weight: 'bold'
+                                },
+                                color: '#333D4B'
+                            },
+                            ticks: {
+                                backdropColor: 'transparent',
+                                stepSize: 1,
+                                font: {
+                                    size: 10
+                                }
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 5
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.r !== null) {
+                                        label += context.parsed.r;
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            document.querySelectorAll('.competitor-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const competitorKey = button.dataset.competitor;
+                    competitorChart.data.datasets = [competitorData[competitorKey]];
+                    competitorChart.update();
+                });
+            });
+
+            const tabs = document.querySelectorAll('.tab-button');
+            const tabContentContainer = document.getElementById('tab-content');
+            const tabContents = {
+                catalogo: `
+                    <h4 class="text-2xl font-bold mb-4">Além dos Pontos de Interesse</h4>
+                    <p class="text-gray-700 mb-4">O catálogo vai além de lojas e restaurantes para incluir o tecido da cidade: praças, arte pública, infraestrutura e, crucialmente, o patrimônio cultural imaterial (tradições, histórias, festivais). Esta é a maior diferenciação da plataforma.</p>
+                    <div class="grid md:grid-cols-2 gap-4 text-sm">
+                        <div class="bg-gray-50 p-4 rounded-lg"><strong>Ativos Tangíveis:</strong> Serviços, comércios, praças, mobiliário urbano, arte pública, e até problemas como buracos.</div>
+                        <div class="bg-gray-50 p-4 rounded-lg"><strong>Ativos Intangíveis:</strong> Tradições, festivais, histórias orais, gírias locais. Conecta o espaço físico à sua alma cultural.</div>
+                    </div>
+                `,
+                social: `
+                    <h4 class="text-2xl font-bold mb-4">Conversas em Contexto</h4>
+                    <p class="text-gray-700 mb-4">Transforma locais estáticos em centros de interação em tempo real. Cada praça, rua ou negócio pode ter seu próprio feed de conversas, funcionando como uma ágora digital localizada.</p>
+                    <div class="grid md:grid-cols-2 gap-4 text-sm">
+                        <div class="bg-gray-50 p-4 rounded-lg"><strong>Conversas Públicas:</strong> Fóruns localizados para espaços públicos, permitindo discutir eventos, segurança ou observações do dia a dia.</div>
+                        <div class="bg-gray-50 p-4 rounded-lg"><strong>Conversas de Negócios:</strong> Um pub ou café pode ter seu próprio espaço de conversa para clientes, criando uma comunidade digital em torno de um espaço físico.</div>
+                    </div>
+                `,
+                confianca: `
+                    <h4 class="text-2xl font-bold mb-4">Verificação pela Comunidade</h4>
+                    <p class="text-gray-700 mb-4">Inspirado na filosofia blockchain de confiança distribuída, mas com uma implementação prática. A comunidade itera e certifica a informação, criando um registro de verdade confiável e combatendo a desinformação.</p>
+                    <div class="grid md:grid-cols-2 gap-4 text-sm">
+                        <div class="bg-gray-50 p-4 rounded-lg"><strong>Sistema de Reputação:</strong> Utilizadores ganham pontos e status por contribuir e, mais importante, por verificar a informação de outros.</div>
+                        <div class="bg-gray-50 p-4 rounded-lg"><strong>Selo "Certificado":</strong> Ativos com múltiplas verificações positivas de utilizadores com alta reputação ganham um selo de confiança, um sinal visual claro de fiabilidade.</div>
+                    </div>
+                `
+            };
+
+            function updateTabContent(tabId) {
+                tabContentContainer.innerHTML = tabContents[tabId];
+            }
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    updateTabContent(tab.dataset.tab);
+                });
+            });
+            
+            updateTabContent('catalogo');
+
+            const b2cToggle = document.getElementById('b2c-toggle');
+            const b2cContent = document.getElementById('b2c-content');
+            b2cToggle.addEventListener('change', () => {
+                if (b2cToggle.checked) {
+                    b2cContent.innerHTML = '<p>Assinaturas pagas desbloqueiam funcionalidades avançadas como filtros de pesquisa complexos ("parques certificados com café e acesso para cadeiras de rodas"), exportação de dados para roteiros de viagem e uma experiência sem publicidade.</p>';
+                } else {
+                    b2cContent.innerHTML = '<p>A plataforma base será sempre gratuita para maximizar o crescimento. Funções premium podem incluir filtros avançados, exportação de dados para roteiros pessoais e uma experiência sem anúncios.</p>';
+                }
+            });
+
+            const b2bToggle = document.getElementById('b2b-toggle');
+            const b2bContent = document.getElementById('b2b-content');
+            b2bToggle.addEventListener('change', () => {
+                if (b2bToggle.checked) {
+                    b2bContent.innerHTML = '<p>O ativo mais valioso é o conjunto de dados verificado. A COCOTA pode vender acesso a dados agregados e anonimizados (DaaS) e painéis de insights (IaaS) para urbanistas, setor imobiliário e pesquisadores.</p>';
+                } else {
+                    b2bContent.innerHTML = '<p>Negócios locais pagam uma assinatura para gerir as suas páginas, responder a comentários e publicar eventos. Este é um modelo de receita comprovado (Yelp, Nextdoor).</p>';
+                }
+            });
+            
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                    if(mobileMenu.classList.contains('hidden') === false){
+                        mobileMenu.classList.add('hidden');
+                    }
+                });
+            });
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('main section');
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 120) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').includes(current)) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
