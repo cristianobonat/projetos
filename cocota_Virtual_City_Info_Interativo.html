@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infográfico: A Ágora Digital Urbana | COCOTA_Software</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Brilliant Blues -->
+    <!-- Application Structure Plan: A top-down narrative infographic. 1. Hero: Grabs attention with the core vision. 2. The Market Gap: Visually explains the core problem using a simple diagram. 3. The Solution (3 Pillars): Introduces the key features in digestible chunks. 4. The Core Loop: A flowchart visualizing the essential user journey for the MVP. 5. The Power of Verification: A donut chart emphasizing the strategic importance of community verification. 6. Competitive Edge: A bar chart to clearly show differentiation against rivals. 7. Sustainability Model: Explains the hybrid business model. 8. Launch Roadmap: A timeline for the phased launch. This structure tells a coherent story from problem to solution to execution, making the complex report accessible. -->
+    <!-- Visualization & Content Choices: 1. Market Gap -> Goal: Compare -> Viz: HTML/CSS Diagram. Justification: A simple visual is best for a high-level conceptual comparison. Method: Tailwind Flexbox. NO SVG. 2. Core Loop -> Goal: Organize -> Viz: HTML/CSS Flowchart. Justification: Clearly illustrates a process. Method: Styled divs with borders. NO SVG/Mermaid. 3. User Actions -> Goal: Inform -> Viz: Donut Chart (Chart.js). Justification: Shows the ideal composition of user actions, emphasizing verification. Library: Chart.js/Canvas. 4. Competitor Analysis -> Goal: Compare -> Viz: Horizontal Bar Chart (Chart.js). Justification: Excellent for comparing multiple entities across features; handles long labels with wrapping. Library: Chart.js/Canvas. 5. Roadmap -> Goal: Change -> Viz: HTML/CSS Timeline. Justification: Shows clear progression over time. Method: Styled divs. NO SVG. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            color: #003F5C;
+        }
+        .text-gradient {
+            background: linear-gradient(90deg, #7A5195, #EF5675);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 400px;
+            max-height: 500px;
+        }
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .flow-arrow {
+            font-size: 2rem;
+            color: #7A5195;
+            line-height: 1;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <main class="container mx-auto px-4 py-12 md:px-8 md:py-20">
+
+        <section id="hero" class="text-center mb-24">
+            <h1 class="text-4xl md:text-6xl font-extrabold text-[#003F5C] leading-tight">
+                A Ágora Digital Urbana
+            </h1>
+            <p class="mt-4 text-lg md:text-xl text-[#374C80] max-w-3xl mx-auto">
+                Uma visualização estratégica para a <span class="font-bold">COCOTA_Software</span>: construindo o primeiro guia urbano colaborativo baseado em confiança comunitária.
+            </p>
+        </section>
+
+        <section id="market-gap" class="mb-24">
+            <h2 class="text-3xl font-bold text-center mb-2">A Oportunidade no Mercado</h2>
+            <p class="text-center text-[#374C80] max-w-2xl mx-auto mb-12">O mercado atual está polarizado. De um lado, plataformas comerciais que carecem de confiança. Do outro, plataformas cívicas com baixo engajamento. A COCOTA nasce para preencher esta lacuna.</p>
+            <div class="flex flex-col md:flex-row justify-center items-center gap-8">
+                <div class="card p-8 text-center w-full md:w-1/3">
+                    <h3 class="text-2xl font-bold text-[#BC5090]">Comercial</h3>
+                    <p class="mt-2 text-gray-600">Foco no lucro, alto engajamento, mas baixa confiança e propósito cívico. (Ex: Yelp)</p>
+                </div>
+                <div class="text-5xl font-bold text-gradient mx-8">+</div>
+                <div class="card p-8 text-center w-full md:w-1/3">
+                    <h3 class="text-2xl font-bold text-[#7A5195]">Cívico</h3>
+                    <p class="mt-2 text-gray-600">Foco no bem público, dados oficiais, mas baixo engajamento e usabilidade. (Ex: Portais Gov)</p>
+                </div>
+            </div>
+            <div class="text-center mt-12">
+                <div class="inline-block bg-gradient-to-r from-[#7A5195] to-[#EF5675] p-1 rounded-xl shadow-lg">
+                    <div class="bg-white rounded-lg p-8">
+                        <h3 class="text-2xl font-bold text-gradient">A Solução COCOTA</h3>
+                        <p class="mt-2 text-[#003F5C] font-medium">A utilidade de um guia comercial com a alma de um projeto cívico, unificado por um motor de confiança.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="pillars" class="mb-24">
+            <h2 class="text-3xl font-bold text-center mb-12">Os 3 Pilares da Plataforma</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="card p-8 text-center">
+                    <div class="text-5xl mb-4">🏛️</div>
+                    <h3 class="text-xl font-bold text-[#003F5C]">Catálogo Colaborativo</h3>
+                    <p class="mt-2 text-gray-600">Mapeia ativos tangíveis (lojas, parques) e, crucialmente, o patrimônio cultural imaterial (histórias, tradições).</p>
+                </div>
+                <div class="card p-8 text-center">
+                    <div class="text-5xl mb-4">💬</div>
+                    <h3 class="text-xl font-bold text-[#003F5C]">Camada Social</h3>
+                    <p class="mt-2 text-gray-600">Transforma locais estáticos em centros de conversa geolocalizados, dando vida e contexto à cidade.</p>
+                </div>
+                <div class="card p-8 text-center">
+                    <div class="text-5xl mb-4">✅</div>
+                    <h3 class="text-xl font-bold text-[#003F5C]">Motor de Confiança</h3>
+                    <p class="mt-2 text-gray-600">Um sistema de reputação onde a própria comunidade verifica e certifica a informação, garantindo sua fiabilidade.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="core-loop" class="mb-24">
+            <h2 class="text-3xl font-bold text-center mb-12">O Ciclo de Engajamento do MVP</h2>
+            <p class="text-center text-[#374C80] max-w-2xl mx-auto mb-12">O sucesso do lançamento focado em Espaços Públicos depende da validação deste ciclo de interação virtuoso.</p>
+            <div class="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-0">
+                <div class="card p-6 text-center flex-1">
+                    <h4 class="font-bold text-lg text-[#7A5195]">1. Contribuir</h4>
+                    <p class="text-sm text-gray-600">Utilizador mapeia um parque ou praça.</p>
+                </div>
+                <div class="flow-arrow mx-4 hidden md:block">→</div>
+                <div class="flow-arrow my-4 md:hidden">↓</div>
+                <div class="card p-6 text-center flex-1">
+                    <h4 class="font-bold text-lg text-[#BC5090]">2. Enriquecer</h4>
+                    <p class="text-sm text-gray-600">Outros adicionam fotos e detalhes.</p>
+                </div>
+                <div class="flow-arrow mx-4 hidden md:block">→</div>
+                 <div class="flow-arrow my-4 md:hidden">↓</div>
+                <div class="card p-6 text-center flex-1">
+                    <h4 class="font-bold text-lg text-[#EF5675]">3. Verificar</h4>
+                    <p class="text-sm text-gray-600">Comunidade confirma a veracidade dos dados.</p>
+                </div>
+                <div class="flow-arrow mx-4 hidden md:block">→</div>
+                 <div class="flow-arrow my-4 md:hidden">↓</div>
+                <div class="card p-6 text-center flex-1">
+                    <h4 class="font-bold text-lg text-[#FF764A]">4. Socializar</h4>
+                    <p class="text-sm text-gray-600">Conversas e eventos são ligados ao local.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="verification-power" class="mb-24">
+            <h2 class="text-3xl font-bold text-center mb-2">O Poder da Verificação</h2>
+            <p class="text-center text-[#374C80] max-w-2xl mx-auto mb-12">A estratégia de gamificação não recompensa apenas a contribuição, mas prioriza fortemente a verificação, que é o coração do "Motor de Confiança". Este é o nosso maior diferencial.</p>
+            <div class="card p-8">
+                <div class="chart-container" style="height: 350px; max-height: 400px;">
+                    <canvas id="verificationChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="competitors" class="mb-24">
+            <h2 class="text-3xl font-bold text-center mb-2">Vantagem Competitiva</h2>
+            <p class="text-center text-[#374C80] max-w-2xl mx-auto mb-12">Enquanto os concorrentes se focam em nichos ou carecem de confiança, a COCOTA oferece uma solução completa e verificada.</p>
+            <div class="card p-8">
+                <div class="chart-container">
+                    <canvas id="competitorChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="sustainability" class="mb-24">
+            <h2 class="text-3xl font-bold text-center mb-12">Caminhos para a Sustentabilidade</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="card p-8">
+                    <h3 class="text-xl font-bold text-[#003F5C] mb-4">Para a Comunidade (B2C)</h3>
+                    <p class="text-gray-600">A plataforma será sempre <span class="font-bold">gratuita</span>. Assinaturas <span class="font-bold text-gradient">Freemium</span> oferecerão funcionalidades avançadas, como filtros de pesquisa complexos e exportação de dados para roteiros pessoais.</p>
+                </div>
+                <div class="card p-8">
+                    <h3 class="text-xl font-bold text-[#003F5C] mb-4">Para Empresas (B2B)</h3>
+                    <p class="text-gray-600">O maior potencial de receita vem de assinaturas para negócios (perfis melhorados) e da venda de <span class="font-bold text-gradient">dados agregados e anonimizados (DaaS/IaaS)</span> para urbanistas e pesquisadores.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="roadmap">
+            <h2 class="text-3xl font-bold text-center mb-12">Roteiro de Lançamento</h2>
+            <div class="relative">
+                <div class="border-l-4 border-[#7A5195] absolute h-full top-0 left-1/2 -ml-0.5 hidden md:block"></div>
+                <div class="space-y-12">
+                    <div class="md:grid md:grid-cols-2 md:gap-8 items-center">
+                        <div class="md:text-right md:pr-8">
+                            <p class="text-lg font-bold text-[#7A5195]">Fase 1 (Ano 1)</p>
+                        </div>
+                        <div class="relative">
+                            <div class="hidden md:block w-4 h-4 bg-[#7A5195] rounded-full absolute -left-2 top-1/2 -mt-2"></div>
+                            <div class="card p-6">
+                                <h4 class="font-bold text-lg">Crescimento e Comunidade</h4>
+                                <p class="text-gray-600 mt-1">Foco total no lançamento do MVP, na aquisição de utilizadores e na validação do ciclo de engajamento. Monetização mínima ou nula.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="md:grid md:grid-cols-2 md:gap-8 items-center">
+                        <div class="md:col-start-2 md:pl-8">
+                            <p class="text-lg font-bold text-[#BC5090]">Fase 2 (Ano 1-2)</p>
+                        </div>
+                        <div class="md:col-start-1 md:row-start-1 md:text-right md:pr-8">
+                             <div class="relative">
+                                <div class="hidden md:block w-4 h-4 bg-[#BC5090] rounded-full absolute -right-2 top-1/2 -mt-2"></div>
+                                <div class="card p-6">
+                                    <h4 class="font-bold text-lg">Monetização B2B Inicial</h4>
+                                    <p class="text-gray-600 mt-1">Introdução das assinaturas para negócios locais ("Reivindique seu Negócio") para estabelecer o primeiro fluxo de receita.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="md:grid md:grid-cols-2 md:gap-8 items-center">
+                        <div class="md:text-right md:pr-8">
+                            <p class="text-lg font-bold text-[#EF5675]">Fase 3 (Ano 2+)</p>
+                        </div>
+                        <div class="relative">
+                            <div class="hidden md:block w-4 h-4 bg-[#EF5675] rounded-full absolute -left-2 top-1/2 -mt-2"></div>
+                            <div class="card p-6">
+                                <h4 class="font-bold text-lg">Escala e Produtos de Dados</h4>
+                                <p class="text-gray-600 mt-1">Expansão para novas cidades, introdução do Freemium B2C e desenvolvimento dos produtos de DaaS/IaaS de alto valor.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="mt-24 border-t border-gray-200">
+        <div class="container mx-auto py-8 px-4 text-center text-[#374C80]">
+            <p>&copy; 2025 COCOTA_Software. Construindo o futuro das cidades, juntos.</p>
+        </div>
+    </footer>
+
+    <script>
+        function wrapLabels(label, maxWidth) {
+            const words = label.split(' ');
+            const lines = [];
+            let currentLine = '';
+            words.forEach(word => {
+                if ((currentLine + ' ' + word).length > maxWidth) {
+                    lines.push(currentLine);
+                    currentLine = word;
+                } else {
+                    currentLine = currentLine ? currentLine + ' ' + word : word;
+                }
+            });
+            lines.push(currentLine);
+            return lines;
+        }
+
+        const tooltipTitleCallback = function(tooltipItems) {
+            const item = tooltipItems[0];
+            let label = item.chart.data.labels[item.dataIndex];
+            if (Array.isArray(label)) {
+                return label.join(' ');
+            } else {
+                return label;
+            }
+        };
+
+        const verificationCtx = document.getElementById('verificationChart').getContext('2d');
+        new Chart(verificationCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Verificar Informação', 'Enriquecer Conteúdo', 'Adicionar Novo Ativo'],
+                datasets: [{
+                    label: 'Pontos de Gamificação por Ação',
+                    data: [50, 30, 20],
+                    backgroundColor: ['#7A5195', '#BC5090', '#FF764A'],
+                    borderColor: '#FFFFFF',
+                    borderWidth: 4,
+                    hoverOffset: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '60%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#003F5C',
+                            font: { size: 14 }
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Distribuição Ideal de Ações da Comunidade',
+                        font: { size: 16, weight: 'bold' },
+                        color: '#003F5C',
+                        padding: { bottom: 20 }
+                    },
+                    tooltip: {
+                        callbacks: { title: tooltipTitleCallback }
+                    }
+                }
+            }
+        });
+
+        const competitorCtx = document.getElementById('competitorChart').getContext('2d');
+        new Chart(competitorCtx, {
+            type: 'bar',
+            data: {
+                labels: [
+                    wrapLabels('Mecanismo de Verificação e Confiança', 16),
+                    wrapLabels('Catálogo de Patrimônio Imaterial', 16),
+                    wrapLabels('Foco no Engajamento Cívico', 16),
+                    wrapLabels('Modelo de Comunidade Aberta', 16)
+                ],
+                datasets: [
+                    {
+                        label: 'COCOTA',
+                        data: [9, 8, 8, 9],
+                        backgroundColor: '#7A5195',
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Yelp',
+                        data: [2, 1, 3, 7],
+                        backgroundColor: '#BC5090',
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Nextdoor',
+                        data: [6, 2, 6, 2],
+                        backgroundColor: '#EF5675',
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Google Maps',
+                        data: [3, 4, 2, 8],
+                        backgroundColor: '#FFA600',
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 10,
+                        grid: {
+                            display: false,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#374C80'
+                        }
+                    },
+                    y: {
+                        grid: {
+                            display: false,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#003F5C',
+                            font: {
+                                size: 12,
+                                weight: '500'
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#003F5C',
+                            font: { size: 14 }
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Pontuação Comparativa de Funcionalidades Chave (0-10)',
+                        font: { size: 16, weight: 'bold' },
+                        color: '#003F5C',
+                        padding: { bottom: 20 }
+                    },
+                    tooltip: {
+                        callbacks: { title: tooltipTitleCallback }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+
