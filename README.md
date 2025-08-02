@@ -18,10 +18,14 @@ Repositório de projetos e estudos:
   >
   > <img src="https://cristianobonat.github.io/projetos/cocotavcInfo-400.png" width="150" height="150"/>
 * Estudo sobre economia social local: [A Moeda da Comunidade](https://tinyurl.com/NewComoeda)
-* Visão alternativa do estudo: [Cocota_VCity Infográfico Interativo](https://tinyurl.com/cocotavcInfo)
-* > * Para ler *fora daqui*:
+* * > * Para ler *fora daqui*:
   >
   > <img src="https://cristianobonat.github.io/projetos/NewComoeda-400.png" width="150" height="150"/>
+* Visão alternativa do estudo: [A Moeda da Comunidade Infográfico Interativo](https://tinyurl.com/NewMoeCoIn)
+* > * Para ler *fora daqui*:
+  >
+  > <img src="https://cristianobonat.github.io/projetos/NewMoeCoIn-400.png" width="150" height="150"/>
+
 * ... Bits trabalhando ... Comming soon ...
   >
   > ... humanos ao fundo? tô nessa!;-)) Engaje-se))
