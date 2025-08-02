@@ -5,7 +5,7 @@ Repositório de projetos e estudos:
 > * Para ler via *mobile*:
 >  
 > <img src="https://cristianobonat.github.io/projetos/bit.ly_suamobilidade.png" width="150" height="150"/>
-* Visão alternativa do estudo: [Infográfico Interativo](https://rebrand.ly/Infomobilidade)
+* Visão alternativa do estudo: [Sua_Mobilidade Infográfico Interativo](https://rebrand.ly/Infomobilidade)
 > * Para ler via *mobile*:
 > 
 > ![QR-Code do info - leia no mobile](https://cristianobonat.github.io/projetos/rebrand.ly.infomobilidade.png) 
@@ -13,4 +13,11 @@ Repositório de projetos e estudos:
 * > * Para ler via *cÊ sabe Jah*:
   >
   > <img src="https://cristianobonat.github.io/projetos/cocotavcity-400.png" width="150" height="150"/>
+* Visão alternativa do estudo: [Cocota_VCity Infográfico Interativo](https://cristianobonat.github.io/projetos/cocota_Virtual_City_Info_Interativo.html)
 * ... Bits trabalhando ... Comming soon ...
+  >
+  > ... humanos ao fundo? tô nessa!;-)) Engaje-se))
+  >
+ * >x.com/*legendaspontoc1*
+  >
+ * >youtube.com/*@legendaspontocom*
