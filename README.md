@@ -9,4 +9,5 @@ Repositório de projetos e estudos:
 > * Para ler via *mobile*:
 > 
 > ![QR-Code do info - leia no mobile](https://cristianobonat.github.io/projetos/rebrand.ly.infomobilidade.png) 
+* Estudo sobre oportunidade, Sociedade Auto-Organizada - "Além de Alvin Toffler, depois da terceira onda..." - Comunidade Grande e Pequena, Diversos e Antagônicos, a Praça é Pública ... [Estudo sobre o social, além do interesse](https://cristianobonat.github.io/projetos/cocota%20Virtual%20City%2028072025-5d-02082025-sábado.html)
 * ... Bits trabalhando ... Comming soon ...
