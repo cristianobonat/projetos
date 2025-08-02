@@ -1,503 +1,514 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Estratégico | COCOTA_Software</title>
+    <title>A Nova Moeda da Comunidade: Economia Cooperativa no Brasil</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Chosen Palette: Warm Neutrals & Civic Blue -->
-    <!-- Application Structure Plan: A top-down narrative dashboard. Starts with a high-level vision (Oportunidade), then drills down into the core components of the strategy. 1. Visão Geral: Quick summary and key takeaways. 2. Análise de Mercado: Interactive competitor comparison to highlight the market gap. 3. A Proposta COCOTA: A tabbed view to explain the three core pillars (Catálogo, Social, Confiança). This breaks down the complex product vision into digestible parts. 4. Estratégia de Lançamento: A visual, step-by-step roadmap for the MVP and future phases. 5. Modelo de Negócio: Interactive toggles to compare monetization strategies (B2C vs. B2B). This structure guides the user from the "why" (market opportunity) to the "what" (the product) and finally the "how" (launch and monetization), making the dense report actionable and understandable. -->
-    <!-- Visualization & Content Choices: 1. Análise Competitiva -> Goal: Compare -> Viz: Interactive Radar Chart (Chart.js) -> Interaction: Buttons to select competitor data, updating the chart dynamically. Justification: A radar chart is excellent for comparing multiple entities across multiple common features, visually highlighting strengths and weaknesses. 2. Ciclo do MVP -> Goal: Organize/Change -> Viz: Styled HTML/CSS diagram -> Interaction: Hover effects on steps to show details. Justification: A visual flowchart is more intuitive for understanding a process than a text list. 3. Modelo de Negócio -> Goal: Compare -> Viz: Two-column layout with toggles -> Interaction: Clicking toggles reveals detailed text for B2C/B2B models. Justification: This allows for a direct, side-by-side comparison of the dual revenue streams, a key strategic point. All text is summarized from the report for clarity. -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony -->
+    <!-- Application Structure Plan: A thematic, single-page dashboard structure was chosen over the report's linear format to enhance usability and exploration. The flow guides the user from high-level concepts (Panorama) to specific data (Ecossistema), then to analysis (Desafios) and actionable insights (Recomendações). This non-linear structure, supported by a sticky navigation, allows users to jump to sections of interest, making the complex information more digestible and engaging. Key interactions like filtering platforms and visualizing data with charts transform passive reading into active discovery. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Key stats on Brazil's digital/cooperative economy. Goal: Inform/Impress. Viz: Animated counters. Interaction: Numbers animate on scroll. Justification: More dynamic than static text. Method: Vanilla JS.
+        - Report Info: Comparison of bartering platforms. Goal: Compare/Organize. Viz: Filterable card grid. Interaction: Click filters to show/hide cards. Justification: Turns a static table into an exploratory tool. Method: Vanilla JS.
+        - Report Info: Scale of Social Currencies. Goal: Inform/Compare. Viz: Bar Chart. Interaction: Hover tooltips. Justification: Visually represents the movement's scale. Library: Chart.js.
+        - Report Info: Cooperative Dilemma. Goal: Compare/Explain. Viz: HTML/CSS diagram. Interaction: None, purely visual. Justification: A visual metaphor is more powerful. Method: Tailwind CSS.
+        - Report Info: Recommendations. Goal: Organize/Inform. Viz: Accordion. Interaction: Click to expand. Justification: Compact presentation of list-based content. Method: Vanilla JS.
+    -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #F8F7F4;
-            color: #333D4B;
+            background-color: #F5F5F4; /* stone-100 */
+            color: #292524; /* stone-800 */
         }
-        .nav-link {
-            position: relative;
-            transition: color 0.3s;
+        .accent-bg { background-color: #0D9488; } /* teal-600 */
+        .accent-text { color: #0D9488; }
+        .highlight-bg { background-color: #F59E0B; } /* amber-500 */
+        .highlight-text { color: #F59E0B; }
+        .section-title {
+            font-weight: 800;
+            font-size: 2.25rem;
+            line-height: 2.5rem;
+            text-align: center;
+            margin-bottom: 1rem;
         }
-        .nav-link.active, .nav-link:hover {
-            color: #2563EB;
-        }
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: -4px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #2563EB;
-            transition: width 0.3s;
-        }
-        .nav-link.active::after, .nav-link:hover::after {
-            width: 100%;
-        }
-        .card {
-            background-color: #FFFFFF;
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1);
-        }
-        .tab-button {
-            transition: all 0.3s;
-            border-bottom: 2px solid transparent;
-        }
-        .tab-button.active {
-            color: #2563EB;
-            border-bottom-color: #2563EB;
+        .section-subtitle {
+            text-align: center;
+            max-width: 48rem;
+            margin: 0 auto 3rem auto;
+            color: #57534E; /* stone-600 */
         }
         .chart-container {
             position: relative;
             width: 100%;
-            max-width: 600px;
+            max-width: 48rem;
             margin-left: auto;
             margin-right: auto;
-            height: 300px;
-            max-height: 400px;
-        }
-        @media (min-width: 768px) {
-            .chart-container {
-                height: 400px;
-            }
-        }
-        .roadmap-step {
-            border-left: 3px solid #DBEAFE;
-            transition: border-color 0.3s;
-        }
-        .roadmap-step:hover {
-            border-left-color: #2563EB;
-        }
-        .roadmap-step-content {
-            transition: background-color 0.3s;
-        }
-        .roadmap-step:hover .roadmap-step-content {
-            background-color: #EFF6FF;
+            height: 24rem;
+            max-height: 50vh;
         }
     </style>
 </head>
 <body class="antialiased">
 
-    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
-        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <h1 class="text-2xl font-bold text-gray-800">
-                COCOTA<span class="text-blue-600">.</span>
-            </h1>
-            <div class="hidden md:flex space-x-8">
-                <a href="#oportunidade" class="nav-link active">Visão Geral</a>
-                <a href="#mercado" class="nav-link">Análise de Mercado</a>
-                <a href="#proposta" class="nav-link">A Proposta</a>
-                <a href="#lancamento" class="nav-link">Lançamento</a>
-                <a href="#negocio" class="nav-link">Modelo de Negócio</a>
+    <header class="bg-stone-100/80 backdrop-blur-lg sticky top-0 z-50 border-b border-stone-200">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <a href="#" class="font-bold text-lg accent-text">A Nova Moeda</a>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#panorama" class="text-stone-700 hover:accent-text px-3 py-2 rounded-md text-sm font-medium">Panorama</a>
+                        <a href="#ecossistema" class="text-stone-700 hover:accent-text px-3 py-2 rounded-md text-sm font-medium">Ecossistema</a>
+                        <a href="#desafios" class="text-stone-700 hover:accent-text px-3 py-2 rounded-md text-sm font-medium">Desafios</a>
+                        <a href="#futuro" class="text-stone-700 hover:accent-text px-3 py-2 rounded-md text-sm font-medium">Futuro & Ação</a>
+                    </div>
+                </div>
             </div>
-            <button id="mobile-menu-button" class="md:hidden text-gray-700 focus:outline-none">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
-            </button>
         </nav>
-        <div id="mobile-menu" class="hidden md:hidden px-6 pb-4">
-            <a href="#oportunidade" class="block py-2 nav-link-mobile">Visão Geral</a>
-            <a href="#mercado" class="block py-2 nav-link-mobile">Análise de Mercado</a>
-            <a href="#proposta" class="block py-2 nav-link-mobile">A Proposta</a>
-            <a href="#lancamento" class="block py-2 nav-link-mobile">Lançamento</a>
-            <a href="#negocio" class="block py-2 nav-link-mobile">Modelo de Negócio</a>
-        </div>
     </header>
 
-    <main class="container mx-auto px-6 py-12">
-
-        <section id="oportunidade" class="text-center mb-24 scroll-mt-24">
-            <h2 class="text-4xl font-bold mb-4 text-gray-800">A Ágora Digital Urbana</h2>
-            <p class="text-lg text-gray-600 max-w-3xl mx-auto mb-8">
-                Uma análise interativa da estratégia para a COCOTA_Software. Traduzimos um relatório complexo numa exploração visual das oportunidades de mercado, diferenciais competitivos e do caminho para criar um guia urbano verdadeiramente colaborativo e confiável.
-            </p>
-            <div class="grid md:grid-cols-3 gap-8 text-left">
-                <div class="card p-6">
-                    <h3 class="font-bold text-xl mb-2 text-blue-600">🎯 A Lacuna de Mercado</h3>
-                    <p class="text-gray-600">O mercado está dividido entre guias comerciais (Yelp) que carecem de confiança e propósito cívico, e plataformas cívicas (gov.br) com baixo engajamento. A COCOTA posiciona-se exatamente nesta lacuna.</p>
-                </div>
-                <div class="card p-6">
-                    <h3 class="font-bold text-xl mb-2 text-blue-600">💎 Diferencial Chave</h3>
-                    <p class="text-gray-600">A combinação de um catálogo expansivo (bens tangíveis e intangíveis) com um "Motor de Confiança" baseado na verificação comunitária é uma proposta de valor única e poderosa que nenhum concorrente oferece.</p>
-                </div>
-                <div class="card p-6">
-                    <h3 class="font-bold text-xl mb-2 text-blue-600">🚀 Proposta de Valor</h3>
-                    <p class="text-gray-600">Construir um gémeo digital completo e confiável da vida de uma cidade, capacitando cidadãos a co-criar e verificar o conhecimento urbano, gerando um recurso sem paralelo para todos.</p>
+    <main>
+        <section id="hero" class="py-20 sm:py-24 lg:py-32 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-stone-900">
+                    A Nova Moeda da <span class="accent-text">Comunidade</span>.
+                </h1>
+                <p class="mt-6 max-w-3xl mx-auto text-lg sm:text-xl text-stone-600">
+                    Uma análise interativa sobre a ascensão da economia cooperativa e das plataformas de escambo na era digital brasileira. Explore os conceitos, os dados e os desafios de um movimento que redefine o valor.
+                </p>
+                <div class="mt-10">
+                    <a href="#panorama" class="inline-block bg-teal-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-teal-700 transition-colors">
+                        Comece a Explorar
+                    </a>
                 </div>
             </div>
         </section>
 
-        <section id="mercado" class="mb-24 scroll-mt-24">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold text-gray-800">Análise Competitiva Interativa</h2>
-                <p class="text-lg text-gray-600 max-w-3xl mx-auto mt-2">
-                    Nenhum concorrente equilibra com sucesso a abrangência de um guia comercial com a confiança de uma plataforma cívica. O gráfico abaixo ilustra o posicionamento da COCOTA. Selecione um concorrente para ver a sua análise comparativa.
+        <section id="panorama" class="py-20 sm:py-24">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="section-title">O Panorama Conceitual</h2>
+                <p class="section-subtitle">
+                    Para entender o movimento, é preciso primeiro decodificar seus termos. Esta seção descomplica as ideias que fundamentam as economias alternativas, diferenciando os modelos sociais dos modelos de mercado e explorando os mecanismos de troca não-monetária.
                 </p>
-            </div>
-            <div class="flex flex-col lg:flex-row gap-8 items-center">
-                <div class="w-full lg:w-2/3">
-                    <div class="chart-container bg-white rounded-lg shadow-lg p-4">
-                        <canvas id="competitorChart"></canvas>
-                    </div>
-                </div>
-                <div class="w-full lg:w-1/3">
-                    <div class="space-y-4">
-                        <p class="font-semibold text-center text-gray-700">Selecione para comparar:</p>
-                        <button class="competitor-btn w-full text-left p-4 rounded-lg bg-white shadow-md hover:bg-blue-50 transition" data-competitor="cocota">
-                            <h4 class="font-bold text-blue-600">COCOTA (Proposta)</h4>
-                            <p class="text-sm text-gray-600">Equilíbrio entre comercial, cívico e confiança.</p>
-                        </button>
-                        <button class="competitor-btn w-full text-left p-4 rounded-lg bg-white shadow-md hover:bg-blue-50 transition" data-competitor="yelp">
-                            <h4 class="font-bold text-gray-700">Yelp</h4>
-                            <p class="text-sm text-gray-600">Forte em comercial, fraco em confiança e cívico.</p>
-                        </button>
-                        <button class="competitor-btn w-full text-left p-4 rounded-lg bg-white shadow-md hover:bg-blue-50 transition" data-competitor="nextdoor">
-                            <h4 class="font-bold text-gray-700">Nextdoor</h4>
-                            <p class="text-sm text-gray-600">Forte em social hiperlocal, mas fechado e limitado.</p>
-                        </button>
-                        <button class="competitor-btn w-full text-left p-4 rounded-lg bg-white shadow-md hover:bg-blue-50 transition" data-competitor="google">
-                            <h4 class="font-bold text-gray-700">Google Maps</h4>
-                            <p class="text-sm text-gray-600">Ubíquo, mas com verificação e comunidade fracas.</p>
-                        </button>
-                         <button class="competitor-btn w-full text-left p-4 rounded-lg bg-white shadow-md hover:bg-blue-50 transition" data-competitor="civic">
-                            <h4 class="font-bold text-gray-700">Plataformas Cívicas</h4>
-                            <p class="text-sm text-gray-600">Focadas no bem público, mas com baixo engajamento.</p>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="proposta" class="mb-24 scroll-mt-24">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold text-gray-800">Os Três Pilares da COCOTA</h2>
-                <p class="text-lg text-gray-600 max-w-3xl mx-auto mt-2">
-                    A plataforma assenta em três funcionalidades interligadas que, em conjunto, criam uma experiência única. Navegue pelas abas para explorar cada pilar.
-                </p>
-            </div>
-            <div class="bg-white rounded-lg shadow-lg p-6 md:p-8">
-                <div class="border-b border-gray-200 mb-6">
-                    <nav class="-mb-px flex space-x-6" aria-label="Tabs">
-                        <button class="tab-button active py-4 px-1 font-medium text-lg" data-tab="catalogo">
-                            1. Catálogo Colaborativo
-                        </button>
-                        <button class="tab-button py-4 px-1 font-medium text-lg" data-tab="social">
-                            2. Camada Social
-                        </button>
-                        <button class="tab-button py-4 px-1 font-medium text-lg" data-tab="confianca">
-                            3. Motor de Confiança
-                        </button>
-                    </nav>
-                </div>
-                <div id="tab-content">
-                </div>
-            </div>
-        </section>
-
-        <section id="lancamento" class="mb-24 scroll-mt-24">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold text-gray-800">Estratégia de Lançamento em Fases</h2>
-                <p class="text-lg text-gray-600 max-w-3xl mx-auto mt-2">
-                    O maior risco é tentar fazer tudo de uma só vez. A recomendação é um lançamento focado para validar o modelo, mitigar riscos e construir uma base de utilizadores apaixonada antes de escalar.
-                </p>
-            </div>
-            <div class="relative">
-                <div id="mvp-cycle" class="grid md:grid-cols-4 gap-8">
-                    <div class="roadmap-step p-6">
-                        <div class="roadmap-step-content rounded-lg p-4">
-                            <span class="text-blue-600 font-bold text-lg">Passo 1</span>
-                            <h4 class="font-bold text-xl my-2">Contribuir</h4>
-                            <p class="text-gray-600">Utilizadores mapeiam um ativo (ex: um parque) com informações básicas. Ação simples e de baixo atrito.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+                    <div class="bg-white p-8 rounded-xl shadow-md">
+                        <h3 class="font-bold text-xl mb-4 accent-text">Tipos de Economia Alternativa</h3>
+                        <p class="text-stone-600 mb-4">A "economia paralela" é um termo amplo. Na prática, existem modelos distintos com filosofias e objetivos diferentes.</p>
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="font-bold text-stone-800">Economia Solidária</h4>
+                                <p class="text-sm text-stone-600">Projeto social e político focado em autogestão, cooperação e justiça social. O objetivo é a transformação e o bem-estar coletivo, não o lucro.</p>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-stone-800">Economia Colaborativa</h4>
+                                <p class="text-sm text-stone-600">Modelo de negócio tecnologicamente eficiente focado no acesso a bens e serviços em detrimento da posse, geralmente mediado por plataformas digitais (ex: Uber, Airbnb).</p>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-stone-800">Economia Não Observada</h4>
+                                <p class="text-sm text-stone-600">Termo técnico da OCDE para atividades fora do alcance fiscal e regulatório, incluindo a economia subterrânea, informal e ilegal.</p>
+                            </div>
                         </div>
                     </div>
-                    <div class="roadmap-step p-6">
-                         <div class="roadmap-step-content rounded-lg p-4">
-                            <span class="text-blue-600 font-bold text-lg">Passo 2</span>
-                            <h4 class="font-bold text-xl my-2">Enriquecer</h4>
-                            <p class="text-gray-600">Outros adicionam fotos, detalhes (acessibilidade, comodidades) e contexto histórico.</p>
-                        </div>
-                    </div>
-                    <div class="roadmap-step p-6">
-                         <div class="roadmap-step-content rounded-lg p-4">
-                            <span class="text-blue-600 font-bold text-lg">Passo 3</span>
-                            <h4 class="font-bold text-xl my-2">Verificar</h4>
-                            <p class="text-gray-600">A comunidade "certifica" a informação, construindo o motor de confiança e a reputação.</p>
-                        </div>
-                    </div>
-                    <div class="roadmap-step p-6">
-                         <div class="roadmap-step-content rounded-lg p-4">
-                            <span class="text-blue-600 font-bold text-lg">Passo 4</span>
-                            <h4 class="font-bold text-xl my-2">Socializar</h4>
-                            <p class="text-gray-600">Iniciam-se conversas públicas ligadas ao local, dando-lhe vida e contexto em tempo real.</p>
+                    <div class="bg-white p-8 rounded-xl shadow-md">
+                        <h3 class="font-bold text-xl mb-4 accent-text">Mecanismos de Troca</h3>
+                        <p class="text-stone-600 mb-4">Antes dos apps, comunidades já criavam sistemas sofisticados para trocas sem dinheiro convencional.</p>
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="font-bold text-stone-800">Bancos de Tempo</h4>
+                                <p class="text-sm text-stone-600">A moeda é a hora. Todo trabalho tem o mesmo valor (1 hora de aula = 1 hora de conserto). Foco em fortalecer laços sociais e igualdade.</p>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-stone-800">Moedas Sociais</h4>
+                                <p class="text-sm text-stone-600">Moedas locais (ex: Palma, Mumbuca) com lastro em Reais. O objetivo é fazer a riqueza circular dentro da comunidade, fortalecendo o comércio local.</p>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-stone-800">Escambo Digital</h4>
+                                <p class="text-sm text-stone-600">Plataformas online que usam moedas virtuais ou sistemas de pontos para facilitar trocas multilaterais complexas de bens e serviços.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="text-center mt-8 bg-blue-50 text-blue-800 rounded-lg p-6">
-                    <h4 class="font-bold">Foco do MVP (Produto Mínimo Viável)</h4>
-                    <p>Lançar num único bairro com foco exclusivo em **Espaços Públicos e Arte Pública**. Isto prova o ciclo de interação central com recursos mínimos e reforça o ethos cívico da plataforma desde o início.</p>
-                </div>
             </div>
         </section>
 
-        <section id="negocio" class="scroll-mt-24">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold text-gray-800">Caminhos para a Sustentabilidade</h2>
-                <p class="text-lg text-gray-600 max-w-3xl mx-auto mt-2">
-                    Para evitar o destino de projetos cívicos que desaparecem, a COCOTA deve ser uma empresa sustentável. A estratégia é um modelo de negócio híbrido, equilibrando o valor para a comunidade e a geração de receita.
+        <section id="ecossistema" class="py-20 sm:py-24 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="section-title">O Ecossistema Brasileiro</h2>
+                <p class="section-subtitle">
+                    O Brasil é um terreno fértil para a economia cooperativa digital. Uma população "mobile-first", somada a fatores econômicos e culturais, impulsiona uma variedade de plataformas de troca. Explore os números e os players deste mercado.
                 </p>
-            </div>
-            <div class="grid md:grid-cols-2 gap-8">
-                <div class="card p-8">
-                    <h3 class="text-2xl font-bold mb-4 text-center">Para a Comunidade (B2C)</h3>
-                    <div class="flex items-center justify-center mb-6">
-                        <span class="mr-3 font-medium">Gratuito</span>
-                        <label class="inline-flex relative items-center cursor-pointer">
-                            <input type="checkbox" id="b2c-toggle" class="sr-only peer">
-                            <div class="w-14 h-7 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-blue-600"></div>
-                        </label>
-                        <span class="ml-3 font-medium">Premium</span>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center max-w-5xl mx-auto mb-16">
+                    <div class="p-6">
+                        <p class="text-4xl md:text-5xl font-extrabold accent-text" data-counter="161">0</p>
+                        <p class="mt-2 text-lg font-medium text-stone-700">Moedas Sociais Ativas</p>
                     </div>
-                    <div id="b2c-content" class="text-gray-600">
-                        <p>A plataforma base será sempre gratuita para maximizar o crescimento. Funções premium podem incluir filtros avançados, exportação de dados para roteiros pessoais e uma experiência sem anúncios.</p>
+                    <div class="p-6">
+                        <p class="text-4xl md:text-5xl font-extrabold accent-text" data-counter="235000">0</p>
+                        <p class="mt-2 text-lg font-medium text-stone-700">Pessoas Envolvidas</p>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-4xl md:text-5xl font-extrabold accent-text">R$<span data-counter="1000000000">0</span></p>
+                        <p class="mt-2 text-lg font-medium text-stone-700">Movimentados em 2024</p>
                     </div>
                 </div>
-                <div class="card p-8">
-                    <h3 class="text-2xl font-bold mb-4 text-center">Para Empresas (B2B)</h3>
-                     <div class="flex items-center justify-center mb-6">
-                        <span class="mr-3 font-medium">Perfis Melhorados</span>
-                        <label class="inline-flex relative items-center cursor-pointer">
-                            <input type="checkbox" id="b2b-toggle" class="sr-only peer">
-                            <div class="w-14 h-7 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-green-600"></div>
-                        </label>
-                        <span class="ml-3 font-medium">Dados & Insights</span>
+                
+                <div class="chart-container mb-20">
+                    <canvas id="socialCurrencyChart"></canvas>
+                </div>
+
+                <h3 class="text-2xl font-bold text-center mb-4">Mapa das Plataformas de Escambo</h3>
+                <p class="section-subtitle !mb-8">Filtre para explorar os diferentes modelos de negócio que operam no Brasil.</p>
+
+                <div class="flex justify-center space-x-2 mb-8" id="platform-filters">
+                    <button data-filter="all" class="filter-btn bg-teal-600 text-white px-4 py-2 rounded-full text-sm font-medium">Todos</button>
+                    <button data-filter="b2b" class="filter-btn bg-white text-stone-700 px-4 py-2 rounded-full text-sm font-medium border border-stone-300">B2B</button>
+                    <button data-filter="hibrido" class="filter-btn bg-white text-stone-700 px-4 py-2 rounded-full text-sm font-medium border border-stone-300">Híbrido B2C/B2B</button>
+                    <button data-filter="hiperlocal" class="filter-btn bg-white text-stone-700 px-4 py-2 rounded-full text-sm font-medium border border-stone-300">Hiperlocal</button>
+                    <button data-filter="nicho" class="filter-btn bg-white text-stone-700 px-4 py-2 rounded-full text-sm font-medium border border-stone-300">Nicho</button>
+                    <button data-filter="habilidades" class="filter-btn bg-white text-stone-700 px-4 py-2 rounded-full text-sm font-medium border border-stone-300">Habilidades</button>
+                </div>
+
+                <div id="platform-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+                    <div class="platform-card" data-category="b2b">
+                        <div class="bg-stone-50 border border-stone-200 p-6 rounded-lg h-full flex flex-col">
+                            <h4 class="font-bold text-lg mb-2">XporY</h4>
+                            <p class="text-sm text-stone-600 mb-4 flex-grow">Focada em B2B, permite que empresas monetizem sua capacidade ociosa (estoques, serviços) usando a moeda virtual X$.</p>
+                            <span class="inline-block bg-teal-100 text-teal-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded-full self-start">B2B</span>
+                        </div>
                     </div>
-                    <div id="b2b-content" class="text-gray-600">
-                        <p>Negócios locais pagam uma assinatura para gerir as suas páginas, responder a comentários e publicar eventos. Este é um modelo de receita comprovado (Yelp, Nextdoor).</p>
+                    <div class="platform-card" data-category="hibrido">
+                        <div class="bg-stone-50 border border-stone-200 p-6 rounded-lg h-full flex flex-col">
+                            <h4 class="font-bold text-lg mb-2">Permuto.com.br</h4>
+                            <p class="text-sm text-stone-600 mb-4 flex-grow">Rede híbrida B2C/B2B que usa Pontos Permuto (P$) para troca de produtos e serviços diversos.</p>
+                            <span class="inline-block bg-sky-100 text-sky-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded-full self-start">Híbrido B2C/B2B</span>
+                        </div>
+                    </div>
+                    <div class="platform-card" data-category="hiperlocal">
+                        <div class="bg-stone-50 border border-stone-200 p-6 rounded-lg h-full flex flex-col">
+                            <h4 class="font-bold text-lg mb-2">Escambo Marketplace</h4>
+                            <p class="text-sm text-stone-600 mb-4 flex-grow">App focado no ambiente de condomínios, capitalizando na confiança e proximidade para troca, venda e aluguel.</p>
+                            <span class="inline-block bg-amber-100 text-amber-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded-full self-start">Hiperlocal</span>
+                        </div>
+                    </div>
+                    <div class="platform-card" data-category="nicho">
+                        <div class="bg-stone-50 border border-stone-200 p-6 rounded-lg h-full flex flex-col">
+                            <h4 class="font-bold text-lg mb-2">Permute (Saúde)</h4>
+                            <p class="text-sm text-stone-600 mb-4 flex-grow">Plataforma de nicho para profissionais de saúde trocarem seus turnos de trabalho com segurança e validade jurídica.</p>
+                            <span class="inline-block bg-rose-100 text-rose-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded-full self-start">Nicho</span>
+                        </div>
+                    </div>
+                    <div class="platform-card" data-category="habilidades">
+                        <div class="bg-stone-50 border border-stone-200 p-6 rounded-lg h-full flex flex-col">
+                            <h4 class="font-bold text-lg mb-2">Bliive / TimeRepublik</h4>
+                            <p class="text-sm text-stone-600 mb-4 flex-grow">Redes de compartilhamento de habilidades e conhecimentos, usando o tempo como moeda (Time-Banking).</p>
+                            <span class="inline-block bg-violet-100 text-violet-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded-full self-start">Habilidades</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
+        <section id="desafios" class="py-20 sm:py-24">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="section-title">Desafios e Viabilidade</h2>
+                <p class="section-subtitle">
+                    O caminho para o sucesso é complexo. As plataformas precisam equilibrar o idealismo cooperativo com a gestão profissional e navegar em um ambiente regulatório que é, ao mesmo tempo, claro e caótico.
+                </p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+                    <div class="bg-white p-8 rounded-xl shadow-md">
+                        <h3 class="font-bold text-xl mb-4 accent-text">O Dilema Cooperativo</h3>
+                        <p class="text-stone-600 mb-4">O cooperativismo brasileiro é uma "economia de barra": de um lado, gigantes bilionários; do outro, iniciativas de base frágeis. O desafio é aprender com os grandes sem perder a alma dos pequenos.</p>
+                        <div class="flex space-x-4">
+                            <div class="w-1/2 bg-stone-100 p-4 rounded-lg">
+                                <h4 class="font-bold text-stone-800">Gigantes (Ex: Sicredi, Unimed)</h4>
+                                <ul class="list-disc list-inside text-sm text-stone-600 mt-2 space-y-1">
+                                    <li>Gestão profissional</li>
+                                    <li>Planejamento estratégico</li>
+                                    <li>Forte representação (Sistema OCB)</li>
+                                    <li>Escala nacional/global</li>
+                                </ul>
+                            </div>
+                            <div class="w-1/2 bg-stone-100 p-4 rounded-lg">
+                                <h4 class="font-bold text-stone-800">Iniciativas de Base</h4>
+                                <ul class="list-disc list-inside text-sm text-stone-600 mt-2 space-y-1">
+                                    <li>Foco na comunidade</li>
+                                    <li>Propósito social claro</li>
+                                    <li>Risco de má gestão</li>
+                                    <li>Dependência externa</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-8 rounded-xl shadow-md">
+                        <h3 class="font-bold text-xl mb-4 accent-text">O Labirinto Regulatório</h3>
+                        <p class="text-stone-600 mb-4">O ambiente jurídico é um paradoxo. A tributação sobre a troca direta (permuta) foi pacificada, mas a regulamentação geral da economia colaborativa é um vácuo legal.</p>
+                        <div class="flex space-x-4">
+                            <div class="w-1/2 bg-green-50 border border-green-200 p-4 rounded-lg">
+                                <h4 class="font-bold text-green-800">Tributação da Permuta</h4>
+                                <p class="text-sm text-green-700 mt-2">Decisão do STJ, aceita pela Fazenda: permuta pura (sem dinheiro extra) não gera receita e, portanto, é isenta de IRPJ, CSLL, PIS e COFINS.</p>
+                                <span class="font-bold text-green-800 mt-2 block">Status: Claro e Favorável</span>
+                            </div>
+                            <div class="w-1/2 bg-amber-50 border border-amber-200 p-4 rounded-lg">
+                                <h4 class="font-bold text-amber-800">Regulação Geral</h4>
+                                <p class="text-sm text-amber-700 mt-2">Não há um marco legal federal para a economia colaborativa, gerando insegurança jurídica e risco de leis municipais/estaduais restritivas.</p>
+                                <span class="font-bold text-amber-800 mt-2 block">Status: Incerto e Volátil</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="futuro" class="py-20 sm:py-24 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="section-title">Futuro & Plano de Ação</h2>
+                <p class="section-subtitle">
+                    O potencial é imenso, mas sua realização depende de ações estratégicas. A seguir, recomendações para os principais atores envolvidos na construção deste ecossistema.
+                </p>
+
+                <div class="max-w-4xl mx-auto">
+                    <div class="accordion-item bg-stone-50 border border-stone-200 rounded-lg mb-4">
+                        <button class="accordion-header w-full flex justify-between items-center p-6 text-left font-bold text-lg">
+                            <span>Para Empreendedores e Desenvolvedores</span>
+                            <span class="accordion-icon transition-transform transform">+</span>
+                        </button>
+                        <div class="accordion-content hidden p-6 pt-0">
+                            <ul class="list-disc list-inside space-y-2 text-stone-700">
+                                <li><b>Construa a Confiança como Ativo Principal:</b> Invista em verificação, avaliação mútua e resolução de disputas.</li>
+                                <li><b>Defina sua Ideologia:</b> Seja uma ferramenta de mercado ou um projeto comunitário. A clareza guia as decisões.</li>
+                                <li><b>Projete para a Realidade Jurídica:</b> Estruture o negócio para evitar a "torna" (pagamento extra) ou tribute-a corretamente.</li>
+                                <li><b>Comece por um Nicho de Alta Confiança:</b> Domine um mercado específico (condomínios, profissões) antes de expandir.</li>
+                            </ul>
+                        </div>
+                    </div>
+                     <div class="accordion-item bg-stone-50 border border-stone-200 rounded-lg mb-4">
+                        <button class="accordion-header w-full flex justify-between items-center p-6 text-left font-bold text-lg">
+                            <span>Para Formuladores de Políticas e Reguladores</span>
+                            <span class="accordion-icon transition-transform transform">+</span>
+                        </button>
+                        <div class="accordion-content hidden p-6 pt-0">
+                            <ul class="list-disc list-inside space-y-2 text-stone-700">
+                                <li><b>Adote o Princípio "Primeiro, Não Prejudicar":</b> Evite legislações reativas que sufoquem a inovação. Considere "sandboxes regulatórios".</li>
+                                <li><b>Desenvolva um Marco Regulatório Claro:</b> Crie uma lei federal para a economia colaborativa que equilibre proteção e fomento.</li>
+                                <li><b>Promova, Não Apenas Regule:</b> Crie políticas de incentivo em parceria com agências como Sebrae e BNDES.</li>
+                            </ul>
+                        </div>
+                    </div>
+                     <div class="accordion-item bg-stone-50 border border-stone-200 rounded-lg">
+                        <button class="accordion-header w-full flex justify-between items-center p-6 text-left font-bold text-lg">
+                            <span>Para Usuários e Comunidades</span>
+                            <span class="accordion-icon transition-transform transform">+</span>
+                        </button>
+                        <div class="accordion-content hidden p-6 pt-0">
+                            <ul class="list-disc list-inside space-y-2 text-stone-700">
+                                <li><b>Eduque-se sobre as Regras:</b> Entenda os termos de serviço, o valor das moedas internas e as taxas.</li>
+                                <li><b>Utilize como Ferramenta de Resiliência:</b> Adote as plataformas para fortalecer a economia local, organizando feiras e apoiando comerciantes da vizinhança.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
 
-    <footer class="bg-gray-800 text-white mt-24">
-        <div class="container mx-auto px-6 py-8 text-center">
-            <p>&copy; 2025 COCOTA_Software. Uma visualização estratégica baseada no relatório "A Ágora Digital Urbana".</p>
+    <footer class="bg-stone-800 text-stone-300">
+        <div class="container mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center">
+            <p>Uma visualização interativa baseada no relatório "A Nova Moeda da Comunidade".</p>
+            <p class="text-sm text-stone-400 mt-2">Projetado para explorar a economia cooperativa digital no Brasil.</p>
         </div>
     </footer>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            
-            const competitorData = {
-                cocota: {
-                    label: 'COCOTA (Proposta)',
-                    data: [5, 4, 5, 5, 4],
-                    borderColor: 'rgba(37, 99, 235, 1)',
-                    backgroundColor: 'rgba(37, 99, 235, 0.2)',
-                },
-                yelp: {
-                    label: 'Yelp',
-                    data: [5, 2, 1, 2, 1],
-                    borderColor: 'rgba(217, 4, 41, 1)',
-                    backgroundColor: 'rgba(217, 4, 41, 0.2)',
-                },
-                nextdoor: {
-                    label: 'Nextdoor',
-                    data: [3, 4, 3, 2, 2],
-                    borderColor: 'rgba(22, 163, 74, 1)',
-                    backgroundColor: 'rgba(22, 163, 74, 0.2)',
-                },
-                google: {
-                    label: 'Google Maps',
-                    data: [4, 5, 1, 1, 3],
-                    borderColor: 'rgba(249, 115, 22, 1)',
-                    backgroundColor: 'rgba(249, 115, 22, 0.2)',
-                },
-                civic: {
-                    label: 'Plataformas Cívicas',
-                    data: [1, 2, 4, 5, 1],
-                    borderColor: 'rgba(107, 114, 128, 1)',
-                    backgroundColor: 'rgba(107, 114, 128, 0.2)',
-                }
+        document.addEventListener('DOMContentLoaded', () => {
+            const smoothScroll = () => {
+                document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                    anchor.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        const targetId = this.getAttribute('href');
+                        const targetElement = document.querySelector(targetId);
+                        if (targetElement) {
+                            targetElement.scrollIntoView({
+                                behavior: 'smooth'
+                            });
+                        }
+                    });
+                });
             };
 
-            const chartCtx = document.getElementById('competitorChart').getContext('2d');
-            let competitorChart = new Chart(chartCtx, {
-                type: 'radar',
-                data: {
-                    labels: ['Alcance Comercial', 'Alcance Social', 'Foco Cívico', 'Confiança/Verificação', 'Engajamento'],
-                    datasets: [competitorData.cocota]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        r: {
-                            angleLines: {
-                                color: 'rgba(0, 0, 0, 0.1)'
+            const platformFilter = () => {
+                const filters = document.getElementById('platform-filters');
+                const grid = document.getElementById('platform-grid');
+                if (!filters || !grid) return;
+
+                const cards = grid.querySelectorAll('.platform-card');
+                const buttons = filters.querySelectorAll('.filter-btn');
+
+                filters.addEventListener('click', (e) => {
+                    if (e.target.tagName !== 'BUTTON') return;
+
+                    const filter = e.target.dataset.filter;
+
+                    buttons.forEach(btn => {
+                        btn.classList.remove('bg-teal-600', 'text-white');
+                        btn.classList.add('bg-white', 'text-stone-700');
+                    });
+
+                    e.target.classList.add('bg-teal-600', 'text-white');
+                    e.target.classList.remove('bg-white', 'text-stone-700');
+
+                    cards.forEach(card => {
+                        if (filter === 'all' || card.dataset.category === filter) {
+                            card.style.display = 'block';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                });
+            };
+
+            const accordion = () => {
+                const items = document.querySelectorAll('.accordion-item');
+                items.forEach(item => {
+                    const header = item.querySelector('.accordion-header');
+                    const content = item.querySelector('.accordion-content');
+                    const icon = item.querySelector('.accordion-icon');
+
+                    header.addEventListener('click', () => {
+                        const isVisible = !content.classList.contains('hidden');
+                        content.classList.toggle('hidden');
+                        icon.textContent = isVisible ? '+' : '-';
+                        icon.classList.toggle('rotate-180', !isVisible);
+                    });
+                });
+            };
+
+            const animatedCounters = () => {
+                const counters = document.querySelectorAll('[data-counter]');
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const el = entry.target;
+                            const target = +el.dataset.counter;
+                            let current = 0;
+                            const duration = 2000;
+                            const stepTime = 20;
+                            const steps = duration / stepTime;
+                            const increment = target / steps;
+                            
+                            const timer = setInterval(() => {
+                                current += increment;
+                                if (current >= target) {
+                                    clearInterval(timer);
+                                    current = target;
+                                }
+                                if (target >= 1000000) {
+                                    el.textContent = (current / 1000000000).toFixed(1).replace('.',',') + ' Bi';
+                                } else if (target >= 1000) {
+                                     el.textContent = Math.ceil(current).toLocaleString('pt-BR');
+                                } else {
+                                     el.textContent = Math.ceil(current);
+                                }
+                            }, stepTime);
+
+                            observer.unobserve(el);
+                        }
+                    });
+                }, { threshold: 0.5 });
+
+                counters.forEach(counter => {
+                    observer.observe(counter);
+                });
+            };
+            
+            const renderChart = () => {
+                const ctx = document.getElementById('socialCurrencyChart');
+                if (!ctx) return;
+
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Moedas Sociais Ativas', 'Pessoas Envolvidas (mil)', 'Valor Movimentado (R$ Bi)'],
+                        datasets: [{
+                            label: 'Ecossistema de Moedas Sociais no Brasil (2024)',
+                            data: [161, 235, 1],
+                            backgroundColor: [
+                                'rgba(20, 184, 166, 0.6)', // teal-500
+                                'rgba(59, 130, 246, 0.6)', // blue-500
+                                'rgba(245, 158, 11, 0.6)'  // amber-500
+                            ],
+                            borderColor: [
+                                'rgba(13, 148, 136, 1)', // teal-600
+                                'rgba(37, 99, 235, 1)',  // blue-600
+                                'rgba(217, 119, 6, 1)'   // amber-600
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
                             },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.1)'
-                            },
-                            pointLabels: {
-                                font: {
-                                    size: 12,
-                                    weight: 'bold'
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.y !== null) {
+                                            if (context.label.includes('mil')) {
+                                                label += context.parsed.y + ' mil';
+                                            } else if (context.label.includes('Bi')) {
+                                                label += 'R$ ' + context.parsed.y + ' bilhão';
+                                            } else {
+                                                label += context.parsed.y;
+                                            }
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: '#E7E5E4' // stone-200
                                 },
-                                color: '#333D4B'
-                            },
-                            ticks: {
-                                backdropColor: 'transparent',
-                                stepSize: 1,
-                                font: {
-                                    size: 10
+                                ticks: {
+                                   color: '#57534E' // stone-600
                                 }
                             },
-                            suggestedMin: 0,
-                            suggestedMax: 5
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.parsed.r !== null) {
-                                        label += context.parsed.r;
-                                    }
-                                    return label;
+                            x: {
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                   color: '#57534E' // stone-600
                                 }
                             }
                         }
                     }
-                }
-            });
-
-            document.querySelectorAll('.competitor-btn').forEach(button => {
-                button.addEventListener('click', () => {
-                    const competitorKey = button.dataset.competitor;
-                    competitorChart.data.datasets = [competitorData[competitorKey]];
-                    competitorChart.update();
                 });
-            });
-
-            const tabs = document.querySelectorAll('.tab-button');
-            const tabContentContainer = document.getElementById('tab-content');
-            const tabContents = {
-                catalogo: `
-                    <h4 class="text-2xl font-bold mb-4">Além dos Pontos de Interesse</h4>
-                    <p class="text-gray-700 mb-4">O catálogo vai além de lojas e restaurantes para incluir o tecido da cidade: praças, arte pública, infraestrutura e, crucialmente, o patrimônio cultural imaterial (tradições, histórias, festivais). Esta é a maior diferenciação da plataforma.</p>
-                    <div class="grid md:grid-cols-2 gap-4 text-sm">
-                        <div class="bg-gray-50 p-4 rounded-lg"><strong>Ativos Tangíveis:</strong> Serviços, comércios, praças, mobiliário urbano, arte pública, e até problemas como buracos.</div>
-                        <div class="bg-gray-50 p-4 rounded-lg"><strong>Ativos Intangíveis:</strong> Tradições, festivais, histórias orais, gírias locais. Conecta o espaço físico à sua alma cultural.</div>
-                    </div>
-                `,
-                social: `
-                    <h4 class="text-2xl font-bold mb-4">Conversas em Contexto</h4>
-                    <p class="text-gray-700 mb-4">Transforma locais estáticos em centros de interação em tempo real. Cada praça, rua ou negócio pode ter seu próprio feed de conversas, funcionando como uma ágora digital localizada.</p>
-                    <div class="grid md:grid-cols-2 gap-4 text-sm">
-                        <div class="bg-gray-50 p-4 rounded-lg"><strong>Conversas Públicas:</strong> Fóruns localizados para espaços públicos, permitindo discutir eventos, segurança ou observações do dia a dia.</div>
-                        <div class="bg-gray-50 p-4 rounded-lg"><strong>Conversas de Negócios:</strong> Um pub ou café pode ter seu próprio espaço de conversa para clientes, criando uma comunidade digital em torno de um espaço físico.</div>
-                    </div>
-                `,
-                confianca: `
-                    <h4 class="text-2xl font-bold mb-4">Verificação pela Comunidade</h4>
-                    <p class="text-gray-700 mb-4">Inspirado na filosofia blockchain de confiança distribuída, mas com uma implementação prática. A comunidade itera e certifica a informação, criando um registro de verdade confiável e combatendo a desinformação.</p>
-                    <div class="grid md:grid-cols-2 gap-4 text-sm">
-                        <div class="bg-gray-50 p-4 rounded-lg"><strong>Sistema de Reputação:</strong> Utilizadores ganham pontos e status por contribuir e, mais importante, por verificar a informação de outros.</div>
-                        <div class="bg-gray-50 p-4 rounded-lg"><strong>Selo "Certificado":</strong> Ativos com múltiplas verificações positivas de utilizadores com alta reputação ganham um selo de confiança, um sinal visual claro de fiabilidade.</div>
-                    </div>
-                `
             };
 
-            function updateTabContent(tabId) {
-                tabContentContainer.innerHTML = tabContents[tabId];
-            }
-
-            tabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    tabs.forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
-                    updateTabContent(tab.dataset.tab);
-                });
-            });
-            
-            updateTabContent('catalogo');
-
-            const b2cToggle = document.getElementById('b2c-toggle');
-            const b2cContent = document.getElementById('b2c-content');
-            b2cToggle.addEventListener('change', () => {
-                if (b2cToggle.checked) {
-                    b2cContent.innerHTML = '<p>Assinaturas pagas desbloqueiam funcionalidades avançadas como filtros de pesquisa complexos ("parques certificados com café e acesso para cadeiras de rodas"), exportação de dados para roteiros de viagem e uma experiência sem publicidade.</p>';
-                } else {
-                    b2cContent.innerHTML = '<p>A plataforma base será sempre gratuita para maximizar o crescimento. Funções premium podem incluir filtros avançados, exportação de dados para roteiros pessoais e uma experiência sem anúncios.</p>';
-                }
-            });
-
-            const b2bToggle = document.getElementById('b2b-toggle');
-            const b2bContent = document.getElementById('b2b-content');
-            b2bToggle.addEventListener('change', () => {
-                if (b2bToggle.checked) {
-                    b2bContent.innerHTML = '<p>O ativo mais valioso é o conjunto de dados verificado. A COCOTA pode vender acesso a dados agregados e anonimizados (DaaS) e painéis de insights (IaaS) para urbanistas, setor imobiliário e pesquisadores.</p>';
-                } else {
-                    b2bContent.innerHTML = '<p>Negócios locais pagam uma assinatura para gerir as suas páginas, responder a comentários e publicar eventos. Este é um modelo de receita comprovado (Yelp, Nextdoor).</p>';
-                }
-            });
-            
-            const mobileMenuButton = document.getElementById('mobile-menu-button');
-            const mobileMenu = document.getElementById('mobile-menu');
-            mobileMenuButton.addEventListener('click', () => {
-                mobileMenu.classList.toggle('hidden');
-            });
-
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    document.querySelector(this.getAttribute('href')).scrollIntoView({
-                        behavior: 'smooth'
-                    });
-                    if(mobileMenu.classList.contains('hidden') === false){
-                        mobileMenu.classList.add('hidden');
-                    }
-                });
-            });
-
-            const navLinks = document.querySelectorAll('.nav-link');
-            const sections = document.querySelectorAll('main section');
-
-            window.addEventListener('scroll', () => {
-                let current = '';
-                sections.forEach(section => {
-                    const sectionTop = section.offsetTop;
-                    if (pageYOffset >= sectionTop - 120) {
-                        current = section.getAttribute('id');
-                    }
-                });
-
-                navLinks.forEach(link => {
-                    link.classList.remove('active');
-                    if (link.getAttribute('href').includes(current)) {
-                        link.classList.add('active');
-                    }
-                });
-            });
+            smoothScroll();
+            platformFilter();
+            accordion();
+            animatedCounters();
+            renderChart();
         });
     </script>
 </body>
