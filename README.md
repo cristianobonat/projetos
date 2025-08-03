@@ -1,7 +1,7 @@
 # meus_projetos //,
 Repositório de projetos e estudos:
 
-### **News** *legendaspontocom*
+### 0. **News** *legendaspontocom*
   
 * > > #### the number one:
   > > ## [News Edição n.1](https://tinyurl.com/n1LGNDSPNTCM)
@@ -12,7 +12,7 @@ Repositório de projetos e estudos:
   > > ## [News Edição n.2](https://tinyurl.com/n2LGNDSPNTCM)
   > > > * Se preferir, acesse via *mobile*: <img src="https://cristianobonat.github.io/projetos/n2LGNDSPNTCM-400.png" width="100" height="100"/>
 
-### Estudo sobre A Revolução da IA no Direito Brasileiro: 
+### 1. Estudo sobre A Revolução da IA no Direito Brasileiro: 
 ## [A Revolução da IA no Direito Brasileiro](https://tinyurl.com/direitoeia)
 > > > * QR-Code para *mobile*: <img src="https://cristianobonat.github.io/projetos/direitoeia-400.png" width="150" height="150"/>
 
@@ -21,7 +21,7 @@ Repositório de projetos e estudos:
 > > > * QR-Code: <img src="https://cristianobonat.github.io/projetos/revosilenc-400.png" width="150" height="150"/>
 
 
-### Estudo atualizado sobre mobilidade urbana: 
+### 2. Estudo atualizado sobre mobilidade urbana: 
 ## [Sua Mobilidade, Sua Escolha](https://bit.ly/suamobilidade)
 > > > * Para ler via *mobile*: <img src="https://cristianobonat.github.io/projetos/bit.ly_suamobilidade.png" width="150" height="150"/>
 
@@ -30,7 +30,7 @@ Repositório de projetos e estudos:
 > > > * Para ler via *mobile*: <img src="https://cristianobonat.github.io/projetos/rebrand.ly.infomobilidade.png" width="150" height="150"/>
 
 
-### Estudo sobre oportunidade, Sociedade Auto-Organizada - "Além de Alvin Toffler, depois da terceira onda..." - Comunidade Grande e Pequena, Diversos e Antagônicos, a Praça é Pública ... 
+### 3. Estudo sobre oportunidade, Sociedade Auto-Organizada - "Além de Alvin Toffler, depois da terceira onda..." - Comunidade Grande e Pequena, Diversos e Antagônicos, a Praça é Pública ... 
 ## [Estudo sobre o social, além do interesse](https://tinyurl.com/cocotavcity)
 > > > * Para ler via *mobile*: <img src="https://cristianobonat.github.io/projetos/cocotavcity-400.png" width="150" height="150"/>
 
@@ -38,12 +38,11 @@ Repositório de projetos e estudos:
 ## [Cocota_VCity Infográfico Interativo](https://tinyurl.com/cocotavcInfo)
 > > > * Para ler *fora daqui*: <img src="https://cristianobonat.github.io/projetos/cocotavcInfo-400.png" width="150" height="150"/>
 > 
-> * <a href="https://cristianobonat.github.io/cocota_vPolis" target="_blank">
-Acessar o serviço COCOTA_vPolis </a>
+> * <a href="https://cristianobonat.github.io/cocota_vPolis" target="_blank"> Acessar o serviço COCOTA_vPolis </a>  (por ora, inoperante - I'm working!)
 >
 
 
-### Estudo sobre economia social local: 
+### 4. Estudo sobre economia social local: 
 ## [A Moeda da Comunidade](https://tinyurl.com/NewComoeda)
 > > > * Para ler *fora daqui*: <img src="https://cristianobonat.github.io/projetos/NewComoeda-400.png" width="150" height="150"/>
 
