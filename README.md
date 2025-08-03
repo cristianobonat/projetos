@@ -35,6 +35,11 @@ Repositório de projetos e estudos:
 * > * Para ler *fora daqui*:
   >
   > <img src="https://cristianobonat.github.io/projetos/cocotavcInfo-400.png" width="150" height="150"/>
+
+  > 
+  > * <a href="https://cristianobonat.github.io/cocota_vPolis" target="_blank">
+  Acessar o serviço COCOTA_vPolis </a>
+  >
 * ### Estudo sobre economia social local: [A Moeda da Comunidade](https://tinyurl.com/NewComoeda)
 * > * Para ler *fora daqui*:
   >
