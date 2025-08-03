@@ -4,9 +4,21 @@ Repositório de projetos e estudos:
 * ### **News** *legendaspontocom*
   
 * > > ##### the number one [News Edição n.1](https://tinyurl.com/n1LGNDSPNTCM)
+  > > > * Para ler via *mobile*:
+  > > > * <img src="https://cristianobonat.github.io/projetos/n1LGNDSPNTCM-400.png" width="100" height="100"/>
 
 * > > ##### the next number [News Edição n.2](https://tinyurl.com/n2LGNDSPNTCM)
+  > > > * Para ler via *mobile*:
+  > > > * <img src="https://cristianobonat.github.io/projetos/n2LGNDSPNTCM-400.png" width="100" height="100"/>
 
+*### Estudo sobre A Revolução da IA no Direito Brasileiro: [A Revolução da IA no Direito Brasileiro](https://tinyurl.com/direitoeia)
+> * Para ler via *mobile*:
+>  
+> <img src="https://cristianobonat.github.io/projetos/direitoeia-400.png" width="150" height="150"/>
+* Visão alternativa do estudo: [O Engenheiro de Prompt - Infográfico](https://tinyurl.com/revosilenc)
+> * Para ler via *mobile*:
+> 
+> <img src="https://cristianobonat.github.io/projetos/revosilenc-400.png" width="150" height="150"/>
 * ### Estudo atualizado sobre mobilidade urbana: [Sua Mobilidade, Sua Escolha](https://bit.ly/suamobilidade)
 > * Para ler via *mobile*:
 >  
