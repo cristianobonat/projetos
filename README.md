@@ -56,11 +56,10 @@ Repositório de projetos e estudos:
 >
 > > ... humanos ao fundo? tô nessa!;-)) Engaje-se))
 >
-> > antiga Mocinhos Software - MOCI|SOFT, agora é:
+> > ... antiga Mocinhos Softwares - MOCI|SOFT, agora é:
 >
 >
-> > (<<°>>) c o c o t a  S o f t w a r e
-> > feitos de humanidade, feitos para o bem
+> > (<<°>>)  C o C o T a  S o f t w a r e s  |  feitos de humanidade, feitos para o bem
 > 
 > > //,
 > 
