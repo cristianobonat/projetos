@@ -61,7 +61,5 @@ Repositório de projetos e estudos:
 >
 > > (<<°>>)  C o C o T a  S o f t w a r e s  |  feitos de humanidade, feitos para o bem
 > 
-> > //,
 > 
-> > x.com/*legendaspontoc1*
-> > youtube.com/*@legendaspontocom*
+> > x.com/*legendaspontoc1*  //,  youtube.com/*@legendaspontocom*
