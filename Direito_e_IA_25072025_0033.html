@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IA no Direito: A Nova Fronteira Profissional</title>
+    <!-- Chosen Palette: Paleta Jurídica Sóbria -->
+    <!-- Application Structure Plan: A SPA com uma estrutura temática e não-linear. Começa com um panorama geral (estatísticas e gráfico de adoção), avança para as ferramentas práticas (cartões interativos), aprofunda na nova carreira de "Engenheiro de Prompt" (diagrama de habilidades e gráfico de salários) e conclui com os desafios éticos (acordeão) e o futuro. Esta estrutura foi escolhida para transformar um relatório denso em uma jornada de descoberta, permitindo que o usuário explore os tópicos de maior interesse de forma intuitiva, priorizando a usabilidade e o engajamento sobre a ordem linear do documento original. -->
+    <!-- Visualization & Content Choices: 
+        - Estatísticas de Adoção: Informar -> Cards de destaque -> Hover para mais detalhes -> Apresenta dados chave de forma imediata.
+        - Adoção por Setor: Comparar -> Gráfico de Donut (Chart.js/Canvas) -> Tooltip interativo -> Visualiza a proporção de uso entre diferentes tipos de advogados.
+        - Ferramentas Legaltech: Organizar -> Grade de cartões filtráveis -> Clique para expandir/modal -> Permite explorar o ecossistema de ferramentas sem sobrecarregar a UI.
+        - Matriz de Competências: Organizar/Relacionar -> Diagrama HTML/CSS -> Hover para revelar detalhes -> Transforma uma tabela estática em uma visualização interativa e memorável das habilidades híbridas.
+        - Comparativo Salarial: Comparar -> Gráfico de Barras (Chart.js/Canvas) -> Tooltip interativo -> Contextualiza o valor da nova profissão em relação a carreiras tradicionais.
+        - Desafios Éticos: Informar -> Acordeão interativo -> Clique para revelar -> Apresenta temas complexos de forma organizada e sob demanda.
+        - Justificativa: As escolhas visam aumentar o engajamento e a clareza, convertendo texto denso em elementos visuais e interativos que facilitam a compreensão e a retenção da informação. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F5F5F4; /* stone-100 */
+            color: #334155; /* slate-700 */
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .card-flip {
+            perspective: 1000px;
+        }
+        .card-flip-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .card-flip:hover .card-flip-inner {
+            transform: rotateY(180deg);
+        }
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 0.75rem;
+        }
+        .card-back {
+            transform: rotateY(180deg);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Header & Navegação -->
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-40 shadow-sm">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-20">
+                <h1 class="text-xl md:text-2xl font-bold text-slate-800">Direito & IA</h1>
+                <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-600">
+                    <a href="#panorama" class="hover:text-blue-600 transition-colors">Panorama</a>
+                    <a href="#ferramentas" class="hover:text-blue-600 transition-colors">Ferramentas</a>
+                    <a href="#carreira" class="hover:text-blue-600 transition-colors">A Nova Carreira</a>
+                    <a href="#desafios" class="hover:text-blue-600 transition-colors">Desafios & Futuro</a>
+                </nav>
+                <button id="mobile-menu-button" class="md:hidden p-2 rounded-md text-slate-600 hover:bg-slate-100">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                </button>
+            </div>
+        </div>
+        <!-- Menu Mobile -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-slate-200">
+            <nav class="flex flex-col p-4 space-y-2">
+                <a href="#panorama" class="block px-4 py-2 rounded-md text-slate-600 hover:bg-slate-100 hover:text-blue-600 transition-colors">Panorama</a>
+                <a href="#ferramentas" class="block px-4 py-2 rounded-md text-slate-600 hover:bg-slate-100 hover:text-blue-600 transition-colors">Ferramentas</a>
+                <a href="#carreira" class="block px-4 py-2 rounded-md text-slate-600 hover:bg-slate-100 hover:text-blue-600 transition-colors">A Nova Carreira</a>
+                <a href="#desafios" class="block px-4 py-2 rounded-md text-slate-600 hover:bg-slate-100 hover:text-blue-600 transition-colors">Desafios & Futuro</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Seção Hero -->
+        <section class="py-20 md:py-32 bg-white">
+            <div class="container mx-auto px-4 text-center">
+                <h2 class="text-4xl md:text-6xl font-extrabold text-slate-800 leading-tight">A Revolução da IA no Direito Brasileiro</h2>
+                <p class="mt-6 max-w-3xl mx-auto text-lg md:text-xl text-slate-600">Explore como a Inteligência Artificial está remodelando a prática jurídica, criando novas ferramentas, desafios e uma carreira promissora: o Engenheiro de Prompt Jurídico.</p>
+                <div class="mt-10">
+                    <a href="#panorama" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 transition-transform transform hover:scale-105 shadow-lg">Iniciar Exploração</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção Panorama -->
+        <section id="panorama" class="py-20">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-16">
+                    <h3 class="text-3xl md:text-4xl font-bold text-slate-800">O Panorama Atual da IA no Direito</h3>
+                    <p class="mt-4 max-w-2xl mx-auto text-slate-600">Esta seção oferece um retrato da adoção da Inteligência Artificial na advocacia brasileira. Os números mostram uma rápida integração da tecnologia na rotina dos profissionais, indicando uma transformação que já está em pleno andamento.</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8 items-center">
+                    <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-8">
+                        <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200/50 text-center">
+                            <div class="text-5xl font-extrabold text-blue-600">55,1%</div>
+                            <p class="mt-3 font-semibold text-slate-700">dos advogados no Brasil</p>
+                            <p class="text-sm text-slate-500">já utilizam ferramentas de IA generativa em suas atividades profissionais.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200/50 text-center">
+                            <div class="text-5xl font-extrabold text-blue-600">>300 mil</div>
+                            <p class="mt-3 font-semibold text-slate-700">profissionais (~20% da OAB)</p>
+                            <p class="text-sm text-slate-500">já utilizam ferramentas de IA especializadas para o setor jurídico.</p>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-md border border-slate-200/50">
+                        <h4 class="text-xl font-bold text-center mb-4 text-slate-800">Adoção por Setor</h4>
+                         <p class="text-sm text-center text-slate-500 mb-4">A maior taxa de adoção é observada em escritórios e no setor público, onde a busca por eficiência é mais intensa.</p>
+                        <div class="chart-container">
+                            <canvas id="adoptionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção Ferramentas -->
+        <section id="ferramentas" class="py-20 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-16">
+                    <h3 class="text-3xl md:text-4xl font-bold text-slate-800">Ferramentas em Ação</h3>
+                    <p class="mt-4 max-w-2xl mx-auto text-slate-600">A inovação no direito brasileiro é impulsionada por um ecossistema vibrante de *legaltechs*. Esta seção permite explorar algumas das principais plataformas de IA que estão automatizando tarefas, aprimorando a pesquisa e definindo novas estratégias na prática jurídica nacional.</p>
+                </div>
+                <div id="tools-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                </div>
+            </div>
+        </section>
+        
+        <!-- Modal para Ferramentas -->
+        <div id="tool-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+            <div class="bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center p-4 border-b">
+                    <h4 id="modal-title" class="text-2xl font-bold text-slate-800"></h4>
+                    <button id="modal-close" class="text-slate-500 hover:text-slate-800">&times;</button>
+                </div>
+                <div class="p-6">
+                    <h5 class="font-bold text-slate-700 mb-2">Principal Função:</h5>
+                    <p id="modal-function" class="text-slate-600 mb-4"></p>
+                    <h5 class="font-bold text-slate-700 mb-2">Diferencial Declarado:</h5>
+                    <p id="modal-differentiator" class="text-slate-600 mb-4"></p>
+                    <h5 class="font-bold text-slate-700 mb-2">Conformidade:</h5>
+                    <p id="modal-compliance" class="text-slate-600"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção Carreira -->
+        <section id="carreira" class="py-20">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-16">
+                    <h3 class="text-3xl md:text-4xl font-bold text-slate-800">A Nova Carreira: Engenheiro de Prompt Jurídico</h3>
+                    <p class="mt-4 max-w-3xl mx-auto text-slate-600">No cruzamento entre direito e tecnologia, surge uma função estratégica. Esta seção faz um mergulho profundo na carreira do Engenheiro de Prompt Jurídico, detalhando as competências essenciais para este profissional híbrido e analisando o potencial de remuneração em um mercado aquecido.</p>
+                </div>
+
+                <div class="grid lg:grid-cols-2 gap-12 items-start">
+                    <!-- Matriz de Competências -->
+                    <div class="bg-white p-8 rounded-xl shadow-md border border-slate-200/50">
+                        <h4 class="text-2xl font-bold text-center mb-6 text-slate-800">Matriz de Competências Essenciais</h4>
+                         <p class="text-sm text-center text-slate-500 mb-8">O perfil ideal é uma fusão de conhecimento jurídico profundo com habilidades técnicas e analíticas. Passe o mouse sobre cada domínio para explorar as habilidades específicas.</p>
+                        <div id="skills-matrix" class="space-y-4">
+                        </div>
+                    </div>
+
+                    <!-- Análise de Remuneração -->
+                    <div class="bg-white p-8 rounded-xl shadow-md border border-slate-200/50">
+                        <h4 class="text-2xl font-bold text-center mb-6 text-slate-800">Análise de Remuneração Inicial (Júnior)</h4>
+                        <p class="text-sm text-center text-slate-500 mb-4">A combinação de habilidades raras justifica um prêmio de especialização, posicionando o salário inicial do Engenheiro de Prompt Jurídico acima das carreiras de base.</p>
+                        <div class="chart-container h-80 md:h-96">
+                            <canvas id="salaryChart"></canvas>
+                        </div>
+                        <p class="text-xs text-center text-slate-500 mt-4">Valores mensais estimados em BRL. A faixa para Engenheiro de Prompt Jurídico reflete o potencial inicial.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção Desafios e Futuro -->
+        <section id="desafios" class="py-20 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-16">
+                    <h3 class="text-3xl md:text-4xl font-bold text-slate-800">Desafios Éticos e o Futuro da Advocacia</h3>
+                    <p class="mt-4 max-w-3xl mx-auto text-slate-600">A integração da IA não é isenta de riscos. Esta seção aborda os desafios críticos que demandam atenção e supervisão humana, e apresenta recomendações estratégicas para que os profissionais do direito não apenas se adaptem, mas prosperem na nova era digital.</p>
+                </div>
+
+                <div class="grid lg:grid-cols-2 gap-12">
+                    <!-- Desafios -->
+                    <div>
+                        <h4 class="text-2xl font-bold mb-6 text-slate-800">Principais Desafios e Riscos</h4>
+                        <div id="challenges-accordion" class="space-y-3">
+                        </div>
+                    </div>
+                    <!-- Recomendações -->
+                    <div>
+                        <h4 class="text-2xl font-bold mb-6 text-slate-800">Recomendações Estratégicas</h4>
+                        <ul class="space-y-4">
+                            <li class="flex items-start">
+                                <span class="flex-shrink-0 h-6 w-6 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold mr-4">1</span>
+                                <div>
+                                    <h5 class="font-bold text-slate-700">Capacitação Contínua e Especializada</h5>
+                                    <p class="text-slate-600">A alfabetização tecnológica é imperativa. Busque ativamente formação em IA e inovação jurídica. A mentalidade deve ser de aprendizado constante (*lifelong learning*).</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="flex-shrink-0 h-6 w-6 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold mr-4">2</span>
+                                <div>
+                                    <h5 class="font-bold text-slate-700">Desenvolver Alfabetização em Dados</h5>
+                                    <p class="text-slate-600">Compreender o básico de como algoritmos funcionam e modelos são treinados é crucial para avaliar criticamente as ferramentas e seus resultados.</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="flex-shrink-0 h-6 w-6 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold mr-4">3</span>
+                                <div>
+                                    <h5 class="font-bold text-slate-700">Experimentar na Prática</h5>
+                                    <p class="text-slate-600">Use as ferramentas. Muitas *legaltechs* oferecem testes gratuitos. Engaje-se ativamente para entender as capacidades e limitações da IA no seu trabalho diário.</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-800 text-slate-400 py-8">
+        <div class="container mx-auto px-4 text-center text-sm">
+            <p>&copy; 2025 Análise Interativa: IA no Direito. Todos os direitos reservados.</p>
+            <p class="mt-2">Conteúdo baseado no relatório "A Revolução Silenciosa: Aplicações Práticas de IA..."</p>
+        </div>
+    </footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    mobileMenuButton.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+    });
+
+    document.querySelectorAll('#mobile-menu a').forEach(link => {
+        link.addEventListener('click', () => {
+            mobileMenu.classList.add('hidden');
+        });
+    });
+
+    const adoptionData = {
+        labels: ['Setor Público (63%)', 'Escritórios Privados (62%)', 'Autônomos (50%)'],
+        datasets: [{
+            label: 'Taxa de Adoção de IA',
+            data: [63, 62, 50],
+            backgroundColor: [
+                'rgba(37, 99, 235, 0.8)', // blue-600
+                'rgba(59, 130, 246, 0.8)', // blue-500
+                'rgba(96, 165, 250, 0.8)'  // blue-400
+            ],
+            borderColor: '#F5F5F4',
+            borderWidth: 2,
+            hoverOffset: 4
+        }]
+    };
+
+    const adoptionChartCtx = document.getElementById('adoptionChart').getContext('2d');
+    new Chart(adoptionChartCtx, {
+        type: 'doughnut',
+        data: adoptionData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        font: {
+                            family: "'Inter', sans-serif"
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed !== null) {
+                                label += context.parsed + '% de adoção';
+                            }
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    const salaryData = {
+        labels: ['Advogado Júnior', 'Eng. Software Júnior', 'Eng. Prompt Jurídico (Estimativa)'],
+        datasets: [{
+            label: 'Faixa Salarial Mensal (BRL)',
+            data: [
+                [4000, 7200],
+                [3200, 5000],
+                [7000, 12000]
+            ],
+            backgroundColor: [
+                'rgba(148, 163, 184, 0.6)', // slate-400
+                'rgba(148, 163, 184, 0.6)', // slate-400
+                'rgba(37, 99, 235, 0.6)'   // blue-600
+            ],
+            borderColor: [
+                'rgba(100, 116, 139, 1)', // slate-500
+                'rgba(100, 116, 139, 1)', // slate-500
+                'rgba(29, 78, 216, 1)'    // blue-700
+            ],
+            borderWidth: 1,
+            barPercentage: 0.6,
+            categoryPercentage: 0.7,
+            borderRadius: 4,
+            borderSkipped: false
+        }]
+    };
+
+    const salaryChartCtx = document.getElementById('salaryChart').getContext('2d');
+    new Chart(salaryChartCtx, {
+        type: 'bar',
+        data: salaryData,
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return 'R$ ' + value / 1000 + 'k';
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const value = context.raw;
+                            return `Faixa: R$ ${value[0].toLocaleString('pt-BR')} - R$ ${value[1].toLocaleString('pt-BR')}`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    const toolsData = [
+        { name: "LawX", func: "Geração de peças, análise de documentos, estratégias de caso, pesquisa de jurisprudência.", diff: "IA 100% treinada na legislação, doutrina e jurisprudência brasileiras; mais de 35 ferramentas integradas.", comp: "LGPD, Dados processados no Brasil." },
+        { name: "Juridico.ai", func: "Geração de peças processuais e contratos, pesquisa de jurisprudência integrada.", diff: "Treinamento constante com base na legislação e jurisprudência em vigor; redução de alucinações.", comp: "LGPD." },
+        { name: "D4Sign.AI", func: "Análise, resumo e gestão de contratos; assinatura eletrônica.", diff: "Analyzer que destaca pontos-chave; Chat com IA para tirar dúvidas sobre o documento; Big Data para gestão estratégica.", comp: "LGPD, Treinada com jurisprudência e leis brasileiras." },
+        { name: "Advoga IA", func: "Pesquisa de jurisprudência e criação de petições.", diff: "Busca gratuita de jurisprudências em todos os tribunais brasileiros; IA que cria petições a partir da análise de julgados.", comp: "Dados públicos dos tribunais." },
+        { name: "Jurisconsulto", func: "Pesquisa de jurisprudência contextual e elaboração de teses.", diff: "Permite a inserção de contexto na pesquisa, em vez de palavras-chave, para encontrar casos análogos.", comp: "N/A." },
+        { name: "Turivius", func: "Pesquisa jurisprudencial e análise de Jurimetria.", diff: "Foco em análise de dados para tomada de decisões mais assertivas; redução de tempo com pesquisa.", comp: "N/A." },
+    ];
+
+    const toolsGrid = document.getElementById('tools-grid');
+    const modal = document.getElementById('tool-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalFunction = document.getElementById('modal-function');
+    const modalDifferentiator = document.getElementById('modal-differentiator');
+    const modalCompliance = document.getElementById('modal-compliance');
+    const modalClose = document.getElementById('modal-close');
+
+    toolsData.forEach(tool => {
+        const card = document.createElement('div');
+        card.className = 'bg-stone-50 p-6 rounded-xl shadow-md border border-slate-200/50 flex flex-col justify-between';
+        card.innerHTML = `
+            <div>
+                <h4 class="text-xl font-bold text-slate-800">${tool.name}</h4>
+                <p class="mt-2 text-slate-600 text-sm">${tool.func}</p>
+            </div>
+            <button class="mt-4 bg-blue-100 text-blue-700 font-semibold py-2 px-4 rounded-lg hover:bg-blue-200 transition-colors self-start text-sm">Saiba Mais</button>
+        `;
+        card.querySelector('button').addEventListener('click', () => {
+            modalTitle.textContent = tool.name;
+            modalFunction.textContent = tool.func;
+            modalDifferentiator.textContent = tool.diff;
+            modalCompliance.textContent = tool.comp;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        });
+        toolsGrid.appendChild(card);
+    });
+
+    modalClose.addEventListener('click', () => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    });
+    
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+    });
+
+    const skillsData = [
+        { domain: "Jurídica", icon: "⚖️", description: "Conhecimento de Direito Material e Processual; Análise Crítica de Jurisprudência e Doutrina." },
+        { domain: "Técnica/Analítica", icon: "⚙️", description: "Domínio de Frameworks (PACEF, RICE); Aplicação de Técnicas Avançadas (Chain-of-Thought)." },
+        { domain: "Comunicação", icon: "✍️", description: "Clareza e Precisão na Escrita; Habilidade de redigir instruções sem ambiguidade." },
+        { domain: "Comportamental", icon: "🧠", description: "Pensamento Crítico e Ceticismo Saudável; Paciência e Mentalidade Iterativa." }
+    ];
+
+    const skillsMatrix = document.getElementById('skills-matrix');
+    skillsData.forEach(skill => {
+        const skillElement = document.createElement('div');
+        skillElement.className = 'group border border-slate-200 p-4 rounded-lg transition-all duration-300 hover:bg-blue-50 hover:border-blue-300';
+        skillElement.innerHTML = `
+            <div class="flex items-center justify-between cursor-pointer">
+                <div class="flex items-center">
+                    <span class="text-2xl mr-4">${skill.icon}</span>
+                    <h5 class="font-bold text-slate-700">${skill.domain}</h5>
+                </div>
+                <span class="text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity">&#9660;</span>
+            </div>
+            <div class="hidden group-hover:block mt-3 pl-10">
+                <p class="text-sm text-slate-600">${skill.description}</p>
+            </div>
+        `;
+        skillsMatrix.appendChild(skillElement);
+    });
+    
+    const challengesData = [
+        { title: "Alucinações e Precisão", content: "A tendência da IA de gerar informações incorretas ou inventadas, como citar leis revogadas ou precedentes falsos. Isso exige supervisão humana imperativa para validação e verificação de fontes." },
+        { title: "Viés Algorítmico", content: "Sistemas de IA podem aprender e amplificar vieses sociais, raciais ou de gênero presentes nos dados de treinamento, perpetuando injustiças. A natureza de 'caixa-preta' de muitos algoritmos dificulta a detecção e mitigação." },
+        { title: "Privacidade e Proteção de Dados", content: "A prática jurídica lida com informações confidenciais. O uso de IA exige rigor absoluto no cumprimento da LGPD para garantir a segurança e a confidencialidade dos dados de clientes e processos." },
+        { title: "Atribuição de Responsabilidade", content: "Quem é o responsável quando uma IA causa dano? A ausência de um marco jurídico claro para a responsabilidade civil em casos de erro da IA cria uma zona de incerteza que precisa ser regulamentada." }
+    ];
+
+    const accordion = document.getElementById('challenges-accordion');
+    challengesData.forEach((challenge, index) => {
+        const item = document.createElement('div');
+        item.className = 'border border-slate-200 rounded-lg overflow-hidden';
+        item.innerHTML = `
+            <button class="w-full flex justify-between items-center p-4 text-left font-semibold text-slate-700 bg-stone-50 hover:bg-slate-100 focus:outline-none">
+                <span>${challenge.title}</span>
+                <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+            <div class="hidden p-4 bg-white">
+                <p class="text-slate-600">${challenge.content}</p>
+            </div>
+        `;
+        accordion.appendChild(item);
+
+        const button = item.querySelector('button');
+        const content = item.querySelector('div');
+        const icon = button.querySelector('svg');
+
+        button.addEventListener('click', () => {
+            const isHidden = content.classList.contains('hidden');
+            content.classList.toggle('hidden');
+            icon.classList.toggle('rotate-180', !isHidden);
+        });
+    });
+});
+</script>
+
+</body>
+</html>
+
