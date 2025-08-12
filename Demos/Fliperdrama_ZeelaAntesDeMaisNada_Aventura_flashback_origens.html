@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insta_Drama: Zeela - Antes de mais Nada</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --screen-bg: #0a0f18;
+            --card-bg: rgba(10, 15, 24, 0.8);
+            --text-color: #96e072;
+            --glow-color: rgba(50, 255, 126, 0.5);
+            --border-color: rgba(50, 255, 126, 0.2);
+            --button-bg: rgba(50, 255, 126, 0.1);
+            --button-hover-bg: rgba(50, 255, 126, 0.2);
+        }
+
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background-color: var(--screen-bg);
+            color: var(--text-color);
+            text-shadow: 0 0 5px var(--glow-color);
+        }
+        
+        /* Efeito de Scanlines e vinheta para a tela inteira */
+        body::after {
+            content: ' ';
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            z-index: 1001;
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.5); /* Vinheta */
+        }
+
+        .title-font {
+            font-family: 'Orbitron', sans-serif;
+        }
+        .card-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(5px);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 0 20px rgba(50, 255, 126, 0.1), inset 0 0 15px rgba(50, 255, 126, 0.1);
+        }
+        .choice-button, .gemini-button, #modal-close-button, #api-key-save-button, .audio-button, .image-action-button {
+            font-family: 'Roboto Mono', monospace;
+            background-color: var(--button-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            text-shadow: 0 0 3px var(--glow-color);
+            transition: all 0.2s ease;
+        }
+        .choice-button:hover, .gemini-button:hover, #modal-close-button:hover, #api-key-save-button:hover, .audio-button:hover, .image-action-button:hover {
+            background-color: var(--button-hover-bg);
+            box-shadow: 0 0 10px var(--glow-color);
+            transform: translateY(-1px);
+        }
+        #scene-image {
+            filter: grayscale(0.5) brightness(0.8) contrast(1.2);
+            mix-blend-mode: screen;
+            opacity: 0.8;
+        }
+        .gemini-response {
+            border-left: 2px solid var(--text-color);
+            background-color: var(--button-bg);
+            padding: 1rem;
+            margin-top: 1.5rem;
+            border-radius: 0;
+            font-style: italic;
+        }
+        .scene-fade-in { animation: fadeIn 1s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(10, 15, 24, 0.7); backdrop-filter: blur(5px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000; opacity: 0; visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        .modal-overlay.visible { opacity: 1; visibility: visible; }
+        .modal-content {
+            background: var(--screen-bg); padding: 2rem; border-radius: 0;
+            max-width: 500px; width: 90%;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 0 20px rgba(50, 255, 126, 0.2);
+        }
+        .loader {
+            border: 4px solid var(--border-color); border-top: 4px solid var(--text-color);
+            border-radius: 50%; width: 40px; height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #api-key-input {
+            background-color: var(--button-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: 0;
+        }
+        .dropdown { position: relative; display: inline-block; flex-grow: 1; }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: var(--screen-bg);
+            border: 1px solid var(--border-color);
+            width: 100%;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            bottom: 100%; /* Posiciona acima do botão */
+            margin-bottom: 0.5rem;
+        }
+        .dropdown-content a {
+            color: var(--text-color);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+        .dropdown-content a:hover { background-color: var(--button-hover-bg); }
+        .dropdown.active .dropdown-content { display: block; }
+        .image-actions {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+        #image-zoom-modal-content {
+            width: 90vw;
+            height: 90vh;
+            padding: 1rem;
+        }
+        #zoomed-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-300 min-h-screen flex items-center justify-center p-4">
+
+    <div id="app" class="w-full max-w-2xl mx-auto"></div>
+
+    <div id="gemini-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 id="modal-title" class="title-font text-2xl text-green-400 mb-4"></h2>
+            <div id="modal-body"></div>
+            <button id="modal-close-button" class="mt-6 font-bold py-2 px-4 rounded-none w-full">Fechar</button>
+        </div>
+    </div>
+
+    <!-- Modal para Chave de API -->
+    <div id="api-key-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 class="title-font text-2xl text-green-400 mb-4">Configurar Chave de API</h2>
+            <p class="mb-4 text-sm">Para usar as funcionalidades de IA, por favor, insira sua chave de API do Google AI Studio.</p>
+            <input type="password" id="api-key-input" placeholder="Cole sua chave aqui...">
+            <button id="api-key-save-button" class="mt-4 font-bold py-2 px-4 rounded-none w-full">Salvar e Continuar</button>
+        </div>
+    </div>
+    
+    <!-- Modal para Zoom de Imagem -->
+    <div id="image-zoom-modal" class="modal-overlay">
+        <div id="image-zoom-modal-content" class="modal-content">
+            <img id="zoomed-image" src="" alt="Imagem ampliada">
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURAÇÃO ---
+        let GOOGLE_API_KEY = localStorage.getItem('geminiApiKey') || null;
+        let pendingApiCall = null;
+
+        let visitedScenes = [];
+        let currentSceneId = null;
+        let selectedArtStyle = 'Estilo Cyberpunk Clássico'; // Default style
+        let synth, loop; // Variáveis globais para o áudio
+
+        const artStyles = [
+            'Estilo Cyberpunk Clássico',
+            'Estilo Moebius',
+            'Estilo Frank Miller (Sin City)',
+            'Estilo Katsuhiro Otomo (Akira)',
+            'Estilo Mangá dos anos 90'
+        ];
+
+        const adventureData = {
+            'Z_C00_O_ENCONTRO': {
+                title: "Ecos no Ferro Enferrujado",
+                image: "https://placehold.co/600x400/0a0f18/96e072?text=SYSTEM_ONLINE",
+                imagePrompt: "Em um armazém industrial escuro e enferrujado nas docas de Shinagawa, uma figura alta e encapuzada em um sobretudo escuro confronta três pessoas: Zeela, uma mulher sem implantes, e dois mercenários. A única luz vem de uma lâmpada piscando. O Guardião joga um pequeno artefato de metal brilhante. A atmosfera é de mistério cyberpunk e chuva ácida.",
+                music: "Shocking Blue - Daemon Lover",
+                youtubeLink: "https://youtu.be/TA3hSaXYbh0",
+                narrative: `
+                    <p>Você chega ao Armazém de Ferro Enferrujado nas Docas de Shinagawa. A chuva ácida ocasional da cidade queima levemente sua pele exposta. Você não tem implantes, uma raridade, uma declaração de princípios. Você sente o mundo sem filtros, e agora, sente um perigo antigo.</p>
+                    <p>No centro, sob uma lâmpada que pisca, está ele. Uma figura envolta em um sobretudo cor de carvão, o rosto completamente oculto por um capuz. Ele é o "Guardião", embora você ainda não saiba disso.</p>
+                    <p>A voz dele é rouca, gutural. "Vocês vieram pelos Ecos?", ele pergunta. Ele estende uma mão enluvada. "Mas o conhecimento tem um preço. Estão dispostos a desenterrar o futuro-do-passado?"</p>
+                    <p>Antes que você possa responder, ele joga um objeto metálico brilhante na direção de um dos mercenários que te acompanham. "Isto é apenas um fragmento. Um eco do que foi... e do que pode retornar. Analisem. Encontrem as conexões."</p>
+                `,
+                choices: [
+                     { 
+                        text: "Abordagem Sutil (O Oráculo): Usar o tarô para sondar o mistério.", 
+                        target: 'Z_C01A_ORACULO',
+                        precogPrompt: `Sou Zeela, uma vidente em um armazém sombrio. Um 'Guardião' misterioso nos confronta. Estou pensando em usar meu tarô para uma abordagem sutil. Dê-me um flash precognitivo, uma visão curta e enigmática (uma frase) do que pode acontecer se eu escolher este caminho. Ex: 'As cartas caem sobre a seda. Não é o futuro dele que você lê, mas o seu próprio eco.'`
+                    },
+                    { 
+                        text: "Abordagem Direta (A Ativista): Exigir respostas diretas.", 
+                        target: 'Z_C01B_CONFRONTO',
+                        precogPrompt: `Sou Zeela, uma vidente em um armazém sombrio. Um 'Guardião' misterioso nos confronta. Estou pensando em confrontá-lo diretamente, exigindo respostas. Dê-me um flash precognitivo, uma visão curta e enigmática (uma frase) do que pode acontecer se eu escolher este caminho agressivo. Ex: 'Sua voz corta o ar, mas a sombra que você confronta se retrai, deixando para trás apenas o silêncio e um enigma de metal.'`
+                    }
+                ],
+                allies: ['Kenshin', 'Orion']
+            },
+            'Z_C01A_ORACULO': {
+                title: "A Torre e o Mestre",
+                image: "https://placehold.co/600x400/0a0f18/96e072?text=DATA_STREAM",
+                imagePrompt: "Em meio à ferrugem de um armazém, Zeela, uma vidente, senta-se em uma pequena mesa coberta de seda, com cartas de tarô cyberpunk à sua frente. Ela encara o misterioso Guardião encapuzado, que segura um dispositivo tecnológico brilhante. A cena contrasta o misticismo antigo com a decadência industrial.",
+                music: "Sade - Bullet Proof Soul",
+                youtubeLink: "https://youtu.be/mnChK_wG30A",
+                narrative: `
+                    <p>Você escolheu a sabedoria. Você não confronta o mistério, você o convida para dançar. Você abre sua pequena mesa, um altar portátil em meio à ferrugem, e dispõe seu baralho de tarô.</p>
+                    <p>Você encara o Guardião. "Livre arbítrio... que ilusão deliciosa!", você exclama. Você saca uma carta. A Torre. "A liberdade reside na aceitação do inevitável", você diz.</p>
+                    <p>O Guardião finalmente se move. Ele retira de seu sobretudo um dispositivo arcaico que brilha. "A condição-livre-arbitrada é o limiar", ele explica. "O acesso ao codex meta-perceptivo." Ele entende seu jogo. Você saca outra carta.</p>
+                `,
+                choices: [ 
+                    { text: "Questionar o Guardião sobre o fragmento e a persuasão.", target: 'Z_C02A_PERGUNTAR_GUARDIAN' },
+                    { text: "Aprofundar a Leitura, focando na aura do Guardião.", target: 'Z_C02B_LER_AS_CARTAS' }
+                ],
+                allies: ['Kenshin', 'Orion']
+            },
+            'Z_C01B_CONFRONTO': {
+                title: "A Paciência das Sombras",
+                image: "https://placehold.co/600x400/0a0f18/96e072?text=CONNECTION_LOST",
+                imagePrompt: "Zeela, uma ativista determinada, confronta uma figura sombria e encapuzada em um armazém. A tensão é palpável. O Guardião, imóvel, recua para as sombras mais profundas, desaparecendo e deixando para trás apenas um pequeno objeto de metal brilhando no chão sujo. A cena é um impasse tenso.",
+                music: "T. Rex - Get It On",
+                youtubeLink: "https://youtu.be/wZkTh_T75QY",
+                narrative: `
+                    <p>Você deu um passo à frente, sua voz clara e firme. Você exigiu saber quem ele era, o que eram os "Ecos". O ar no armazém fica pesado, elétrico.</p>
+                    <p>O Guardião Encapuzado não reage com violência. Ele permanece imóvel. "Sua agressividade é... prematura", diz ele, a voz calculada. "Hostilidade pode fechar portas que o conhecimento poderia abrir. Mas a escolha, afinal... sempre foi sua."</p>
+                    <p>Com uma velocidade que desafia sua aparência, ele recua para as sombras mais profundas e desaparece. Nenhum som. Nenhum rastro. Apenas o eco de suas palavras e o fragmento metálico no chão lamacento.</p>
+                `,
+                choices: [ 
+                    { text: "Analisar o Fragmento.", target: 'Z_C02A_ANALISAR_FRAGMENTO' },
+                    { text: "Questionar os 'Aliados'.", target: 'Z_C02_TENSAO_E_NOME' }
+                ],
+                allies: ['Kenshin', 'Orion']
+            },
+            'Z_C02A_PERGUNTAR_GUARDIAN': {
+                title: "A Ferramenta da Fé",
+                image: "https://placehold.co/600x400/0a0f18/96e072?text=FAITH_TOOL",
+                imagePrompt: "Um close-up nas mãos enluvadas do Guardião. Ele segura um dispositivo tecnológico arcaico que brilha com uma luz interna estranha. Ao fundo, as cartas de tarô de Zeela estão na mesa, fora de foco, simbolizando a transição do místico para o tecnológico.",
+                music: "Brian Bennett - Discovery",
+                youtubeLink: "https://youtu.be/pNbY2bt5Ecw?si=gpA0BIn2pbQzcyX5",
+                narrative: `
+                    <p>Sua abordagem com o tarô abriu uma porta. Você o questiona sobre os "estímulos eletro-bio-químicos". Ele levanta o dispositivo brilhante. "Os Antigos... os Anunnaki... entendiam que a fé podia ser fabricada. A realidade é maleável."</p>
+                    <p>Ele explica que a tecnologia deles não era de guerra, mas de persuasão. "Aquilo", ele diz, indicando o fragmento, "é um caco, impotente. Mas os dispositivos reais... estão sendo desenterrados. Corporações como a Soma Inc. os estão adaptando para uso nos novos Fliperdramas. Para criar não apenas sonhos, mas devoção. Controle."</p>
+                `,
+                choices: [
+                    { text: "Investigar a Soma Inc.", target: 'COMING_SOON' },
+                    { text: "Investigar um FliperDrama.", target: 'COMING_SOON' }
+                ],
+                allies: ['Kenshin', 'Orion']
+            },
+            'Z_C02B_LER_AS_CARTAS': {
+                title: "A Aura do Guardião",
+                image: "https://placehold.co/600x400/0a0f18/96e072?text=GUARDIAN_AURA",
+                imagePrompt: "Zeela realiza uma leitura de tarô focada no Guardião. As cartas, com iconografia cyberpunk, revelam imagens de eras, dever e uma tristeza profunda. O Guardião observa, uma silhueta imóvel contra a luz fraca do armazém.",
+                music: "Dead Can Dance - The Host of Seraphim",
+                youtubeLink: "https://youtu.be/lyVsRGyd2r8",
+                narrative: `
+                    <p>Você foca sua energia, não no que ele diz, mas no que ele é. As cartas revelam não um homem, mas um dever. Um zelador de um poder terrível, preso a um juramento mais antigo que a própria cidade.</p>
+                    <p>Ele parece sentir sua leitura. "A balança deve ser mantida", ele sussurra, uma confirmação enigmática. "A Soma Inc. ameaça quebrá-la. O conhecimento que eles buscam não deve ser despertado."</p>
+                `,
+                choices: [
+                    { text: "Perguntar sobre a Soma Inc.", target: 'Z_C02A_PERGUNTAR_GUARDIAN' },
+                    { text: "Perguntar sobre o 'conhecimento'.", target: 'Z_C02A_PERGUNTAR_GUARDIAN' }
+                ],
+                allies: ['Kenshin', 'Orion']
+            },
+            'Z_C02_TENSAO_E_NOME': {
+                title: "Três Estranhos na Chuva Fria",
+                image: "https://placehold.co/600x400/0a0f18/96e072?text=TENSION",
+                imagePrompt: "No armazém vazio, a tensão é visível entre os três. Kenshin, impaciente, foca no fragmento no chão. Orion, analítico, observa Zeela, que está no centro, o ponto de equilíbrio entre os dois homens.",
+                music: "Johnny Thunders - Green Onions",
+                youtubeLink: "https://youtu.be/Ju3NO3Xtomo",
+                narrative: `
+                    <p>O Guardião se foi. Agora são apenas três estranhos. O mais robusto quebra o silêncio. "Chega de teatro. O que diabos é aquilo?", ele aponta para o fragmento. "Eu sou Kenshin."</p>
+                    <p>Antes que você responda, o outro intervém, te encarando. "Você... sentiu aquilo, não foi? A... estática. O que você viu?", ele pergunta. "Orion."</p>
+                    <p>Eles são a força e a mente. E você... você é a visão.</p>
+                `,
+                choices: [
+                    { text: "Focar na Missão. 'Zeela. E o que importa é aquilo.'", target: 'Z_C02A_ANALISAR_FRAGMENTO' },
+                    { text: "Focar no Poder. 'Zeela. E eu sou a única que entende.'", target: 'Z_C02A_ANALISAR_FRAGMENTO' }
+                ],
+                allies: ['Kenshin', 'Orion']
+            },
+            'Z_C02A_ANALISAR_FRAGMENTO': {
+                title: "Memória no Metal",
+                image: "https://placehold.co/600x400/0a0f18/96e072?text=MEMORY_FRAGMENT",
+                imagePrompt: "Close-up da mão de Zeela, notavelmente sem implantes, segurando um fragmento de metal alienígena que brilha suavemente. Ela está de olhos fechados, concentrando-se, enquanto uma visão de um deserto sob um céu púrpura e uma torre colossal se forma em sua mente. Os mercenários Kenshin e Orion observam com curiosidade.",
+                music: "Pink Floyd - Summer '68",
+                youtubeLink: "https://youtu.be/Ou4u4kOatck",
+                narrative: `<p>Com a partida do Guardião, a curiosidade substitui o medo. Você se ajoelha e pega o fragmento. Ele é frio, mas vibra em sua mão com um zumbido quase imperceptível. Os mercenários, com seus corpos cheios de cromo, não sentem nada. Você, com sua sensibilidade "limpa", sente a ressonância. Você fecha os olhos, se concentrando. E então, acontece. Uma visão. Um "eco". O armazém desaparece. Você vê um deserto sob um céu púrpura. Uma torre colossal, não construída, mas crescida do mesmo metal brilhante. E uma única palavra ressoa em sua mente: "Fohat". A energia criadora.</p>`,
+                choices: [
+                    { type: 'gemini', text: "✨ Meditar sobre 'Fohat'...", prompt: `No universo cyberpunk de 2065, uma vidente sem implantes cibernéticos chamada Zeela acaba de ter uma visão ao tocar um artefato antigo. A palavra 'Fohat' ecoou em sua mente. Aja como um oráculo místico e tecnológico. Explique para Zeela, em 1 parágrafo conciso com cerca de 80 palavras, o que 'Fohat' significa neste contexto, conectando a energia criadora primordial com tecnologia antiga e consciência.` },
+                    { text: "Compartilhar a visão...", target: 'Z_C03A_COMPARTILHAR_VISAO' },
+                    { text: "Guardar o segredo...", target: 'Z_C03B_GUARDAR_SEGREDO' }
+                ],
+                allies: ['Kenshin', 'Orion']
+            },
+            'Z_C03A_COMPARTILHAR_VISAO': {
+                title: "A Palavra e o Vazio",
+                image: "https://placehold.co/600x400/0a0f18/96e072?text=THE_WORD",
+                imagePrompt: "Zeela acaba de descrever sua visão. Kenshin a encara com ceticismo e ganância. Ao lado dele, Orion está com o olhar perdido, seu cérebro analítico tentando processar a informação impossível que acabou de ouvir sobre 'Fohat'.",
+                music: "Casa das Máquinas - Vou morar no ar (1975)",
+                youtubeLink: "https://youtu.be/gjv23ZlEu3I",
+                narrative: `
+                    <p>Você descreve tudo. O deserto, o céu púrpura, a torre e a palavra: "Fohat".</p>
+                    <p>Kenshin bufa. "Um sonho. Uma alucinação." Mas seus olhos brilham com a imagem de uma torre de poder.</p>
+                    <p>Orion, no entanto, está mortalmente quieto, dedos voando sobre seu datapad. "Fohat...", ele sussurra. "É um conceito teosófico. A energia criadora primordial. O Verbo que se fez Carne. O fragmento não te mostrou um lugar, Zeela. Ele te mostrou uma Gênese."</p>
+                `,
+                choices: [
+                    { text: "Seguir a Ciência de Orion.", target: 'COMING_SOON' },
+                    { text: "Seguir a cobiça de Kenshin.", target: 'COMING_SOON' }
+                ],
+                allies: ['Kenshin', 'Orion']
+            },
+            'Z_C03B_GUARDAR_SEGREDO': {
+                title: "Vantagem Tática",
+                image: "https://placehold.co/600x400/0a0f18/96e072?text=SECRECY",
+                imagePrompt: "Zeela, Kenshin e Orion estão juntos em um esconderijo mal iluminado. Zeela permanece em silêncio sobre sua visão, segurando o fragmento. A desconfiança é visível nos olhares trocados entre os três, criando uma atmosfera de tensão e segredos.",
+                music: "Max Richter - On the Nature of Daylight",
+                youtubeLink: "https://youtu.be/InyT9Gyoz_o",
+                narrative: `<p>Você guarda a visão para si. É sua vantagem, sua arma secreta. Você diz a eles que o objeto é apenas "tecnologia antiga". A desconfiança entre vocês se aprofunda, mas por enquanto, o objetivo comum os mantém juntos. A aventura continua...</p>`,
+                choices: [{ text: "Continuar a investigação", target: 'COMING_SOON' }]
+            },
+            'COMING_SOON': {
+                title: "Continua...",
+                image: "https://placehold.co/600x400/0a0f18/96e072?text=COMING_SOON",
+                imagePrompt: "Uma imagem escura e chuvosa de uma rua de Neo-Kyoto à noite, com luzes de neon refletindo nas poças d'água. O texto 'Coming Soon...' brilha sutilmente no centro.",
+                music: "Vangelis - Blade Runner Blues",
+                youtubeLink: "https://youtu.be/RScZrvTebeA",
+                narrative: `<p>A história de Zeela, Kenshin e Orion continua, mas os ecos deste passado ainda não foram totalmente decifrados.</p><p>Obrigado por jogar.</p>`,
+                choices: [{ text: "Recomeçar a Aventura", target: 'Z_C00_O_ENCONTRO' }]
+            }
+        };
+
+        const app = document.getElementById('app');
+        const geminiModal = document.getElementById('gemini-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalBody = document.getElementById('modal-body');
+        const modalCloseButton = document.getElementById('modal-close-button');
+        const apiKeyModal = document.getElementById('api-key-modal');
+        const apiKeyInput = document.getElementById('api-key-input');
+        const apiKeySaveButton = document.getElementById('api-key-save-button');
+        const imageZoomModal = document.getElementById('image-zoom-modal');
+        const zoomedImage = document.getElementById('zoomed-image');
+
+        modalCloseButton.onclick = () => hideModal(geminiModal);
+        apiKeySaveButton.onclick = saveApiKey;
+        imageZoomModal.onclick = () => hideModal(imageZoomModal);
+
+        function showApiKeyModal() { apiKeyModal.classList.add('visible'); }
+        function hideApiKeyModal() { apiKeyModal.classList.remove('visible'); }
+
+        function saveApiKey() {
+            if (apiKeyInput.value.trim()) {
+                GOOGLE_API_KEY = apiKeyInput.value.trim();
+                localStorage.setItem('geminiApiKey', GOOGLE_API_KEY);
+                hideApiKeyModal();
+                if (pendingApiCall) {
+                    pendingApiCall();
+                    pendingApiCall = null;
+                }
+            }
+        }
+
+        async function callApi(apiUrl, payload, retries = 3, delay = 1000) {
+            if (!GOOGLE_API_KEY) {
+                return { error: "Chave de API não configurada." };
+            }
+            
+            const finalApiUrl = `${apiUrl}?key=${GOOGLE_API_KEY}`;
+            
+            try {
+                const response = await fetch(finalApiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                if (!response.ok) {
+                    const errorBody = await response.text();
+                    throw new Error(`HTTP error! status: ${response.status}, body: ${errorBody}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error("Erro na chamada da API:", error);
+                if (retries > 0) {
+                    await new Promise(res => setTimeout(res, delay));
+                    return callApi(apiUrl, payload, retries - 1, delay * 2);
+                } else {
+                    return { error: `A conexão com o fluxo de dados foi perdida. Detalhe: ${error.message}` };
+                }
+            }
+        }
+
+        async function callGeminiApi(prompt) {
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent`;
+            const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
+            const result = await callApi(apiUrl, payload);
+
+            if (result.error) return result.error;
+
+            if (result.candidates && result.candidates[0]?.content?.parts[0]?.text) {
+                return result.candidates[0].content.parts[0].text;
+            } else {
+                console.error("Resposta da API em formato inesperado:", result);
+                return "O oráculo permanece em silêncio. A resposta da IA estava vazia ou malformada.";
+            }
+        }
+
+        async function callImageGenerationApi(prompt) {
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation:generateContent`;
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: { responseModalities: ['TEXT', 'IMAGE'] },
+            };
+            const result = await callApi(apiUrl, payload);
+            
+            if (result.error) {
+                 return { error: result.error };
+            }
+            
+            const base64Data = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+            if (base64Data) {
+                return { imageUrl: `data:image/png;base64,${base64Data}` };
+            } else {
+                 console.error("Resposta da API de Imagem em formato inesperado:", result);
+                 const errorMessage = result.error?.message || "Resposta vazia ou malformada.";
+                 return { error: `Falha na Geração de Arte: ${errorMessage}` };
+            }
+        }
+
+        function showModal(title, content) {
+            modalTitle.innerText = title;
+            modalBody.innerHTML = content;
+            geminiModal.classList.add('visible');
+        }
+
+        function hideModal(modalElement) {
+            modalElement.classList.remove('visible');
+        }
+        
+        async function handleGenericGeminiAction(modalLoadingTitle, modalResultTitle, prompt) {
+            if (!GOOGLE_API_KEY) {
+                pendingApiCall = () => handleGenericGeminiAction(modalLoadingTitle, modalResultTitle, prompt);
+                showApiKeyModal();
+                return;
+            }
+             showModal(modalLoadingTitle, '<div class="flex justify-center items-center"><div class="loader"></div></div>');
+             const resultText = await callGeminiApi(prompt);
+             if (resultText.includes("A conexão com o fluxo de dados foi perdida.") || resultText.includes("Chave de API não configurada.")) {
+                 modalTitle.innerText = 'Falha na Conexão com a IA';
+                 modalBody.innerHTML = `<p>${resultText}</p>`;
+             } else {
+                 modalTitle.innerText = modalResultTitle;
+                 modalBody.innerHTML = `<p>${resultText.replace(/\n/g, '</p><p>')}</p>`;
+             }
+        }
+
+        function summarizeScene(narrative) {
+            const cleanNarrative = narrative.replace(/<p>|<\/p>/g, " ");
+            const prompt = `Resuma o seguinte texto de uma aventura de RPG cyberpunk em um parágrafo conciso e direto. O resumo deve capturar os eventos principais e a atmosfera da cena. Texto: "${cleanNarrative}"`;
+            handleGenericGeminiAction('Resumindo Cena...', '✨ Resumo da Cena', prompt);
+        }
+
+        function perceiveDetails(narrative) {
+            const cleanNarrative = narrative.replace(/<p>|<\/p>/g, " ");
+            const prompt = `Você é o mestre de um jogo de RPG cyberpunk. A personagem principal, Zeela, é uma vidente que não usa implantes cibernéticos, tendo uma percepção aguçada do mundo 'real'. A cena atual é a seguinte: "${cleanNarrative}". Descreva 2 ou 3 detalhes sutis e atmosféricos que apenas Zeela perceberia, em um parágrafo curto com no máximo 80 palavras. Foque em cheiros, sons, auras emocionais, pequenas rachaduras na realidade ou detalhes visuais que os outros, com seus sentidos cravados de cromo, ignorariam. A resposta deve ser poética e misteriosa, adicionando profundidade à cena.`;
+            handleGenericGeminiAction('Afinando a Percepção...', '✨ Percepção Aguçada', prompt);
+        }
+        
+        function probeAlly(allyName, narrative) {
+            const cleanNarrative = narrative.replace(/<p>|<\/p>/g, " ");
+            let personaPrompt;
+            if (allyName === 'Kenshin') {
+                personaPrompt = `Você é o mestre de um jogo de RPG cyberpunk. A personagem Zeela, uma vidente, está tentando sentir as intenções de seu novo aliado, Kenshin, um mercenário pragmático e ambicioso. A cena atual é: "${cleanNarrative}". Descreva em um parágrafo curto o que Kenshin está pensando ou sentindo neste momento. Sua descrição deve ser um vislumbre de sua mente, revelando seu foco em poder, impaciência ou avaliação tática da situação. A resposta deve ser sutil e em primeira pessoa do pensamento de Kenshin (ex: 'Essa vidente... perda de tempo. Onde está o prêmio?').`;
+            } else { // Orion
+                personaPrompt = `Você é o mestre de um jogo de RPG cyberpunk. A personagem Zeela, uma vidente, está tentando sentir as intenções de seu novo aliado, Orion, um mercenário analítico e observador. A cena atual é: "${cleanNarrative}". Descreva em um parágrafo curto o que Orion está pensando ou sentindo neste momento. Sua descrição deve ser um vislumbre de sua mente, revelando sua curiosidade, análise de dados ou fascínio (ou ceticismo) pelos poderes de Zeela. A resposta deve ser sutil e em primeira pessoa do pensamento de Orion (ex: 'A estática ao redor dela... não é normal. Preciso de mais dados.').`;
+            }
+            handleGenericGeminiAction(`Sondando ${allyName}...`, `✨ Pensamentos de ${allyName}`, personaPrompt);
+        }
+
+        function getPrecognition(prompt) {
+            handleGenericGeminiAction('Buscando Ecos do Futuro...', '✨ Flash Precognitivo', prompt);
+        }
+
+        async function writeDiaryEntry() {
+            if (!GOOGLE_API_KEY) {
+                pendingApiCall = writeDiaryEntry;
+                showApiKeyModal();
+                return;
+            }
+            if (visitedScenes.length === 0 && currentSceneId === null) {
+                showModal('Diário de Zeela', '<p>Ainda é muito cedo para reflexões. A jornada mal começou.</p>');
+                return;
+            }
+            const journeySummary = [...visitedScenes, currentSceneId].map(id => adventureData[id].title).join(' -> ');
+            const prompt = `Você é Zeela, uma vidente sem implantes cibernéticos em um mundo cyberpunk. Você está escrevendo em seu diário. Sua jornada até agora foi: ${journeySummary}. Você está acompanhada por Kenshin, o soldado ambicioso, e Orion, o analista curioso. Escreva uma entrada de diário curta e introspectiva (1-2 parágrafos, com um total máximo de 100 palavras) refletindo sobre esses eventos, seus sentimentos sobre o mistério que persegue e suas impressões ou desconfianças sobre seus companheiros.`;
+            handleGenericGeminiAction('Escrevendo no Diário...', '✨ Diário de Zeela', prompt);
+        }
+
+        async function generateSceneImage() {
+            if (!GOOGLE_API_KEY) {
+                pendingApiCall = generateSceneImage;
+                showApiKeyModal();
+                return;
+            }
+            
+            const scene = adventureData[currentSceneId];
+            if (!scene.imagePrompt) return;
+
+            const imageContainer = document.getElementById('image-container');
+            const loader = document.createElement('div');
+            loader.className = 'absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center';
+            loader.innerHTML = '<div class="loader"></div>';
+            imageContainer.appendChild(loader);
+
+            const finalPrompt = `${scene.imagePrompt}, no estilo de arte de quadrinhos ${selectedArtStyle}.`;
+            const result = await callImageGenerationApi(finalPrompt);
+            
+            loader.remove();
+
+            if (result && result.imageUrl) {
+                document.getElementById('scene-image').src = result.imageUrl;
+            } else if (result && result.error) {
+                showModal('Erro na Geração de Imagem', `<p>${result.error}</p>`);
+            } else {
+                showModal('Erro na Geração de Imagem', `<p>Ocorreu um erro desconhecido durante a geração da imagem.</p>`);
+            }
+        }
+
+        // --- FUNÇÕES DO PLAYER DE ÁUDIO ---
+        function setupAudioPlayer(scene) {
+            if (loop) {
+                loop.stop();
+                loop.dispose();
+            }
+            if (synth) {
+                synth.dispose();
+            }
+
+            synth = new Tone.Synth({
+                oscillator: { type: 'pulse', width: 0.6 },
+                envelope: { attack: 0.01, decay: 0.1, sustain: 0.2, release: 0.4 },
+            }).toDestination();
+
+            const notes = getNotesForMusic(scene.music);
+            loop = new Tone.Sequence((time, note) => {
+                synth.triggerAttackRelease(note, "8n", time);
+            }, notes, "4n").start(0);
+            Tone.Transport.bpm.value = 90;
+
+            const playPauseButton = document.getElementById('play-pause-btn');
+            const backwardButton = document.getElementById('backward-btn');
+            const forwardButton = document.getElementById('forward-btn');
+
+            playPauseButton.onclick = async () => {
+                await Tone.start();
+                Tone.Transport.toggle();
+                playPauseButton.innerHTML = Tone.Transport.state === 'started' ? 
+                '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 011-1h1a1 1 0 110 2H8a1 1 0 01-1-1zm5 0a1 1 0 011-1h1a1 1 0 110 2h-1a1 1 0 01-1-1z" clip-rule="evenodd" /></svg>' : 
+                '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg>';
+            };
+
+            backwardButton.onclick = () => Tone.Transport.seconds = Math.max(0, Tone.Transport.seconds - 30);
+            forwardButton.onclick = () => Tone.Transport.seconds += 30;
+        }
+
+        function getNotesForMusic(musicTitle) {
+            if (musicTitle.includes("Daemon Lover")) return ["C2", "G2", "Eb2", "F2"];
+            if (musicTitle.includes("Bullet Proof Soul")) return ["A3", "C4", "E4", "G3"];
+            if (musicTitle.includes("Get It On")) return ["E3", "G3", "A3", "G3"];
+            return ["C3", "E3", "G3", "B3"];
+        }
+
+        // --- FUNÇÕES DE CONTROLE DA IMAGEM ---
+        function setupImageControls() {
+            const image = document.getElementById('scene-image');
+            document.getElementById('fullscreen-btn').onclick = () => image.requestFullscreen();
+            document.getElementById('zoom-btn').onclick = () => {
+                zoomedImage.src = image.src;
+                imageZoomModal.classList.add('visible');
+            };
+            document.getElementById('download-btn').onclick = () => {
+                const link = document.createElement('a');
+                link.href = image.src;
+                link.download = `zeela-arte-${currentSceneId}.png`;
+                link.click();
+            };
+        }
+
+        function renderScene(sceneId) {
+            const scene = adventureData[sceneId];
+            if (!scene) {
+                console.error(`Cena com ID "${sceneId}" não encontrada.`);
+                return;
+            }
+
+            if (currentSceneId !== sceneId) {
+                if (currentSceneId !== null) visitedScenes.push(currentSceneId);
+                currentSceneId = sceneId;
+            }
+            
+            app.innerHTML = '';
+            const sceneCard = document.createElement('div');
+            sceneCard.className = 'card-container rounded-none shadow-2xl overflow-hidden p-6 md:p-8 scene-fade-in';
+
+            sceneCard.innerHTML = `
+                <div class="relative rounded-none overflow-hidden mb-4">
+                    <div id="image-container" class="relative group">
+                        <img id="scene-image" src="${scene.image}" alt="Imagem da cena: ${scene.title}" class="w-full h-64 object-cover border border-gray-700">
+                        <div class="image-actions">
+                            <button id="fullscreen-btn" class="image-action-button p-2 rounded-none" title="Tela Cheia">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h4a1 1 0 110 2H5v3a1 1 0 11-2 0V4zm14 0a1 1 0 00-1-1h-4a1 1 0 100 2h3v3a1 1 0 102 0V4zm-1 12a1 1 0 01-1 1h-3v-2a1 1 0 10-2 0v2H5a1 1 0 01-1-1v-4a1 1 0 10-2 0v4a3 3 0 003 3h10a3 3 0 003-3v-4a1 1 0 10-2 0v4z" clip-rule="evenodd" /></svg>
+                            </button>
+                            <button id="zoom-btn" class="image-action-button p-2 rounded-none" title="Ampliar">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8zm6-2a1 1 0 011 1v2h2a1 1 0 110 2H9v2a1 1 0 11-2 0V9H5a1 1 0 110-2h2V5a1 1 0 011-1z" clip-rule="evenodd" /></svg>
+                            </button>
+                            <button id="download-btn" class="image-action-button p-2 rounded-none" title="Download">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 mt-2">
+                        <div class="dropdown">
+                            <button id="style-selector-button" class="gemini-button w-full p-2 flex justify-between items-center">
+                                <span id="selected-style-text">Estilo...</span>
+                                <span class="text-xs">▼</span>
+                            </button>
+                            <div id="style-dropdown-content" class="dropdown-content"></div>
+                        </div>
+                        <button id="generate-image-btn" class="gemini-button flex-shrink-0 p-2">✨ Gerar Arte</button>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-4">
+                    <h1 id="scene-title" class="title-font text-3xl font-bold text-green-400">${scene.title}</h1>
+                    <div id="gemini-actions" class="flex flex-wrap justify-start sm:justify-end gap-2">
+                         <button id="config-key-button" class="gemini-button" title="Configurar Chave de API">⚙️ Chave</button>
+                         <button id="diary-button" class="gemini-button" title="Diário de Zeela">✨ Diário</button>
+                         <button id="perceive-button" class="gemini-button" title="Usar Percepção">✨ Percepção</button>
+                         <button id="summarize-button" class="gemini-button" title="Resumir Cena">✨ Resumir</button>
+                    </div>
+                </div>
+                
+                <div class="text-sm text-gray-400 mb-6 italic flex items-center justify-between">
+                    <span>Trilha: <a href="${scene.youtubeLink}" target="_blank" class="underline hover:text-white">${scene.music}</a></span>
+                    <div class="flex items-center gap-2">
+                        <button id="backward-btn" class="audio-button p-1 rounded-none">« 30s</button>
+                        <button id="play-pause-btn" class="audio-button p-1 rounded-none">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg>
+                        </button>
+                        <button id="forward-btn" class="audio-button p-1 rounded-none">30s »</button>
+                    </div>
+                </div>
+
+                <div id="scene-narrative" class="narrative-text text-gray-300 leading-relaxed mb-8">
+                    ${scene.narrative}
+                </div>
+
+                <div id="choices-container" class="grid grid-cols-1 gap-4"></div>
+            `;
+
+            app.appendChild(sceneCard);
+            
+            document.getElementById('generate-image-btn').onclick = generateSceneImage;
+            document.getElementById('diary-button').onclick = writeDiaryEntry;
+            document.getElementById('perceive-button').onclick = () => perceiveDetails(scene.narrative);
+            document.getElementById('summarize-button').onclick = () => summarizeScene(scene.narrative);
+            document.getElementById('config-key-button').onclick = showApiKeyModal;
+
+            const geminiActionsContainer = document.getElementById('gemini-actions');
+            if (scene.allies) {
+                scene.allies.forEach(allyName => {
+                    const probeButton = document.createElement('button');
+                    probeButton.className = 'gemini-button';
+                    probeButton.title = `Sondar ${allyName}`;
+                    probeButton.innerHTML = `✨ Sondar ${allyName}`;
+                    probeButton.onclick = () => probeAlly(allyName, scene.narrative);
+                    geminiActionsContainer.appendChild(probeButton);
+                });
+            }
+
+            const styleDropdownButton = document.getElementById('style-selector-button');
+            const styleDropdown = styleDropdownButton.parentElement;
+            document.addEventListener('click', (e) => {
+                if (!styleDropdown.contains(e.target)) {
+                    styleDropdown.classList.remove('active');
+                }
+            });
+            styleDropdownButton.onclick = () => {
+                styleDropdown.classList.toggle('active');
+            };
+
+            const styleDropdownContent = document.getElementById('style-dropdown-content');
+            const selectedStyleText = document.getElementById('selected-style-text');
+            selectedStyleText.textContent = selectedArtStyle;
+
+            artStyles.forEach(style => {
+                const link = document.createElement('a');
+                link.href = "#";
+                link.textContent = style;
+                link.onclick = (e) => {
+                    e.preventDefault();
+                    selectedArtStyle = style;
+                    selectedStyleText.textContent = style;
+                    styleDropdown.classList.remove('active');
+                };
+                styleDropdownContent.appendChild(link);
+            });
+
+            const choicesContainer = document.getElementById('choices-container');
+            scene.choices.forEach(choice => {
+                const choiceWrapper = document.createElement('div');
+                choiceWrapper.className = 'flex items-center gap-2';
+
+                const mainButton = document.createElement('button');
+                let buttonClass = 'w-full text-left font-semibold py-3 px-5 rounded-none focus:outline-none focus:ring-2 focus:ring-opacity-75 shadow-lg';
+                
+                if (choice.type === 'gemini') {
+                    mainButton.className = `${buttonClass} gemini-choice-button`;
+                    mainButton.innerHTML = choice.text;
+                    mainButton.onclick = () => handleGenericGeminiAction('Oráculo Digital', '✨ Sussurros do Oráculo', choice.prompt);
+                } else {
+                    mainButton.className = `${buttonClass} choice-button`;
+                    mainButton.innerHTML = `<span class="font-bold">[Escolha]</span> ${choice.text}`;
+                    mainButton.onclick = () => renderScene(choice.target);
+                }
+                choiceWrapper.appendChild(mainButton);
+                
+                if (choice.precogPrompt) {
+                    const precogButton = document.createElement('button');
+                    precogButton.className = 'gemini-button flex-shrink-0 p-3 rounded-none shadow-lg';
+                    precogButton.title = 'Usar Precognição';
+                    precogButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg>`;
+                    precogButton.onclick = () => getPrecognition(choice.precogPrompt);
+                    choiceWrapper.appendChild(precogButton);
+                }
+
+                choicesContainer.appendChild(choiceWrapper);
+            });
+
+            setupAudioPlayer(scene);
+            setupImageControls();
+        }
+
+        window.onload = () => {
+            renderScene('Z_C00_O_ENCONTRO');
+        };
+    </script>
+
+</body>
+</html>
+
