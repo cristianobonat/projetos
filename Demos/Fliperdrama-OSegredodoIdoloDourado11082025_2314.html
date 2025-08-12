@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fl iperdrama: O Segredo do Ídolo Dourado</title>
+    <title>Fliperdrama: O Segredo do Ídolo Dourado</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -151,11 +151,6 @@
             text-decoration-style: dotted;
             cursor: pointer;
         }
-        .custom-select {
-            background-color: var(--button-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-        }
     </style>
 </head>
 <body class="antialiased">
@@ -176,33 +171,29 @@
         </div>
     </div>
 
-    <main id="game-screen" class="hidden w-full max-w-7xl mx-auto p-4 md:p-8">
+    <main id="game-screen" class="hidden w-full max-w-4xl mx-auto p-4 md:p-8">
         <div class="card rounded-lg shadow-lg p-6 md:p-8 crt-glow">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                    <div id="narrative-panel" class="mb-8 relative">
-                        <h2 id="scene-title" class="font-display text-2xl border-b-2 pb-2 mb-4" style="border-color: var(--border-color);"></h2>
-                        <div id="tts-controls" class="absolute top-0 right-0"></div>
-                        <div id="scene-content" class="text-lg leading-relaxed space-y-4"></div>
+            <div id="image-panel" class="hidden mb-6">
+                <h3 class="font-display text-xl mb-4">VISUALIZADOR DE CENA</h3>
+                <div id="image-container" class="relative group">
+                    <div id="image-display-area" class="w-full h-80 bg-black/5 flex items-center justify-center rounded-md mb-4 border" style="border-color: var(--border-color);">
+                        <p class="text-gray-500 text-sm p-4 text-center">Escolha uma visão para gerar uma ilustração.</p>
                     </div>
-                    <div id="choice-panel">
-                         <p class="text-center text-sm text-gray-400 mb-4">//: A percepção molda a realidade. Escolha uma lente.</p>
-                         <div id="choices-container" class="space-y-4"></div>
+                    <div id="image-toolbar" class="absolute bottom-6 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button id="fullscreen-button" title="Tela Cheia" class="p-2 gemini-button rounded-full hidden"><svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 1v4m0 0h-4m4 0l-5-5" /></svg></button>
+                        <a id="download-link" href="#" download="fliperdrama-cena.png" title="Baixar Imagem" class="p-2 gemini-button rounded-full hidden"><svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg></a>
                     </div>
                 </div>
-                <div id="image-panel" class="hidden">
-                    <h3 class="font-display text-xl mb-4">VISUALIZADOR DE CENA</h3>
-                    <div id="image-container" class="relative group">
-                        <div id="image-display-area" class="w-full h-80 bg-black/5 flex items-center justify-center rounded-md mb-4 border" style="border-color: var(--border-color);">
-                            <p class="text-gray-500 text-sm p-4 text-center">Escolha uma visão para gerar uma ilustração.</p>
-                        </div>
-                        <div id="image-toolbar" class="absolute bottom-6 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button id="fullscreen-button" title="Tela Cheia" class="p-2 gemini-button rounded-full hidden"><svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 1v4m0 0h-4m4 0l-5-5" /></svg></button>
-                            <a id="download-link" href="#" download="fliperdrama-cena.png" title="Baixar Imagem" class="p-2 gemini-button rounded-full hidden"><svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg></a>
-                        </div>
-                    </div>
-                    <div id="image-options-container" class="space-y-3"></div>
-                </div>
+                <div id="image-options-container" class="space-y-3"></div>
+            </div>
+            <div id="narrative-panel" class="mb-8 relative">
+                <h2 id="scene-title" class="font-display text-2xl border-b-2 pb-2 mb-4" style="border-color: var(--border-color);"></h2>
+                <div id="tts-controls" class="absolute top-0 right-0"></div>
+                <div id="scene-content" class="text-lg leading-relaxed space-y-4"></div>
+            </div>
+            <div id="choice-panel">
+                 <p class="text-center text-sm text-gray-400 mb-4">//: A percepção molda a realidade. Escolha uma lente.</p>
+                 <div id="choices-container" class="space-y-4"></div>
             </div>
         </div>
     </main>
@@ -660,7 +651,7 @@
             investigationTitle.textContent = `INVESTIGANDO: ${term.toUpperCase()}`;
             investigationContent.innerHTML = '<div class="flex justify-center items-center h-full"><div class="spinner"></div></div>';
             
-            const fullPrompt = `Você é o mestre de um jogo de RPG de mistério noir com um tom de comédia sombria e absurda. O jogador quer investigar um objeto ou conceito específico da cena. Forneça uma descrição detalhada, poética e ligeiramente filosófica para o seguinte item: '${term}'. O contexto da cena atual é: '${storyData[gameState.currentScene].title}'. Mantenha o tom e o estilo da aventura. Responda em português.`;
+            const fullPrompt = `Você é o mestre de um jogo de RPG de mistério noir com um tom de comédia sombria e absurda. O jogador quer investigar um objeto ou conceito específico da cena. Forneça uma descrição concisa (duas ou três frases), poética e ligeiramente filosófica para o seguinte item: '${term}'. O contexto da cena atual é: '${storyData[gameState.currentScene].title}'. Mantenha o tom e o estilo da aventura. Responda em português.`;
 
             let chatHistory = [{ role: "user", parts: [{ text: fullPrompt }] }];
             const payload = { contents: chatHistory };
