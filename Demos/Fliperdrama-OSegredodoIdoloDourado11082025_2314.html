@@ -151,11 +151,6 @@
             text-decoration-style: dotted;
             cursor: pointer;
         }
-        .custom-select {
-            background-color: var(--button-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-        }
     </style>
 </head>
 <body class="antialiased">
@@ -178,8 +173,8 @@
 
     <main id="game-screen" class="hidden w-full max-w-7xl mx-auto p-4 md:p-8">
         <div class="card rounded-lg shadow-lg p-6 md:p-8 crt-glow">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="md:col-span-2">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
                     <div id="narrative-panel" class="mb-8 relative">
                         <h2 id="scene-title" class="font-display text-2xl border-b-2 pb-2 mb-4" style="border-color: var(--border-color);"></h2>
                         <div id="tts-controls" class="absolute top-0 right-0"></div>
@@ -190,28 +185,18 @@
                          <div id="choices-container" class="space-y-4"></div>
                     </div>
                 </div>
-                <div id="image-panel" class="md:col-span-1 hidden">
+                <div id="image-panel" class="hidden">
                     <h3 class="font-display text-xl mb-4">VISUALIZADOR DE CENA</h3>
                     <div id="image-container" class="relative group">
-                        <div id="image-display-area" class="w-full h-64 bg-black/5 flex items-center justify-center rounded-md mb-4 border" style="border-color: var(--border-color);">
-                            <p class="text-gray-500 text-sm p-4 text-center">Gere uma ilustração para visualizar este momento.</p>
+                        <div id="image-display-area" class="w-full h-80 bg-black/5 flex items-center justify-center rounded-md mb-4 border" style="border-color: var(--border-color);">
+                            <p class="text-gray-500 text-sm p-4 text-center">Escolha uma visão para gerar uma ilustração.</p>
                         </div>
                         <div id="image-toolbar" class="absolute bottom-6 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button id="fullscreen-button" title="Tela Cheia" class="p-2 gemini-button rounded-full hidden"><svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 1v4m0 0h-4m4 0l-5-5" /></svg></button>
                             <a id="download-link" href="#" download="fliperdrama-cena.png" title="Baixar Imagem" class="p-2 gemini-button rounded-full hidden"><svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg></a>
                         </div>
                     </div>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="font-bold text-sm block mb-2">DIRETOR DE CENA:</label>
-                            <select id="director-selector" class="w-full p-2 rounded-md custom-select"></select>
-                        </div>
-                        <div>
-                            <label class="font-bold text-sm block mb-2">ESTILO DO ARTISTA:</label>
-                            <select id="artist-style-selector" class="w-full p-2 rounded-md custom-select"></select>
-                        </div>
-                        <button id="generate-image-button" class="w-full px-6 py-3 choice-button rounded-lg">✨ GERAR ILUSTRAÇÃO</button>
-                    </div>
+                    <div id="image-options-container" class="space-y-3"></div>
                 </div>
             </div>
         </div>
@@ -272,7 +257,12 @@
                 choices: [
                     { text: "O terminal pisca. Uma chamada encriptada rasga o silêncio. Atender.", target: "crimeSceneIntro" }
                 ],
-                imagePrompt: "A detective's office, a monument to procrastination. Stacks of philosophy books lean precariously. A single, depressed-looking fern sits by the window."
+                imagePrompt: "A detective's office, a monument to procrastination. Stacks of philosophy books lean precariously. A single, depressed-looking fern sits by the window.",
+                imageOptions: [
+                    { label: "Visão Noir Clássica", director: "depalma", artist: "frank_miller_sc" },
+                    { label: "Devaneio Surreal", director: "lynch", artist: "moebius" },
+                    { label: "Ansiedade Cômica", director: "gilliam", artist: "addams" }
+                ]
             },
             crimeSceneIntro: {
                 title: "002: MORTE POR DESAPONTAMENTO",
@@ -285,7 +275,12 @@
                     { type: 'allen', text: "Focar-me nos absurdos lógicos da cena. Tentar encontrar um padrão racional.", target: "pathAllen1", precogPrompt: "Analisar a lógica de um guardanapo manchado." },
                     { type: 'burton', text: "Mergulhar na beleza mórbida da atmosfera. Deixar que os objetos contem a sua história.", target: "pathBurton1", precogPrompt: "Sentir a história de uma espátula de bolo vitoriana." }
                 ],
-                imagePrompt: "A lavish gothic apartment. A man in a velvet smoking jacket hugs an empty pedestal on the floor, his face a mask of cosmic disappointment."
+                imagePrompt: "A lavish gothic apartment. A man in a velvet smoking jacket hugs an empty pedestal on the floor, his face a mask of cosmic disappointment.",
+                 imageOptions: [
+                    { label: "Pesadelo Gótico", director: "tim_burton", artist: "hellboy" },
+                    { label: "Horror Pulp", director: "kubrick", artist: "ec_comics" },
+                    { label: "Tragédia Distorcida", director: "lynch", artist: "junji_ito" }
+                ]
             },
             pathAllen1: {
                 title: "003A: A PISTA DO GUARDANAPO",
@@ -297,7 +292,12 @@
                     { type: 'allen', text: "Ok, agora a espátula. Com relutância, claro.", target: "examineSpatula_fromAllen" },
                     { type: 'burton', text: "Esta nota é triste. O que dirá a espátula?", target: "examineSpatula_fromAllen" }
                 ],
-                imagePrompt: "Close-up on a cocktail napkin on a dusty table. A single, sad coffee ring stains it. A philosophical question is scribbled on it."
+                imagePrompt: "Close-up on a cocktail napkin on a dusty table. A single, sad coffee ring stains it. A philosophical question is scribbled on it.",
+                 imageOptions: [
+                    { label: "Foco Paranoico", director: "depalma", artist: "frank_miller_sc" },
+                    { label: "Absurdo Minimalista", director: "gilliam", artist: "addams" },
+                    { label: "Mistério Cósmico", director: "kubrick", artist: "moebius" }
+                ]
             },
             pathBurton1: {
                 title: "003B: A CANÇÃO DA ESPÁTULA",
@@ -309,7 +309,12 @@
                     { type: 'allen', text: "Certo, já vi o suficiente deste objeto assombrado. E o guardanapo?", target: "examineNapkin_fromBurton" },
                     { type: 'burton', text: "Esta beleza melancólica é uma pista. Vejamos o guardanapo.", target: "examineNapkin_fromBurton" }
                 ],
-                imagePrompt: "An ornate Victorian cake spatula lies on a dark wooden floor. It's strangely menacing, with a patina of rust like dried blood."
+                imagePrompt: "An ornate Victorian cake spatula lies on a dark wooden floor. It's strangely menacing, with a patina of rust like dried blood.",
+                imageOptions: [
+                    { label: "Beleza Macabra", director: "tim_burton", artist: "ec_comics" },
+                    { label: "Sonho Obscuro", director: "lynch", artist: "hellboy" },
+                    { label: "Conto de Fadas Grotesco", director: "gilliam", artist: "junji_ito" }
+                ]
             },
             examineSpatula_fromAllen: {
                 title: "004A: REEXAME (LÓGICO) DA ESPÁTULA",
@@ -379,13 +384,20 @@
         };
 
         const artistStyles = {
+            "frank_miller_sc": { name: "F. Miller (Sin City)", prompt: "in the stark, high-contrast, black-and-white neo-noir style of Frank Miller's Sin City, with minimalist backgrounds and selective use of color." },
+            "frank_miller_tdkr": { name: "F. Miller (Cav. Trevas)", prompt: "in the gritty, ink-heavy, and dystopian style of Frank Miller's The Dark Knight Returns, with bulky figures and a sense of decay." },
+            "moebius": { name: "Moebius", prompt: "in the intricate, clean-lined, and surreal sci-fi fantasy style of Jean Giraud 'Moebius', with imaginative landscapes and a sense of wonder." },
+            "junji_ito": { name: "Junji Ito", prompt: "in the terrifying body horror and cosmic dread style of manga artist Junji Ito, with detailed, disturbing imagery and unsettling spiral patterns." },
+            "alex_ross": { name: "Alex Ross", prompt: "in the photorealistic, painterly, and heroic style of Alex Ross, with dramatic lighting and a sense of classical grandeur." },
+            "john_byrne": { name: "John Byrne", prompt: "in the clean, classic, and dynamic superhero comic book style of John Byrne from the 1980s, with strong character poses and clear storytelling." },
+            "jack_kirby": { name: "Jack Kirby", prompt: "in the bold, powerful, and cosmic style of Jack Kirby, with dynamic action, 'Kirby Krackle' energy effects, and blocky, powerful figures." },
+            "hanna_barbera": { name: "Hanna-Barbera", prompt: "in the simple, charming, and flat-colored style of a classic Hanna-Barbera cartoon from the 1960s, like 'Scooby-Doo', with a friendly and non-threatening feel." },
             "hellboy": { name: "Estilo 'Hellboy'", prompt: "in the distinct art style of Mike Mignola's Hellboy comics, with heavy use of black ink, dramatic shadows, and blocky, stylized figures." },
-            "ec_comics": { name: "Estilo 'EC Comics'", prompt: "in the style of a vintage EC Comics horror cover from the 1950s, like 'Tales from the Crypt', with detailed, lurid line work and a sense of suspenseful dread." },
-            "addams": { name: "Estilo 'Charles Addams'", prompt: "in the macabre and humorous single-panel cartoon style of Charles Addams, with grayscale washes and a charmingly ghoulish atmosphere." },
-            "vasquez": { name: "Estilo 'Jhonen Vasquez'", prompt: "in the chaotic, sharp-angled, and grotesquely cute style of Jhonen Vasquez, with a dark and energetic feel." }
+            "ec_comics": { name: "Estilo 'EC Comics'", prompt: "in the style of a vintage EC Comics horror cover from the 1950s, like 'Tales from the Crypt', with detailed, lurid line work and a sense of suspenseful dread." }
         };
 
         const directorStyles = {
+            "tim_burton": { name: "Tim Burton", prompt: "The scene is depicted with a Tim Burton-esque gothic fairytale aesthetic, featuring distorted perspectives, whimsical yet macabre characters, and a dark, magical atmosphere." },
             "kubrick": { name: "S. Kubrick", prompt: "The scene is framed with Kubrickian precision, emphasizing one-point perspective, unsettling symmetry, and a cold, detached atmosphere." },
             "depalma": { name: "B. De Palma", prompt: "The scene is captured with a De Palma-esque split-screen or a slow, voyeuristic tracking shot, building suspense and a sense of paranoia." },
             "lynch": { name: "D. Lynch", prompt: "The scene is depicted through a Lynchian lens, where the mundane becomes surreal and menacing, with strange textures, distorted sounds, and a dreamlike, illogical quality." },
@@ -430,9 +442,7 @@
         const imagePanel = document.getElementById('image-panel');
         const imageContainer = document.getElementById('image-container');
         const imageDisplayArea = document.getElementById('image-display-area');
-        const directorSelector = document.getElementById('director-selector');
-        const artistStyleSelector = document.getElementById('artist-style-selector');
-        const generateImageButton = document.getElementById('generate-image-button');
+        const imageOptionsContainer = document.getElementById('image-options-container');
         const fullscreenButton = document.getElementById('fullscreen-button');
         const downloadLink = document.getElementById('download-link');
 
@@ -544,9 +554,10 @@
                     renderChoices(scene.choices);
                     if (scene.imagePrompt) {
                         imagePanel.classList.remove('hidden');
-                        imageDisplayArea.innerHTML = '<p class="text-gray-500 text-sm p-4 text-center">Gere uma ilustração para visualizar este momento.</p>';
+                        imageDisplayArea.innerHTML = '<p class="text-gray-500 text-sm p-4 text-center">Escolha uma visão para gerar uma ilustração.</p>';
                         fullscreenButton.classList.add('hidden');
                         downloadLink.classList.add('hidden');
+                        renderImageOptions();
                     } else {
                         imagePanel.classList.add('hidden');
                     }
@@ -735,21 +746,13 @@
         }
 
 
-        async function handleImageGeneration() {
-            const selectedDirector = directorSelector.value;
-            const selectedArtist = artistStyleSelector.value;
-
-            if (!selectedDirector || !selectedArtist) {
-                imageDisplayArea.innerHTML = '<p class="text-red-500">ERRO: Por favor, selecione um Diretor e um Artista.</p>';
-                return;
-            }
-
+        async function handleImageGeneration(director, artist) {
             sounds.imageGen.triggerAttackRelease("C2", "1s");
             imageDisplayArea.innerHTML = '<div class="flex flex-col items-center gap-2"><div class="spinner"></div><p>Gerando ilustração...</p></div>';
             fullscreenButton.classList.add('hidden');
             downloadLink.classList.add('hidden');
             
-            const fullPrompt = `${gameState.currentImagePrompt}, ${directorStyles[selectedDirector].prompt}, ${artistStyles[selectedArtist].prompt}`;
+            const fullPrompt = `${gameState.currentImagePrompt}, ${directorStyles[director].prompt}, ${artistStyles[artist].prompt}`;
             
             const payload = { instances: [{ prompt: fullPrompt }], parameters: { "sampleCount": 1 } };
             const apiKey = gameState.userApiKey;
@@ -779,9 +782,23 @@
             } catch (error) {
                 console.error("Erro ao gerar imagem:", error);
                 imageDisplayArea.innerHTML = `<p class="text-red-500 p-4 text-center">Falha na geração da imagem. Verifique a sua chave de API ou a conexão.</p>`;
-                 if (error instanceof TypeError) {
+                 if (error instanceof TypeError || (error.message && error.message.includes("401"))) {
                     apiKeyModal.style.display = 'flex';
                 }
+            }
+        }
+        
+        function renderImageOptions() {
+            const scene = storyData[gameState.currentScene];
+            imageOptionsContainer.innerHTML = '';
+            if (scene.imageOptions) {
+                scene.imageOptions.forEach(option => {
+                    const button = document.createElement('button');
+                    button.className = 'w-full p-3 choice-button rounded-lg text-sm';
+                    button.textContent = `Visão: ${option.label}`;
+                    button.onclick = () => handleImageGeneration(option.director, option.artist);
+                    imageOptionsContainer.appendChild(button);
+                });
             }
         }
         
@@ -937,16 +954,6 @@
             characterChatModal.style.display = 'none';
         }
 
-        function populateDropdown(selectElement, data) {
-            selectElement.innerHTML = '';
-            Object.keys(data).forEach(key => {
-                const option = document.createElement('option');
-                option.value = key;
-                option.textContent = data[key].name;
-                selectElement.appendChild(option);
-            });
-        }
-
         startButton.addEventListener('click', async () => {
             await Tone.start();
             setupSounds();
@@ -973,8 +980,6 @@
                 handleInvestigation(term);
             }
         });
-
-        generateImageButton.addEventListener('click', handleImageGeneration);
         
         fullscreenButton.addEventListener('click', () => {
             const imgElement = imageDisplayArea.querySelector('img');
@@ -989,9 +994,6 @@
             gameState.userApiKey = apiKeyInput.value.trim();
             apiKeyModal.style.display = 'none';
         });
-
-        populateDropdown(directorSelector, directorStyles);
-        populateDropdown(artistStyleSelector, artistStyles);
 
     </script>
 </body>
