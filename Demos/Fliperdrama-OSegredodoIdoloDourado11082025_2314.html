@@ -162,7 +162,8 @@
     <div class="scanlines"></div>
 
     <div id="start-screen" class="min-h-screen flex flex-col items-center justify-center text-center p-4">
-        <div class="card rounded-lg shadow-lg p-8 crt-glow max-w-3xl">
+        <div class="card rounded-lg shadow-lg p-8 crt-glow max-w-3xl relative">
+            <button id="api-key-button" title="Inserir Chave de API" class="absolute top-4 right-4 text-gray-400 hover:text-white">🔑</button>
             <h1 class="font-display-cyber text-3xl md:text-5xl text-white">CARREGANDO FLIPERDRAMA...</h1>
             <p class="mt-2 text-lg">> PRONTO</p>
             <p class="mt-6 text-xl font-bold font-display-cyber">> TÍTULO: O SEGREDO DO ÍDOLO DOURADO</p>
@@ -244,6 +245,19 @@
                 <button id="chat-send-button" class="gemini-button px-4 rounded-md">Enviar</button>
             </div>
              <button id="modal-close-chat-button" class="mt-4 px-6 py-2 gemini-button rounded-lg w-full">ENCERRAR CONVERSA</button>
+        </div>
+    </div>
+
+    <div id="api-key-modal" class="fixed inset-0 z-50 items-center justify-center hidden">
+        <div class="modal-bg absolute inset-0"></div>
+        <div class="relative card rounded-lg shadow-2xl max-w-lg w-11/12 p-6 border-2">
+            <h3 class="font-display-cyber text-xl text-white mb-4">CONFIGURAR CHAVE DE API</h3>
+            <p class="text-sm mb-4">Parece que as chamadas à API estão a falhar. Isto pode acontecer ao executar o ficheiro localmente. Por favor, insira a sua chave de API da Google AI Studio para continuar.</p>
+            <input type="text" id="api-key-input" class="w-full bg-black/50 border p-2 rounded-md" placeholder="Cole a sua chave de API aqui...">
+            <div class="flex gap-4 mt-4">
+                <button id="save-api-key-button" class="flex-grow px-6 py-2 choice-button rounded-lg">Guardar Chave</button>
+                <button id="close-api-key-modal" class="px-6 py-2 gemini-button rounded-lg">Fechar</button>
+            </div>
         </div>
     </div>
 
@@ -378,7 +392,7 @@
             "gilliam": { name: "T. Gilliam", prompt: "The scene is viewed through a Terry Gilliam-style wide-angle lens, distorting the edges and filling the frame with bizarre, cluttered details and a sense of anarchic energy." }
         };
 
-        let gameState = { currentScene: 'start', currentImagePrompt: '', audioPlayer: null, audioUrl: null, chatHistory: [], currentTheme: 'allen' };
+        let gameState = { currentScene: 'start', currentImagePrompt: '', audioPlayer: null, audioUrl: null, chatHistory: [], currentTheme: 'allen', userApiKey: '' };
         let typewriterInterval;
         let sounds;
         let isTypingSoundBusy = false;
@@ -407,6 +421,12 @@
         const chatSendButton = document.getElementById('chat-send-button');
         const modalCloseChatButton = document.getElementById('modal-close-chat-button');
 
+        const apiKeyModal = document.getElementById('api-key-modal');
+        const apiKeyButton = document.getElementById('api-key-button');
+        const apiKeyInput = document.getElementById('api-key-input');
+        const saveApiKeyButton = document.getElementById('save-api-key-button');
+        const closeApiKeyModalButton = document.getElementById('close-api-key-modal');
+
         const imagePanel = document.getElementById('image-panel');
         const imageContainer = document.getElementById('image-container');
         const imageDisplayArea = document.getElementById('image-display-area');
@@ -430,35 +450,63 @@
         
         function typeWriter(element, html, onComplete) {
             if (typewriterInterval) clearInterval(typewriterInterval);
-            element.innerHTML = '';
-            let i = 0;
+            element.innerHTML = html;
             element.classList.add('typing-effect');
-            
-            typewriterInterval = setInterval(() => {
-                if (i < html.length) {
-                    const char = html.charAt(i);
-                    if (char === '<') {
-                        const tagEnd = html.indexOf('>', i);
-                        if (tagEnd !== -1) {
-                            element.innerHTML += html.substring(i, tagEnd + 1);
-                            i = tagEnd;
-                        }
-                    } else {
-                        element.innerHTML += char;
-                        if (char.trim() !== '' && sounds && !isTypingSoundBusy) {
-                            isTypingSoundBusy = true;
-                            sounds.type.triggerAttackRelease("8n");
-                            setTimeout(() => { isTypingSoundBusy = false; }, 50);
-                        }
+
+            const allTextNodes = [];
+            function getTextNodes(node) {
+                if (node.nodeType === 3) {
+                    allTextNodes.push(node);
+                } else if (node.nodeType === 1 && node.childNodes) {
+                    for (let i = 0; i < node.childNodes.length; i++) {
+                        getTextNodes(node.childNodes[i]);
                     }
-                    i++;
+                }
+            }
+            
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            
+            const originalNodes = Array.from(tempDiv.childNodes);
+            element.innerHTML = '';
+
+            let nodeIndex = 0;
+            function processNode() {
+                if (nodeIndex < originalNodes.length) {
+                    const node = originalNodes[nodeIndex].cloneNode(true);
+                    element.appendChild(node);
+                    
+                    if (node.nodeType === 3) { // Text node
+                        const text = node.textContent;
+                        node.textContent = '';
+                        let charIndex = 0;
+                        const interval = setInterval(() => {
+                            if (charIndex < text.length) {
+                                node.textContent += text[charIndex];
+                                if (text[charIndex].trim() !== '' && sounds && !isTypingSoundBusy) {
+                                    isTypingSoundBusy = true;
+                                    sounds.type.triggerAttackRelease("8n", Tone.now());
+                                    setTimeout(() => { isTypingSoundBusy = false; }, 50);
+                                }
+                                charIndex++;
+                            } else {
+                                clearInterval(interval);
+                                nodeIndex++;
+                                processNode();
+                            }
+                        }, 30);
+                    } else { // Element node
+                        nodeIndex++;
+                        processNode();
+                    }
                 } else {
-                    clearInterval(typewriterInterval);
                     element.classList.remove('typing-effect');
                     if (onComplete) onComplete();
                 }
-            }, 30);
+            }
+            processNode();
         }
+
 
         function renderScene(sceneId) {
             const scene = storyData[sceneId];
@@ -565,7 +613,7 @@
             
             let chatHistory = [{ role: "user", parts: [{ text: fullPrompt }] }];
             const payload = { contents: chatHistory };
-            const apiKey = "";
+            const apiKey = gameState.userApiKey;
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
             
             try {
@@ -583,7 +631,10 @@
                 }
             } catch (error) {
                 console.error("Erro na Precognição:", error);
-                precogContent.textContent = "As estáticas do futuro são indecifráveis. (Nota: Se estiver a executar este ficheiro localmente, o seu navegador pode estar a bloquear esta funcionalidade.)";
+                precogContent.textContent = "As estáticas do futuro são indecifráveis.";
+                if (error instanceof TypeError) {
+                    apiKeyModal.style.display = 'flex';
+                }
             }
         }
 
@@ -597,7 +648,7 @@
 
             let chatHistory = [{ role: "user", parts: [{ text: fullPrompt }] }];
             const payload = { contents: chatHistory };
-            const apiKey = "";
+            const apiKey = gameState.userApiKey;
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
             
             try {
@@ -615,7 +666,10 @@
                 }
             } catch (error) {
                 console.error("Erro na Investigação:", error);
-                investigationContent.textContent = "A sua mente tenta focar-se no objeto, mas só encontra um vazio existencial. (Nota: Se estiver a executar este ficheiro localmente, o seu navegador pode estar a bloquear esta funcionalidade.)";
+                investigationContent.textContent = "A sua mente tenta focar-se no objeto, mas só encontra um vazio existencial.";
+                 if (error instanceof TypeError) {
+                    apiKeyModal.style.display = 'flex';
+                }
             }
         }
         
@@ -644,7 +698,7 @@
             chatLog.scrollTop = chatLog.scrollHeight;
 
             const payload = { contents: gameState.chatHistory };
-            const apiKey = "";
+            const apiKey = gameState.userApiKey;
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
 
             try {
@@ -665,7 +719,10 @@
             } catch (error) {
                 console.error("Erro no Chat:", error);
                 loadingDiv.remove();
-                addMessageToChatLog("Sistema", "A conexão com a consciência do personagem foi perdida... (Nota: Se estiver a executar este ficheiro localmente, o seu navegador pode estar a bloquear esta funcionalidade.)");
+                addMessageToChatLog("Sistema", "A conexão com a consciência do personagem foi perdida...");
+                 if (error instanceof TypeError) {
+                    apiKeyModal.style.display = 'flex';
+                }
             }
         }
 
@@ -695,7 +752,7 @@
             const fullPrompt = `${gameState.currentImagePrompt}, ${directorStyles[selectedDirector].prompt}, ${artistStyles[selectedArtist].prompt}`;
             
             const payload = { instances: [{ prompt: fullPrompt }], parameters: { "sampleCount": 1 } };
-            const apiKey = "";
+            const apiKey = gameState.userApiKey;
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
 
             try {
@@ -721,7 +778,10 @@
                 }
             } catch (error) {
                 console.error("Erro ao gerar imagem:", error);
-                imageDisplayArea.innerHTML = `<p class="text-red-500 p-4 text-center">Falha na geração da imagem. (Nota: Se estiver a executar este ficheiro localmente, o seu navegador pode estar a bloquear esta funcionalidade.)</p>`;
+                imageDisplayArea.innerHTML = `<p class="text-red-500 p-4 text-center">Falha na geração da imagem. Verifique a sua chave de API ou a conexão.</p>`;
+                 if (error instanceof TypeError) {
+                    apiKeyModal.style.display = 'flex';
+                }
             }
         }
         
@@ -801,7 +861,7 @@
                 },
                 model: "gemini-2.5-flash-preview-tts"
             };
-            const apiKey = "";
+            const apiKey = gameState.userApiKey;
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
 
             try {
@@ -835,6 +895,9 @@
                 console.error("Erro ao gerar TTS:", error);
                 button.innerHTML = '▶';
                 button.disabled = false;
+                 if (error instanceof TypeError) {
+                    apiKeyModal.style.display = 'flex';
+                }
             }
         }
 
@@ -920,10 +983,16 @@
             }
         });
 
+        apiKeyButton.addEventListener('click', () => apiKeyModal.style.display = 'flex');
+        closeApiKeyModalButton.addEventListener('click', () => apiKeyModal.style.display = 'none');
+        saveApiKeyButton.addEventListener('click', () => {
+            gameState.userApiKey = apiKeyInput.value.trim();
+            apiKeyModal.style.display = 'none';
+        });
+
         populateDropdown(directorSelector, directorStyles);
         populateDropdown(artistStyleSelector, artistStyles);
 
     </script>
 </body>
 </html>
-
