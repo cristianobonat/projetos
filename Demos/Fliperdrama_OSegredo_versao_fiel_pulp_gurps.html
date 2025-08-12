@@ -191,6 +191,7 @@
         let GOOGLE_API_KEY = localStorage.getItem('geminiApiKey') || null;
         let pendingApiCall = null;
         let currentSceneId = null;
+        let visitedScenes = [];
 
         const artStyle = "No estilo de uma ilustração de Tim Burton, com traços de esboço a carvão, tons de sépia e uma profunda sensação de melancolia e estranheza.";
 
@@ -394,6 +395,35 @@
             modalElement.classList.remove('visible');
         }
         
+        // --- NOVAS FUNÇÕES DA API GEMINI ---
+        function summarizeScene(narrative) {
+            const cleanNarrative = narrative.replace(/<p>|<\/p>/g, " ");
+            const prompt = `Você é o mestre de um RPG estilo noir. Resuma o seguinte texto de uma aventura de detetive em um parágrafo conciso e direto, em português. O resumo deve capturar os eventos principais e a atmosfera da cena. Texto: "${cleanNarrative}"`;
+            handleGenericGeminiAction('Resumindo a Cena...', '✨ Resumo da Cena', prompt);
+        }
+
+        function perceiveDetails(narrative) {
+            const cleanNarrative = narrative.replace(/<p>|<\/p>/g, " ");
+            const prompt = `Você é o mestre de um RPG noir com um protagonista no estilo Woody Allen. A cena atual é: "${cleanNarrative}". Descreva 2 ou 3 detalhes sutis, atmosféricos e levemente neuróticos que apenas o detetive Arthur Penwright notaria. Foque em ansiedades, observações absurdas ou pavor existencial relacionado ao ambiente. A resposta deve ser poética, misteriosa e em português, adicionando profundidade à cena.`;
+            handleGenericGeminiAction('Afinando a Percepção...', '✨ Percepção Aguçada', prompt);
+        }
+
+        async function writeDiaryEntry() {
+            if (!GOOGLE_API_KEY) {
+                pendingApiCall = writeDiaryEntry;
+                showApiKeyModal();
+                return;
+            }
+            if (visitedScenes.length === 0 && currentSceneId === null) {
+                showModal('Diário de Arthur', '<p>Ainda é muito cedo para reflexões. A jornada mal começou, e a minha ansiedade já está em níveis estratosféricos.</p>');
+                return;
+            }
+            const journeySummary = [...visitedScenes, currentSceneId].map(id => adventureData[id].title).join(' -> ');
+            const prompt = `Você é Arthur Penwright, um detetive neurótico na Xangai dos anos 1930. Você está escrevendo em seu diário. Sua jornada até agora envolveu as seguintes cenas: ${journeySummary}. Escreva uma entrada de diário curta, introspectiva e ansiosa (1-2 parágrafos) refletindo sobre esses eventos e seu crescente pavor existencial sobre o caso. A resposta deve ser em português.`;
+            handleGenericGeminiAction('Escrevendo no Diário...', '✨ Diário de Arthur', prompt);
+        }
+        // --- FIM DAS NOVAS FUNÇÕES ---
+
         async function handleGenericGeminiAction(modalLoadingTitle, modalResultTitle, prompt) {
             if (!GOOGLE_API_KEY) {
                 pendingApiCall = () => handleGenericGeminiAction(modalLoadingTitle, modalResultTitle, prompt);
@@ -490,6 +520,15 @@
                 return;
             }
 
+            if (currentSceneId !== null && currentSceneId !== sceneId) {
+                if (!visitedScenes.includes(currentSceneId)) {
+                    visitedScenes.push(currentSceneId);
+                }
+            }
+            if (sceneId === 'CENA_00_INICIO') {
+                visitedScenes = [];
+            }
+
             currentSceneId = sceneId;
             
             app.innerHTML = '';
@@ -507,6 +546,9 @@
                 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-2">
                     <h1 id="scene-title" class="title-font text-3xl md:text-4xl font-bold" style="color: var(--title-color);">${scene.title}</h1>
                     <div id="gemini-actions" class="flex flex-wrap justify-start sm:justify-end gap-2">
+                         <button id="diary-button" class="gemini-button text-xs" title="Diário de Arthur">✨ Diário</button>
+                         <button id="perceive-button" class="gemini-button text-xs" title="Usar Percepção">✨ Percepção</button>
+                         <button id="summarize-button" class="gemini-button text-xs" title="Resumir Cena">✨ Resumir</button>
                          <button id="config-key-button" class="gemini-button text-xs" title="Configurar Chave de API">⚙️ Chave</button>
                     </div>
                 </div>
@@ -529,6 +571,9 @@
             
             document.getElementById('generate-image-btn').onclick = generateSceneImage;
             document.getElementById('config-key-button').onclick = showApiKeyModal;
+            document.getElementById('diary-button').onclick = writeDiaryEntry;
+            document.getElementById('perceive-button').onclick = () => perceiveDetails(scene.narrative);
+            document.getElementById('summarize-button').onclick = () => summarizeScene(scene.narrative);
 
             const choicesContainer = document.getElementById('choices-container');
             scene.choices.forEach(choice => {
@@ -565,4 +610,3 @@
 
 </body>
 </html>
-
