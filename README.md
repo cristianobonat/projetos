@@ -3,7 +3,8 @@ Repositório de projetos e estudos:
 
 ## [DEmoS acerVo Fliperdrama //, Arcadrama]
 #### 1. [O seGReDo do Ídolo douRado - *pulp_book: tragi-cômico*](https://cristianobonat.github.io/projetos/Demos/Fliperdrama-OSegredodoIdoloDourado11082025_2314.html)
-#### 2. [Fábrica de pulp_books - NFeatures](https://cristianobonat.github.io/projetos/Demos/Storyflip_FabricaDePulpBook_12082025_0004.html) 
+#### 2. [Zeela - Antes de Mais Nada - aventura flashback de 'Ruído Impermanente'](https://cristianobonat.github.io/projetos/Demos/Fliperdrama_ZeelaAntesDeMaisNada_Aventura_flashback_origens.html)
+#### 3. [Fábrica de pulp_books - NFeatures](https://cristianobonat.github.io/projetos/Demos/Storyflip_FabricaDePulpBook_12082025_0004.html) 
 
 ### 0. **News** *legendaspontocom*
   
