@@ -1,7 +1,8 @@
 # meus_projetos //,
 Repositório de projetos e estudos:
 
-https://github.com/cristianobonat/projetos/blob/8794de3f41a4dd23055dab7d0c4381e76d2e7529/Demos/Fliperdrama-OSegredodoIdoloDourado11082025_2314.html
+## [DEmoS acerVo Fliperdrama //, Arcadrama]
+#### 1. [O seGReDo do Ídolo douRado - *pulp_book: tragi-cômico*](https://github.com/cristianobonat/projetos/blob/8794de3f41a4dd23055dab7d0c4381e76d2e7529/Demos/Fliperdrama-OSegredodoIdoloDourado11082025_2314.html)
 
 ### 0. **News** *legendaspontocom*
   
