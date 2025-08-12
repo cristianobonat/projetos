@@ -1,1 +1,568 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fliperdrama: O Segredo do Ídolo Dourado</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Cormorant+Garamond:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Paleta de Cores - Horror & Mistério */
+            --screen-bg: #1a1a1a;
+            --card-bg: rgba(40, 35, 30, 0.9);
+            --text-color: #d7c3a8; /* Sépia claro */
+            --title-color: #e0d6c3;
+            --border-color: rgba(215, 195, 168, 0.2);
+            --button-bg: rgba(215, 195, 168, 0.05);
+            --button-hover-bg: rgba(215, 195, 168, 0.1);
+            --shadow-color: rgba(0, 0, 0, 0.5);
+        }
+
+        body {
+            font-family: 'Cormorant Garamond', serif;
+            background-color: var(--screen-bg);
+            color: var(--text-color);
+        }
+        
+        /* Efeito de Vinheta e Grão de Filme */
+        body::after {
+            content: ' ';
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEWFhYWDg4N3d3dtbW17e3t1dXVpaWl9fX1ZWVkICAgJCQkLCwsFBQUYGBgEBAQNDQ0REREJCQkFBQUBAQECAgIHBwcKCgoPDw9DQ0MAAAAAAAAzFEtOAAAAKklEQVR42uzYAQEAAAACMIto/2ikD30gDEAAAAAAAMBOAmdJvg0AAAAAABv9GAAAAAAAACeBwHpa1f/3qgAAAABJRU5ErkJggg==');
+            opacity: 0.08;
+            pointer-events: none;
+            z-index: 1001;
+            box-shadow: inset 0 0 150px rgba(0,0,0,0.7); /* Vinheta */
+        }
+
+        .title-font {
+            font-family: 'Special Elite', cursive;
+        }
+        .card-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(4px);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px var(--shadow-color), inset 0 0 10px rgba(0,0,0,0.5);
+            border-radius: 2px;
+        }
+        .choice-button, .gemini-button, #modal-close-button, #api-key-save-button, .audio-button, .image-action-button {
+            font-family: 'Special Elite', cursive;
+            background-color: var(--button-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 2px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .choice-button:hover, .gemini-button:hover, #modal-close-button:hover, #api-key-save-button:hover, .audio-button:hover, .image-action-button:hover {
+            background-color: var(--button-hover-bg);
+            border-color: var(--text-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        #scene-image {
+            filter: sepia(0.3) contrast(1.1) brightness(0.9);
+            border-radius: 2px;
+        }
+        .gemini-response {
+            border-left: 2px solid var(--text-color);
+            background-color: var(--button-bg);
+            padding: 1rem;
+            margin-top: 1.5rem;
+            border-radius: 0;
+            font-style: italic;
+        }
+        .scene-fade-in { animation: fadeIn 1.2s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(26, 26, 26, 0.7); backdrop-filter: blur(5px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000; opacity: 0; visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        .modal-overlay.visible { opacity: 1; visibility: visible; }
+        .modal-content {
+            background: var(--card-bg); padding: 2rem; border-radius: 2px;
+            max-width: 500px; width: 90%;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+        }
+        .loader {
+            border: 4px solid var(--border-color); border-top: 4px solid var(--text-color);
+            border-radius: 50%; width: 40px; height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #api-key-input {
+            background-color: #111;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: 2px;
+            font-family: 'Cormorant Garamond', serif;
+        }
+        /* Estilo Cyberpunk para a tela de boot inicial */
+        .boot-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #0a0f18;
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #96e072;
+            font-family: 'Special Elite', cursive;
+            text-shadow: 0 0 5px rgba(50, 255, 126, 0.5);
+            animation: fadeOutBoot 3s forwards 2.5s;
+        }
+        .boot-screen::after {
+            content: ' ';
+            display: block;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            animation: glitch 1s linear infinite;
+        }
+        .boot-text {
+            animation: flicker 1.5s infinite alternate;
+        }
+        @keyframes flicker {
+            0%, 18%, 22%, 25%, 53%, 57%, 100% { text-shadow: 0 0 4px #96e072, 0 0 11px #96e072, 0 0 19px #96e072; color: #96e072; }
+            20%, 24%, 55% { text-shadow: none; color: #222; }
+        }
+        @keyframes glitch {
+            2%,64% { transform: translate(2px,0) skew(0deg); }
+            4%,60% { transform: translate(-2px,0) skew(0deg); }
+            62% { transform: translate(0,0) skew(5deg); }
+        }
+        @keyframes fadeOutBoot {
+            to { opacity: 0; visibility: hidden; }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-300 min-h-screen flex items-center justify-center p-4">
+
+    <!-- Tela de Boot -->
+    <div id="boot-screen" class="boot-screen">
+        <h1 class="boot-text text-4xl">INICIANDO FLIPERDRAMA...</h1>
+    </div>
+
+    <div id="app" class="w-full max-w-3xl mx-auto"></div>
+
+    <div id="gemini-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 id="modal-title" class="title-font text-2xl text-amber-200 mb-4"></h2>
+            <div id="modal-body"></div>
+            <button id="modal-close-button" class="mt-6 font-bold py-2 px-4 w-full">Fechar</button>
+        </div>
+    </div>
+
+    <div id="api-key-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 class="title-font text-2xl text-amber-200 mb-4">Configurar Chave de API</h2>
+            <p class="mb-4 text-sm">Para usar as funcionalidades de IA, por favor, insira sua chave de API do Google AI Studio.</p>
+            <input type="password" id="api-key-input" placeholder="Cole sua chave aqui...">
+            <button id="api-key-save-button" class="mt-4 font-bold py-2 px-4 w-full">Salvar e Continuar</button>
+        </div>
+    </div>
+
+    <script>
+        let GOOGLE_API_KEY = localStorage.getItem('geminiApiKey') || null;
+        let pendingApiCall = null;
+        let currentSceneId = null;
+
+        const artStyle = "No estilo de uma ilustração de Tim Burton, com traços de esboço a carvão, tons de sépia e uma profunda sensação de melancolia e estranheza.";
+
+        const adventureData = {
+            'CENA_00_INICIO': {
+                title: "O Escritório e o Desespero",
+                image: "https://placehold.co/800x450/1a1a1a/d7c3a8?text=Shanghai_Noir",
+                imagePrompt: `Um detetive particular magro e ansioso, de sobretudo, está sentado em sua cadeira, em um escritório caótico e mal iluminado dos anos 30. A perspectiva é distorcida, fazendo a sala parecer maior e mais ameaçadora. A porta do escritório se abre com violência. ${artStyle}`,
+                music: "Bohren & der Club of Gore - Prowler",
+                youtubeLink: "https://youtu.be/kKZ04j88-M4",
+                narrative: `
+                    <p>Francamente, a fumaça no meu escritório tinha mais personalidade do que a maioria dos meus clientes. E ali estava eu, Arthur Penwright, contemplando o abismo existencial no fundo de um copo de uísque que provavelmente era mais jovem que as minhas angústias. Era uma daquelas noites em Xangai que fazem você questionar suas escolhas de vida, carreira e, principalmente, por que você não se tornou um contador.</p>
+                    <p>A porta não se abriu, ela se agrediu. E um homem entrou, pálido. Quer dizer, eu sou pálido, mas esse sujeito parecia ter visto o rascunho final do universo e, aparentemente, não gostou do final. Ele agarrou minha mesa, os nós dos dedos brancos, os olhos esbugalhados de um terror que eu costumo ver apenas no espelho.</p>
+                    <p>"Preciso da sua ajuda!", ele sussurrou, a voz um fiapo. "O Ídolo Dourado... sumiu! Eles vão me matar!"</p>
+                    <p>Uma declaração um tanto dramática, eu pensei. Mas ele fez questão de provar seu ponto ao tombar no chão, revelando um punhal bastante ornamentado e desconfortavelmente cravado em suas costas. Bem, lá se vai minha noite tranquila de autoaversão.</p>
+                `,
+                choices: [
+                     { 
+                        text: "Aproximar-se do corpo. Afinal, é o meu tapete.", 
+                        target: 'CENA_01_O_CORPO'
+                    },
+                    { 
+                        text: "Ligar para a polícia. Deixar os profissionais lidarem com... isso.", 
+                        target: 'CENA_01_A_LEI'
+                    }
+                ]
+            },
+            'CENA_01_O_CORPO': {
+                title: "Detalhes Inconvenientes",
+                image: "https://placehold.co/800x450/1a1a1a/d7c3a8?text=A_Adaga",
+                imagePrompt: `Close-up no chão de madeira de um escritório escuro. A mão de um homem morto e um punhal exótico e ornamentado cravado em suas costas. A poeira dança no feixe de luz de um abajur. A cena é uma ilustração gótica e melancólica, com traços de esboço a carvão. ${artStyle}`,
+                music: "Angelo Badalamenti - Dance of the Dream Man",
+                youtubeLink: "https://youtu.be/g51-bMvC3_A",
+                narrative: `
+                    <p>Eu me agachei, com o devido cuidado para não estalar os joelhos. A idade, essa piada de mau gosto. O homem estava definitivamente morto. O punhal era a principal pista. Não era uma faca de cozinha. A liga do metal parecia... estranha, antiga. E na lixeira, ao lado da mesa, algo chamuscado me chamou a atenção.</p>
+                    <p>De repente, o problema não era apenas um cadáver no meu escritório, o que já é um problema de decoração e de relacionamento com o senhorio. O problema era que aquilo tudo tinha um cheiro de complicação. E complicações, na minha experiência, raramente pagam bem.</p>
+                `,
+                choices: [ 
+                    { text: "Examinar o punhal mais de perto.", target: 'CENA_02A_PUNHAL' },
+                    { text: "Verificar o papel queimado na lixeira.", target: 'CENA_02B_PAPEL' }
+                ]
+            },
+            'CENA_01_A_LEI': {
+                title: "Burocracia e Ceticismo",
+                image: "https://placehold.co/800x450/1a1a1a/d7c3a8?text=A_Polícia",
+                imagePrompt: `Dois policiais uniformizados e carrancudos dos anos 30 examinam um corpo no chão de um escritório de detetive. O detetive, um homem magro e de aparência ansiosa, observa de canto, com as mãos nos bolsos. A cena é sombria e cheia de sombras. ${artStyle}`,
+                music: "The Caretaker - It's Just a Burning Memory",
+                youtubeLink: "https://youtu.be/xADSDapqn9o",
+                narrative: `
+                    <p>Eu fiz o que qualquer cidadão razoavelmente covarde faria: liguei para o Inspetor Wong. Ele chegou com a sutileza de um elefante numa loja de cristais, acompanhado por dois policiais que pareciam ter sido esculpidos em granito e descontentamento.</p>
+                    <p>"Outro dos seus casos, Penwright?", Wong perguntou, cutucando o corpo com a ponta do sapato. "Um acerto de contas, obviamente. Ladrão de arte. Fim da história."</p>
+                    <p>Ele estava ansioso demais para encerrar o caso. Enquanto eles faziam seu teatro de investigação, notei que não deram a menor atenção a um pedaço de papel queimado na lixeira. Profissionais... claro. Tão profissionais quanto um cirurgião operando com uma pá.</p>
+                `,
+                choices: [ 
+                    { text: "Pegar discretamente o papel queimado quando ninguém estiver olhando.", target: 'CENA_02B_PAPEL' },
+                    { text: "Deixar pra lá. Talvez Wong tenha razão e eu só precise de outro uísque.", target: 'CENA_FIM_PRECOCE' }
+                ]
+            },
+            'CENA_02A_PUNHAL': {
+                title: "Metal de Outro Mundo",
+                image: "https://placehold.co/800x450/1a1a1a/d7c3a8?text=Símbolos_Estranhos",
+                imagePrompt: `Um close-up extremo do cabo de um punhal antigo e exótico. O metal tem gravuras estranhas, não humanas, que parecem brilhar fracamente. A mão do detetive, hesitante, se aproxima para tocá-lo. ${artStyle}`,
+                music: "Akira Yamaoka - Silent Hill",
+                youtubeLink: "https://youtu.be/WShk_d-N_Gk",
+                narrative: `
+                    <p>Com um lenço, para evitar impressões digitais e, quem sabe, maldições antigas, eu retirei o punhal. Era pesado. O metal tinha uma cor que eu não saberia nomear, e o cabo era coberto por símbolos que não pertenciam a nenhuma cultura que eu conhecesse. E eu conheço pelo menos três. Eles pareciam se contorcer sob a luz fraca, uma ilusão de ótica que me deu um calafrio genuíno.</p>
+                    <p>Isso não era de uma loja de penhores de Xangai. Isso parecia algo que você encontraria em um pesadelo, ou talvez em uma daquelas lojas de antiguidades realmente, realmente esquisitas que sempre acabam sendo a fonte de todos os problemas.</p>
+                `,
+                choices: [
+                    { type: 'gemini', text: "Tentar decifrar os símbolos com meu conhecimento (limitado) de ocultismo.", prompt: `Sou um detetive particular neurótico em 1930, no estilo Woody Allen. Acabo de encontrar um punhal com símbolos estranhos. Aja como minha consciência ansiosa e intelectual. Dê-me uma análise curta (1 parágrafo) sobre esses símbolos, misturando conhecimento ocultista vago com pânico existencial. Ex: 'Claro, Arthur, parecem pré-sumérios, ou talvez a lista de compras de um demônio. Tocar nisso é uma péssima ideia. Lembra o que aconteceu com aquele livro em latim? Você teve enxaqueca por uma semana.'` },
+                    { text: "Deixar o punhal de lado e investigar o papel queimado.", target: 'CENA_02B_PAPEL' }
+                ],
+            },
+            'CENA_02B_PAPEL': {
+                title: "A Serpente e o Disco",
+                image: "https://placehold.co/800x450/1a1a1a/d7c3a8?text=O_Símbolo",
+                imagePrompt: `A mão de um detetive segura um pedaço de papel queimado e amarelado. No papel, um símbolo desenhado a carvão: uma serpente enrolada em um disco. A imagem é um close-up, com foco no papel. ${artStyle}`,
+                music: "The Kilimanjaro Darkjazz Ensemble - The Nothing Changes",
+                youtubeLink: "https://youtu.be/RXpA_1r-s-A",
+                narrative: `
+                    <p>Eu pesquei o fragmento da lixeira. Era o que restava de um papel de carta caro. As bordas estavam pretas e frágeis, mas o centro sobreviveu. Havia um endereço parcial, "Rua dos...", e um símbolo desenhado apressadamente: uma serpente enrolada em um disco.</p>
+                    <p>Não sou um especialista em heráldica de cultos, mas aquilo gritava 'sociedade secreta'. E sociedades secretas significam senhas, rituais e, o pior de tudo, pessoas que levam a si mesmas muito a sério. Uma combinação que, invariavelmente, leva a mais gente morta no meu tapete.</p>
+                `,
+                choices: [
+                    { text: "Tentar descobrir que lugar é a 'Rua dos...'", target: 'COMING_SOON' },
+                    { text: "Focar no punhal. O papel pode esperar.", target: 'CENA_02A_PUNHAL' }
+                ]
+            },
+            'CENA_FIM_PRECOCE': {
+                title: "A Doce Ignorância",
+                image: "https://placehold.co/800x450/1a1a1a/d7c3a8?text=Fim",
+                imagePrompt: `Um copo de uísque sobre uma mesa de madeira escura, meio vazio. Ao fundo, a janela do escritório de um detetive mostra a noite chuvosa de uma cidade dos anos 30. A cena é quieta e melancólica. ${artStyle}`,
+                narrative: `<p>E foi o que eu fiz. Wong levou o corpo, o caso foi arquivado, e eu me servi de outro uísque. E mais um. Às vezes, a melhor maneira de resolver um problema é fingir que ele não existe. O ídolo, o culto, o punhal... que fosse o problema de outra pessoa. Meu problema era terminar a garrafa e tentar não pensar no fato de que a vida é uma piada cósmica sem graça. E, por uma noite, eu consegui.</p>`,
+                choices: [{ text: "Recomeçar a inevitável espiral de ansiedade e mistério.", target: 'CENA_00_INICIO' }]
+            },
+            'COMING_SOON': {
+                title: "A Noite Ainda é uma Criança...",
+                image: "https://placehold.co/800x450/1a1a1a/d7c3a8?text=Continua...",
+                imagePrompt: "Uma rua escura e chuvosa de Xangai nos anos 30. As luzes dos postes de gás refletem nas poças d'água. Uma figura solitária de sobretudo caminha, se afastando. O texto 'Continua...' brilha sutilmente no centro. O estilo é de uma ilustração gótica e sombria.",
+                narrative: `<p>A investigação de Arthur Penwright está apenas começando. As ruas de Xangai guardam segredos mais sombrios do que ele imagina, e o Ídolo Dourado é apenas a ponta de um iceberg existencialmente aterrorizante.</p><p>Obrigado por jogar.</p>`,
+                choices: [{ text: "Enfrentar tudo de novo.", target: 'CENA_00_INICIO' }]
+            }
+        };
+
+        const app = document.getElementById('app');
+        const geminiModal = document.getElementById('gemini-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalBody = document.getElementById('modal-body');
+        const modalCloseButton = document.getElementById('modal-close-button');
+        const apiKeyModal = document.getElementById('api-key-modal');
+        const apiKeyInput = document.getElementById('api-key-input');
+        const apiKeySaveButton = document.getElementById('api-key-save-button');
+
+        modalCloseButton.onclick = () => hideModal(geminiModal);
+        apiKeySaveButton.onclick = saveApiKey;
+
+        function showApiKeyModal() { apiKeyModal.classList.add('visible'); }
+        function hideApiKeyModal() { apiKeyModal.classList.remove('visible'); }
+
+        function saveApiKey() {
+            if (apiKeyInput.value.trim()) {
+                GOOGLE_API_KEY = apiKeyInput.value.trim();
+                localStorage.setItem('geminiApiKey', GOOGLE_API_KEY);
+                hideApiKeyModal();
+                if (pendingApiCall) {
+                    pendingApiCall();
+                    pendingApiCall = null;
+                }
+            }
+        }
+
+        async function callApi(apiUrl, payload, retries = 3, delay = 1000) {
+            if (!GOOGLE_API_KEY) {
+                return { error: "Chave de API não configurada." };
+            }
+            
+            const finalApiUrl = `${apiUrl}?key=${GOOGLE_API_KEY}`;
+            
+            try {
+                const response = await fetch(finalApiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                if (!response.ok) {
+                    const errorBody = await response.text();
+                    throw new Error(`HTTP error! status: ${response.status}, body: ${errorBody}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error("Erro na chamada da API:", error);
+                if (retries > 0) {
+                    await new Promise(res => setTimeout(res, delay));
+                    return callApi(apiUrl, payload, retries - 1, delay * 2);
+                } else {
+                    return { error: `A conexão com a IA foi perdida. Detalhe: ${error.message}` };
+                }
+            }
+        }
+
+        async function callGeminiApi(prompt) {
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent`;
+            const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
+            const result = await callApi(apiUrl, payload);
+
+            if (result.error) return result.error;
+
+            if (result.candidates && result.candidates[0]?.content?.parts[0]?.text) {
+                return result.candidates[0].content.parts[0].text;
+            } else {
+                console.error("Resposta da API em formato inesperado:", result);
+                return "A IA permanece em silêncio. A resposta estava vazia ou malformada.";
+            }
+        }
+
+        async function callImageGenerationApi(prompt) {
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation:generateContent`;
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: { responseModalities: ['TEXT', 'IMAGE'] },
+            };
+            const result = await callApi(apiUrl, payload);
+            
+            if (result.error) {
+                 return { error: result.error };
+            }
+            
+            const base64Data = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+            if (base64Data) {
+                return { imageUrl: `data:image/png;base64,${base64Data}` };
+            } else {
+                 console.error("Resposta da API de Imagem em formato inesperado:", result);
+                 const errorMessage = result.error?.message || "Resposta vazia ou malformada.";
+                 return { error: `Falha na Geração de Arte: ${errorMessage}` };
+            }
+        }
+
+        function showModal(title, content) {
+            modalTitle.innerText = title;
+            modalBody.innerHTML = content;
+            geminiModal.classList.add('visible');
+        }
+
+        function hideModal(modalElement) {
+            modalElement.classList.remove('visible');
+        }
+        
+        async function handleGenericGeminiAction(modalLoadingTitle, modalResultTitle, prompt) {
+            if (!GOOGLE_API_KEY) {
+                pendingApiCall = () => handleGenericGeminiAction(modalLoadingTitle, modalResultTitle, prompt);
+                showApiKeyModal();
+                return;
+            }
+             showModal(modalLoadingTitle, '<div class="flex justify-center items-center"><div class="loader"></div></div>');
+             const resultText = await callGeminiApi(prompt);
+             if (resultText.includes("A conexão com a IA foi perdida.") || resultText.includes("Chave de API não configurada.")) {
+                 modalTitle.innerText = 'Falha na Conexão com a IA';
+                 modalBody.innerHTML = `<p>${resultText}</p>`;
+             } else {
+                 modalTitle.innerText = modalResultTitle;
+                 modalBody.innerHTML = `<div class="gemini-response">${resultText.replace(/\n/g, '<br>')}</div>`;
+             }
+        }
+
+        async function generateSceneImage() {
+            if (!GOOGLE_API_KEY) {
+                pendingApiCall = generateSceneImage;
+                showApiKeyModal();
+                return;
+            }
+            
+            const scene = adventureData[currentSceneId];
+            if (!scene.imagePrompt) return;
+
+            const imageContainer = document.getElementById('image-container');
+            const loader = document.createElement('div');
+            loader.className = 'absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center';
+            loader.innerHTML = '<div class="loader"></div>';
+            imageContainer.appendChild(loader);
+
+            const finalPrompt = scene.imagePrompt; // O estilo já está no prompt
+            const result = await callImageGenerationApi(finalPrompt);
+            
+            loader.remove();
+
+            if (result && result.imageUrl) {
+                document.getElementById('scene-image').src = result.imageUrl;
+            } else if (result && result.error) {
+                showModal('Erro na Geração de Imagem', `<p>${result.error}</p>`);
+            } else {
+                showModal('Erro na Geração de Imagem', `<p>Ocorreu um erro desconhecido durante a geração da imagem.</p>`);
+            }
+        }
+        
+        function getNotesForMusic(musicTitle) {
+            // Melodias Noir/Misteriosas
+            if (musicTitle.includes("Prowler")) return ["C2", null, "Eb2", "G2", null, "F#2", null, "Eb2"];
+            if (musicTitle.includes("Dream Man")) return ["C#4", "E4", "G#4", "C#4", "E4", "G#4"];
+            if (musicTitle.includes("Burning Memory")) return [["C3", "E3"], null, ["G3", "Bb3"], null];
+            if (musicTitle.includes("Silent Hill")) return ["E3", "G3", "A3", "B3", "A3", "G3"];
+            if (musicTitle.includes("Nothing Changes")) return ["D2", null, "A2", "C3", null, "G2"];
+            return ["A2", "C3", "E3", "G3"];
+        }
+
+        function setupAudioPlayer(scene) {
+            if (window.loop) {
+                window.loop.stop();
+                window.loop.dispose();
+            }
+            if (window.synth) {
+                window.synth.dispose();
+            }
+
+            window.synth = new Tone.PolySynth(Tone.Synth, {
+                oscillator: { type: 'sine' },
+                envelope: { attack: 0.02, decay: 0.5, sustain: 0.2, release: 1.2 },
+            }).toDestination();
+            window.synth.volume.value = -12;
+
+            const notes = getNotesForMusic(scene.music);
+            window.loop = new Tone.Sequence((time, note) => {
+                if(note) window.synth.triggerAttackRelease(note, "1n", time);
+            }, notes, "1m").start(0);
+            
+            Tone.Transport.bpm.value = 60;
+            Tone.Transport.start();
+
+            const playPauseButton = document.getElementById('play-pause-btn');
+            if(playPauseButton) {
+                playPauseButton.onclick = async () => {
+                    await Tone.start();
+                    Tone.Transport.toggle();
+                };
+            }
+        }
+
+        function renderScene(sceneId) {
+            const scene = adventureData[sceneId];
+            if (!scene) {
+                console.error(`Cena com ID "${sceneId}" não encontrada.`);
+                return;
+            }
+
+            currentSceneId = sceneId;
+            
+            app.innerHTML = '';
+            const sceneCard = document.createElement('div');
+            sceneCard.className = 'card-container p-6 md:p-8 scene-fade-in';
+
+            sceneCard.innerHTML = `
+                <div id="image-container" class="relative group mb-6">
+                    <img id="scene-image" src="${scene.image}" alt="Imagem da cena: ${scene.title}" class="w-full h-auto object-cover border border-gray-700">
+                    <div class="absolute top-2 right-2 flex gap-2">
+                        <button id="generate-image-btn" class="gemini-button p-2 text-xs" title="Gerar Arte com IA">✨ Gerar Arte</button>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-2">
+                    <h1 id="scene-title" class="title-font text-3xl md:text-4xl font-bold" style="color: var(--title-color);">${scene.title}</h1>
+                    <div id="gemini-actions" class="flex flex-wrap justify-start sm:justify-end gap-2">
+                         <button id="config-key-button" class="gemini-button text-xs" title="Configurar Chave de API">⚙️ Chave</button>
+                    </div>
+                </div>
+                
+                <div class="text-sm text-gray-400 mb-6 italic flex items-center justify-between">
+                    <span>Trilha Sonora: <a href="${scene.youtubeLink}" target="_blank" class="underline hover:text-white">${scene.music}</a></span>
+                    <div class="flex items-center gap-2">
+                        <button id="play-pause-btn" class="audio-button p-1 rounded-none text-xs">▶ Tocar/Pausar</button>
+                    </div>
+                </div>
+
+                <div id="scene-narrative" class="narrative-text leading-relaxed mb-8 text-lg">
+                    ${scene.narrative}
+                </div>
+
+                <div id="choices-container" class="grid grid-cols-1 gap-4"></div>
+            `;
+
+            app.appendChild(sceneCard);
+            
+            document.getElementById('generate-image-btn').onclick = generateSceneImage;
+            document.getElementById('config-key-button').onclick = showApiKeyModal;
+
+            const choicesContainer = document.getElementById('choices-container');
+            scene.choices.forEach(choice => {
+                const button = document.createElement('button');
+                let buttonClass = 'w-full text-left font-semibold py-3 px-5 focus:outline-none focus:ring-2 focus:ring-amber-200 focus:ring-opacity-50 shadow-lg';
+                
+                if (choice.type === 'gemini') {
+                    button.className = `${buttonClass} gemini-button`;
+                    button.innerHTML = `[Ponderar] ${choice.text}`;
+                    button.onclick = () => handleGenericGeminiAction('Processando Neuroses...', 'Voz da Consciência', choice.prompt);
+                } else {
+                    button.className = `${buttonClass} choice-button`;
+                    button.innerHTML = `[Ação] ${choice.text}`;
+                    button.onclick = () => renderScene(choice.target);
+                }
+                choicesContainer.appendChild(button);
+            });
+
+            setupAudioPlayer(scene);
+        }
+
+        window.onload = () => {
+            // Esconde a tela de boot e inicia a cena
+            const bootScreen = document.getElementById('boot-screen');
+            if (bootScreen) {
+                setTimeout(() => {
+                    renderScene('CENA_00_INICIO');
+                }, 2000); // Garante que a cena só renderize após a animação de boot
+            } else {
+                renderScene('CENA_00_INICIO');
+            }
+        };
+    </script>
+
+</body>
+</html>
 
