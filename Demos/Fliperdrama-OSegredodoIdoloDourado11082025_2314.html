@@ -762,6 +762,8 @@
                 });
 
                 if (!response.ok) {
+                    const errorBody = await response.text();
+                    console.error("API Error Body:", errorBody);
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
