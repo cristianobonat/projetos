@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infográfico: Estratégia de RPG no Instagram</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Brilliant Blues -->
+    <!-- Application Structure Plan: A single-page, top-to-bottom infographic telling a strategic story. It starts with the broad market opportunity (The Why), moves to a competitive analysis (The Where), narrows to a project-specific SWOT (The What), and concludes with a clear, actionable strategy (The How), now including an AI-powered ideation tool to demonstrate overcoming creative challenges. -->
+    <!-- Visualization & Content Choices: 
+        - Market Stats (Report 1.1) -> Goal: Inform -> Method: Large stat cards -> Justification: High-impact, immediate communication of key numbers.
+        - Platform Comparison (Table 1) -> Goal: Compare -> Method: Custom HTML/CSS table with icons -> Justification: A simplified visual summary of the detailed table.
+        - SWOT Analysis (Report 2) -> Goal: Organize/Analyze -> Method: Four-quadrant HTML/CSS grid -> Justification: Classic, instantly recognizable layout for strategic analysis.
+        - Monetization Funnel (Report 3.2) -> Goal: Explain Process -> Method: HTML/CSS flow diagram -> Justification: Visualizes the user journey from free content to paid support.
+        - AI Ideation Tool -> Goal: Demonstrate Solution -> Method: Interactive input with Gemini API call -> Justification: Provides a tangible tool that addresses the "content creation burden" weakness identified in the SWOT.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8FAFC; 
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 40vh;
+        }
+        .card {
+            background-color: #FFFFFF;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            border: 1px solid #E2E8F0;
+        }
+        .section-title {
+            color: #004AAD;
+        }
+        .stat-number {
+            color: #0075C2;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #0075C2;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-5xl">
+
+        <header class="text-center mb-12 md:mb-16">
+            <h1 class="text-4xl md:text-5xl font-bold section-title mb-4">O RPG do Instagram</h1>
+            <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">Uma análise visual da estratégia para transformar uma ideia criativa num negócio sustentável na economia dos criadores.</p>
+        </header>
+
+        <section id="opportunity" class="mb-12 md:mb-16">
+            <h2 class="text-3xl font-bold text-center mb-8 section-title">A Oportunidade de Mercado é Real</h2>
+            <p class="text-center text-gray-600 max-w-2xl mx-auto mb-10">O projeto não existe no vácuo. Ele está posicionado na intersecção de três tendências de mercado poderosas e em crescimento.</p>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 text-center">
+                <div class="card">
+                    <div class="text-5xl mb-4">📱</div>
+                    <h3 class="text-xl font-bold mb-2">Domínio Móvel</h3>
+                    <p class="stat-number text-5xl font-bold">48.8%</p>
+                    <p class="text-gray-600 mt-2">dos jogadores no Brasil preferem smartphones, validando a abordagem "mobile-first".</p>
+                </div>
+                <div class="card">
+                    <div class="text-5xl mb-4">📚</div>
+                    <h3 class="text-xl font-bold mb-2">Apetite por Histórias</h3>
+                    <p class="stat-number text-5xl font-bold">86%</p>
+                    <p class="text-gray-600 mt-2">das vendas de livros são de géneros como Fantasia e Ficção Científica, o público-alvo ideal.</p>
+                </div>
+                <div class="card md:col-span-2 lg:col-span-1">
+                    <div class="text-5xl mb-4">🎲</div>
+                    <h3 class="text-xl font-bold mb-2">Crescimento Narrativo</h3>
+                    <p class="stat-number text-5xl font-bold">+122%</p>
+                    <p class="text-gray-600 mt-2">é o crescimento previsto para o mercado de TTRPGs até 2032, mostrando uma forte procura.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="landscape" class="mb-12 md:mb-16">
+            <h2 class="text-3xl font-bold text-center mb-8 section-title">Onde Jogar? O Cenário das Plataformas</h2>
+            <p class="text-center text-gray-600 max-w-2xl mx-auto mb-10">Nenhuma plataforma é perfeita. O sucesso reside em usar cada uma para as suas forças, criando um ecossistema híbrido.</p>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="card text-center border-t-4 border-blue-500">
+                    <h3 class="text-2xl font-bold mb-2">Instagram</h3>
+                    <p class="text-gray-500 mb-4">O Palco</p>
+                    <p class="text-green-600 font-semibold mb-2">✓ Aquisição de Público</p>
+                    <p class="text-green-600 font-semibold mb-2">✓ Narrativa Visual</p>
+                    <p class="text-red-600 font-semibold">✗ Comunidade Profunda</p>
+                    <p class="text-red-600 font-semibold">✗ Mecânicas de Jogo</p>
+                </div>
+                <div class="card text-center border-t-4 border-indigo-500">
+                    <h3 class="text-2xl font-bold mb-2">Discord</h3>
+                    <p class="text-gray-500 mb-4">O Clube</p>
+                    <p class="text-green-600 font-semibold mb-2">✓ Comunidade Profunda</p>
+                    <p class="text-green-600 font-semibold mb-2">✓ Mecânicas (com bots)</p>
+                    <p class="text-red-600 font-semibold">✗ Aquisição de Público</p>
+                    <p class="text-red-600 font-semibold">✗ Narrativa Visual</p>
+                </div>
+                <div class="card text-center border-t-4 border-pink-500">
+                    <h3 class="text-2xl font-bold mb-2">Patreon</h3>
+                    <p class="text-gray-500 mb-4">O Motor</p>
+                    <p class="text-green-600 font-semibold mb-2">✓ Monetização Segura</p>
+                    <p class="text-green-600 font-semibold mb-2">✓ Conteúdo Exclusivo</p>
+                    <p class="text-red-600 font-semibold">✗ Aquisição de Público</p>
+                    <p class="text-red-600 font-semibold">✗ Interatividade Nativa</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="swot" class="mb-12 md:mb-16">
+            <h2 class="text-3xl font-bold text-center mb-8 section-title">Análise Estratégica (SWOT)</h2>
+            <p class="text-center text-gray-600 max-w-2xl mx-auto mb-10">Uma visão clara dos fatores internos e externos que definem a estratégia do projeto.</p>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="card">
+                    <h3 class="text-xl font-bold text-green-600 mb-3">Forças 💪</h3>
+                    <ul class="space-y-2 list-disc list-inside text-gray-700">
+                        <li>Narrativa visual e imersiva</li>
+                        <li>Interatividade nativa (enquetes, quizzes)</li>
+                        <li>Público massivo e descoberta integrada</li>
+                        <li>Baixa barreira de entrada para jogadores</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 class="text-xl font-bold text-red-600 mb-3">Fraquezas 📉</h3>
+                    <ul class="space-y-2 list-disc list-inside text-gray-700">
+                        <li>Falta de sistemas de jogo (dados, fichas)</li>
+                        <li>Conteúdo dos Stories é efémero</li>
+                        <li>Elevado fardo de produção visual</li>
+                        <li>Difícil manter a coesão narrativa</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 class="text-xl font-bold text-blue-600 mb-3">Oportunidades 🚀</h3>
+                    <ul class="space-y-2 list-disc list-inside text-gray-700">
+                        <li>Capturar o público "curioso pela narrativa"</li>
+                        <li>Fomentar a cocriação com a comunidade</li>
+                        <li>Alavancar o efeito "Bookstagram"</li>
+                        <li>Tendência do conteúdo serializado</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 class="text-xl font-bold text-yellow-600 mb-3">Ameaças ⚠️</h3>
+                    <ul class="space-y-2 list-disc list-inside text-gray-700">
+                        <li>Políticas de monetização voláteis</li>
+                        <li>Desgaste do público ("fadiga de enquetes")</li>
+                        <li>Saturação de conteúdo na plataforma</li>
+                        <li>Risco de Propriedade Intelectual (PI)</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="monetization" class="mb-12 md:mb-16">
+            <h2 class="text-3xl font-bold text-center mb-8 section-title">A Estratégia do Funil de Monetização</h2>
+            <p class="text-center text-gray-600 max-w-2xl mx-auto mb-10">A abordagem mais segura e eficaz: usar o Instagram para construir um público e o Patreon para gerar receita sustentável.</p>
+            
+            <div class="w-full max-w-md mx-auto">
+                <div class="card text-center p-6 mb-4">
+                    <p class="text-sm font-bold uppercase tracking-wider text-gray-500">Topo do Funil</p>
+                    <h3 class="text-2xl font-bold my-2">Aquisição de Público</h3>
+                    <p class="text-5xl my-4">📸</p>
+                    <p class="text-gray-600">Conteúdo gratuito no Instagram para maximizar o alcance e a viralidade.</p>
+                </div>
+                <div class="text-center text-4xl text-gray-400 my-4">▼</div>
+                <div class="card text-center p-6 mb-4">
+                    <p class="text-sm font-bold uppercase tracking-wider text-gray-500">Meio do Funil</p>
+                    <h3 class="text-2xl font-bold my-2">Engajamento Comunitário</h3>
+                    <p class="text-5xl my-4">💬</p>
+                    <p class="text-gray-600">Canalizar fãs para o Discord para discussões e construção de lealdade.</p>
+                </div>
+                <div class="text-center text-4xl text-gray-400 my-4">▼</div>
+                <div class="card text-center p-6 bg-blue-50 border-blue-200">
+                    <p class="text-sm font-bold uppercase tracking-wider text-blue-600">Fundo do Funil</p>
+                    <h3 class="text-2xl font-bold my-2 text-blue-800">Monetização</h3>
+                    <p class="text-5xl my-4">💰</p>
+                    <p class="text-blue-700">Fãs dedicados apoiam o projeto no Patreon em troca de conteúdo exclusivo.</p>
+                </div>
+            </div>
+
+            <div class="mt-12">
+                <h3 class="text-2xl font-bold text-center mb-6 section-title">Exemplo de Níveis no Patreon</h3>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="card text-center">
+                        <h4 class="font-bold">Apoiante</h4>
+                        <p class="text-3xl font-bold my-2 stat-number">$3<span class="text-base font-normal text-gray-500">/mês</span></p>
+                        <p class="text-gray-600">Acesso ao Discord e créditos de agradecimento.</p>
+                    </div>
+                    <div class="card text-center border-2 border-blue-500 shadow-xl">
+                        <h4 class="font-bold">Sábio do Lore</h4>
+                        <p class="text-3xl font-bold my-2 stat-number">$10<span class="text-base font-normal text-gray-500">/mês</span></p>
+                        <p class="text-gray-600">Acesso antecipado, lore exclusivo e downloads de arte.</p>
+                    </div>
+                    <div class="card text-center">
+                        <h4 class="font-bold">Co-Criador</h4>
+                        <p class="text-3xl font-bold my-2 stat-number">$20<span class="text-base font-normal text-gray-500">/mês</span></p>
+                        <p class="text-gray-600">Direito de voto em pontos cruciais e submissão de nomes.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="ai-ideation" class="mb-12 md:mb-16">
+            <h2 class="text-3xl font-bold text-center mb-8 section-title">Potencializando a Criatividade com IA ✨</h2>
+            <p class="text-center text-gray-600 max-w-2xl mx-auto mb-10">
+                Supere o bloqueio criativo e acelere a produção de conteúdo. Use a IA para gerar ganchos de enredo, personagens ou reviravoltas a partir de um simples conceito.
+            </p>
+            <div class="card max-w-2xl mx-auto">
+                <div class="space-y-4">
+                    <label for="prompt-input" class="block font-bold text-gray-700">Insira um conceito para a sua história:</label>
+                    <input type="text" id="prompt-input" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Ex: Um detetive num mundo de fantasia élfica...">
+                    <button id="generate-ideas-btn" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-md hover:bg-blue-700 transition duration-300 flex items-center justify-center">
+                        Gerar Ideias com IA
+                    </button>
+                    <div id="ideas-result" class="mt-4 p-4 border border-gray-200 rounded-md bg-gray-50 min-h-[150px]">
+                        <p class="text-gray-500">As suas ideias aparecerão aqui...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <footer class="text-center mt-16 border-t pt-8 text-gray-500">
+            <p>Este infográfico é uma representação visual da análise estratégica. O sucesso depende da execução consistente e da qualidade da narrativa.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const generateBtn = document.getElementById('generate-ideas-btn');
+            const promptInput = document.getElementById('prompt-input');
+            const ideasResult = document.getElementById('ideas-result');
+
+            generateBtn.addEventListener('click', async () => {
+                const userPrompt = promptInput.value;
+                if (!userPrompt) {
+                    ideasResult.innerHTML = '<p class="text-red-500">Por favor, insira um conceito para a história.</p>';
+                    return;
+                }
+
+                ideasResult.innerHTML = '<div class="flex justify-center items-center h-full"><div class="loader"></div><p class="ml-3 text-gray-600">A gerar ideias...</p></div>';
+                generateBtn.disabled = true;
+
+                const fullPrompt = `Como um mestre de RPG experiente, crie 3 ganchos de enredo curtos e intrigantes para uma história de RPG baseada no seguinte conceito. Cada gancho deve ser adequado para um post de Instagram, terminando com uma pergunta para engajar o público. Formate a resposta como uma lista com marcadores. Conceito: "${userPrompt}"`;
+                
+                try {
+                    let chatHistory = [];
+                    chatHistory.push({ role: "user", parts: [{ text: fullPrompt }] });
+                    const payload = { contents: chatHistory };
+                    const apiKey = ""; 
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+                    
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Erro na API: ${response.statusText}`);
+                    }
+
+                    const result = await response.json();
+                    
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        const text = result.candidates[0].content.parts[0].text;
+                        
+                        const htmlResult = text
+                            .split('\n') 
+                            .filter(line => line.trim().startsWith('*')) 
+                            .map(line => `<li class="mb-2">${line.substring(1).trim().replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</li>`)
+                            .join('');
+                            
+                        ideasResult.innerHTML = `<ul class="list-disc list-inside space-y-2">${htmlResult}</ul>`;
+                    } else {
+                        throw new Error("Resposta da API inválida ou vazia.");
+                    }
+
+                } catch (error) {
+                    console.error("Error calling Gemini API:", error);
+                    ideasResult.innerHTML = `<p class="text-red-500">Ocorreu um erro ao gerar as ideias. Por favor, tente novamente. Detalhes: ${error.message}</p>`;
+                } finally {
+                    generateBtn.disabled = false;
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
+
