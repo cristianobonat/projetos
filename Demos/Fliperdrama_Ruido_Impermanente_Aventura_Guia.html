@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insta_Drama: Ruído Impermanente</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --screen-bg: #0a0f18;
+            --card-bg: rgba(10, 15, 24, 0.8);
+            --text-color: #96e072;
+            --glow-color: rgba(50, 255, 126, 0.5);
+            --border-color: rgba(50, 255, 126, 0.2);
+            --button-bg: rgba(50, 255, 126, 0.1);
+            --button-hover-bg: rgba(50, 255, 126, 0.2);
+        }
+
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background-color: var(--screen-bg);
+            color: var(--text-color);
+            text-shadow: 0 0 5px var(--glow-color);
+        }
+        
+        /* Efeito de Scanlines e vinheta para a tela inteira */
+        body::after {
+            content: ' ';
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            z-index: 1001;
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.5); /* Vinheta */
+        }
+
+        .title-font {
+            font-family: 'Orbitron', sans-serif;
+        }
+        .card-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(5px);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 0 20px rgba(50, 255, 126, 0.1), inset 0 0 15px rgba(50, 255, 126, 0.1);
+        }
+        .choice-button, .gemini-button, #modal-close-button, #api-key-save-button, .audio-button, .image-action-button {
+            font-family: 'Roboto Mono', monospace;
+            background-color: var(--button-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            text-shadow: 0 0 3px var(--glow-color);
+            transition: all 0.2s ease;
+        }
+        .choice-button:hover, .gemini-button:hover, #modal-close-button:hover, #api-key-save-button:hover, .audio-button:hover, .image-action-button:hover {
+            background-color: var(--button-hover-bg);
+            box-shadow: 0 0 10px var(--glow-color);
+            transform: translateY(-1px);
+        }
+        #scene-image {
+            filter: grayscale(0.5) brightness(0.8) contrast(1.2);
+            mix-blend-mode: screen;
+            opacity: 0.8;
+        }
+        .gemini-response {
+            border-left: 2px solid var(--text-color);
+            background-color: var(--button-bg);
+            padding: 1rem;
+            margin-top: 1.5rem;
+            border-radius: 0;
+            font-style: italic;
+        }
+        .scene-fade-in { animation: fadeIn 1s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(10, 15, 24, 0.7); backdrop-filter: blur(5px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000; opacity: 0; visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        .modal-overlay.visible { opacity: 1; visibility: visible; }
+        .modal-content {
+            background: var(--screen-bg); padding: 2rem; border-radius: 0;
+            max-width: 500px; width: 90%;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 0 20px rgba(50, 255, 126, 0.2);
+        }
+        .loader {
+            border: 4px solid var(--border-color); border-top: 4px solid var(--text-color);
+            border-radius: 50%; width: 40px; height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #api-key-input {
+            background-color: var(--button-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: 0;
+        }
+        .dropdown { position: relative; display: inline-block; flex-grow: 1; }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: var(--screen-bg);
+            border: 1px solid var(--border-color);
+            width: 100%;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            bottom: 100%; /* Posiciona acima do botão */
+            margin-bottom: 0.5rem;
+        }
+        .dropdown-content a {
+            color: var(--text-color);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+        .dropdown-content a:hover { background-color: var(--button-hover-bg); }
+        .dropdown.active .dropdown-content { display: block; }
+        .image-actions {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+        #image-zoom-modal-content {
+            width: 90vw;
+            height: 90vh;
+            padding: 1rem;
+        }
+        #zoomed-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-300 min-h-screen flex items-center justify-center p-4">
+
+    <div id="app" class="w-full max-w-2xl mx-auto"></div>
+
+    <div id="gemini-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 id="modal-title" class="title-font text-2xl text-green-400 mb-4"></h2>
+            <div id="modal-body"></div>
+            <button id="modal-close-button" class="mt-6 font-bold py-2 px-4 rounded-none w-full">Fechar</button>
+        </div>
+    </div>
+
+    <!-- Modal para Chave de API -->
+    <div id="api-key-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 class="title-font text-2xl text-green-400 mb-4">Configurar Chave de API</h2>
+            <p class="mb-4 text-sm">Para usar as funcionalidades de IA, por favor, insira sua chave de API do Google AI Studio.</p>
+            <input type="password" id="api-key-input" placeholder="Cole sua chave aqui...">
+            <button id="api-key-save-button" class="mt-4 font-bold py-2 px-4 rounded-none w-full">Salvar e Continuar</button>
+        </div>
+    </div>
+    
+    <!-- Modal para Zoom de Imagem -->
+    <div id="image-zoom-modal" class="modal-overlay">
+        <div id="image-zoom-modal-content" class="modal-content">
+            <img id="zoomed-image" src="" alt="Imagem ampliada">
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        let GOOGLE_API_KEY = localStorage.getItem('geminiApiKey') || null;
+        let pendingApiCall = null;
+
+        let visitedScenes = [];
+        let currentSceneId = null;
+        let selectedArtStyle = 'Estilo Cyberpunk Clássico'; // Default style
+        let synth, loop; // Global audio variables
+
+        const artStyles = [
+            'Estilo Cyberpunk Clássico',
+            'Estilo Moebius',
+            'Estilo Frank Miller (Sin City)',
+            'Estilo Katsuhiro Otomo (Akira)',
+            'Estilo Mangá dos anos 90'
+        ];
+
+        // --- ADVENTURE DATA ---
+        const adventureData = {
+            'C00_INICIO': {
+                title: "O Contrato Sombrio",
+                image: "https://placehold.co/600x400/1a1f28/86f062?text=NEO-KYOTO_2077",
+                imagePrompt: "Uma paisagem urbana cyberpunk desolada. Favelas de metal empilhadas sob um céu laranja-poluído, chaminés industriais vomitando fumaça. No primeiro plano, vespas biomecânicas do tamanho de punhos patrulham as ruas sujas. Um homem em um casaco pesado e óculos escuros, 'Whisper', oferece um datachip para o jogador em um armazém abandonado no cais.",
+                music: "Shocking Blue - Daemon Lover",
+                youtubeLink: "https://youtu.be/2LrQ-g3YnjY",
+                narrative: `
+                    <p>Você é um pária em Neo-Kyoto, 2077. Um corredor das sombras, um fantasma na máquina, sobrevivendo com trabalhos que ninguém mais quer. E um desses trabalhos acabou de te encontrar.</p>
+                    <p>O ar no armazém abandonado no cais é pesado, salgado e rançoso. A única luz vem de anúncios holográficos quebrados do outro lado da água, piscando como sinapses moribundas. Ele se autodenomina "Whisper". O casaco pesado que ele usa engole a luz, escondendo os aprimoramentos que se movem sob o tecido. Óculos escuros, mesmo aqui na penumbra, são uma declaração.</p>
+                    <p>A voz dele é um sussurro rouco. "Tenho uma tarefa... para alguém com seus talentos. Um cyberdeck antigo e valioso... sumiu. Estava com os Contrabandistas da Névoa. Esses vermes provavelmente o esconderam em algum lugar neste cais imundo. Quero que o recupere. Sem alarde. Sem perguntas."</p>
+                    <p>Um datachip frio e metálico é jogado na sua direção. Você o pega no ar. "Isso tem o que sei sobre eles. Traga-me o deck. A recompensa será... generosa." Whisper se vira e se dissolve nas sombras, deixando você com o chip na mão e o gosto de ozônio na boca.</p>
+                `,
+                choices: [
+                    { text: "O caminho da tecnologia. Hackear o datachip.", target: 'C01A_DATALOG' },
+                    { text: "O caminho da rua. Vasculhar a memória por rumores.", target: 'C01B_RUMORES' }
+                ]
+            },
+            'C01A_DATALOG': {
+                title: "O Fantasma nos Fios",
+                image: "https://placehold.co/600x400/1a1f28/86f062?text=HACKING_INTERFACE",
+                imagePrompt: "A visão de uma interface neural. Um turbilhão de código âmbar e verde cascateando sobre um fundo escuro. No centro, um holograma 3D dos cais se materializa, com pacotes de dados vermelhos pulsando. Um dos pacotes falha, revelando um rastro que leva para fora do mapa, para um setor industrial abandonado.",
+                music: "Brian Bennett - Discovery",
+                youtubeLink: "https://youtu.be/SPVurvWjkHM",
+                narrative: `
+                    <p>Você se conecta. O mundo de carne e chuva desaparece, substituído pelo zumbido elétrico da sua interface. O datachip de Whisper é um cubo de gelo negro na sua mente. Você navega por corredores de luz e lógica, sentindo as defesas do chip como barreiras de estática.</p>
+                    <p>A primeira camada cede. Lixo. Registros de envio falsos. Mas ele deixou uma trilha, minúscula. Um único pacote de dados corrompido. Você o persegue através de um labirinto de servidores-fantasma.</p>
+                    <p>E então, você encontra. Uma série de transferências de energia não registradas. Picos de consumo em uma área que deveria estar morta. A geolocalização aponta para um único lugar: o Velho Setor Industrial. Os Contrabandistas da Névoa não estão no cais. Eles estão usando a ferrugem e a ruína como escudo.</p>
+                `,
+                choices: [
+                    { text: "Infiltração Discreta. Aproximação furtiva.", target: 'C02_FURTIVIDADE' },
+                    { text: "Observar e Analisar. Iniciar uma vigilância.", target: 'C02_INVESTIGAR' }
+                ]
+            },
+            'C01B_RUMORES': {
+                title: "O Eco da Sarjeta",
+                image: "https://placehold.co/600x400/1a1f28/86f062?text=STREET_MEMORY",
+                imagePrompt: "A visão de dentro de um bar de macarrão úmido, olhando para uma rua encharcada de chuva e neon. O rosto de um informante, agora um fantasma, reflete-se na janela. O foco está no seu próprio reflexo, sobreposto à decadência da cidade, como se você estivesse tentando se lembrar de algo importante.",
+                music: "The Stooges - T.V. Eye",
+                youtubeLink: "https://youtu.be/CsZ4XIOEKLY",
+                narrative: `
+                    <p>Você fecha os olhos e deixa o barulho do cais te levar. A sua memória é uma biblioteca de rostos sujos e promessas quebradas. O nome "Contrabandistas da Névoa" ecoa lá dentro.</p>
+                    <p>Dizem que eles se movem como fumaça, que usam a decadência da cidade como camuflagem. Eles operam onde a cidade já morreu.</p>
+                    <p>E então, a lembrança se cristaliza. A voz de um velho estivador, bêbado de saquê, reclamando dos barulhos estranhos vindos do... Velho Setor Industrial. "Lugar morto", ele disse, "mas algo se mexe lá à noite." Não é uma coordenada GPS, mas é mais real. É um testemunho.</p>
+                `,
+                choices: [
+                    { text: "Infiltração Discreta. Aproximação furtiva.", target: 'C02_FURTIVIDADE' },
+                    { text: "Observar e Analisar. Iniciar uma vigilância.", target: 'C02_INVESTIGAR' }
+                ]
+            },
+            'C02_FURTIVIDADE': {
+                title: "Dança das Sombras e Ferrugem",
+                image: "https://placehold.co/600x400/1a1f28/86f062?text=STEALTH_APPROACH",
+                imagePrompt: "Visão em primeira pessoa. O jogador está agachado atrás de uma placa de metal corroída. Através de um buraco de ferrugem, vê uma rua industrial desolada. Dois vultos em armaduras improvisadas patrulham lentamente. Uma névoa química paira no nível do chão.",
+                music: "Curved Air - Back Street Luv",
+                youtubeLink: "https://youtu.be/82tcFeK_pkg?si=EdP7cFR_uUWoL21H",
+                narrative: `
+                    <p>Você está dentro. O Velho Setor Industrial é uma sinfonia de decadência. O vento geme através de janelas quebradas. Você se move de uma sombra para outra, uma mancha na periferia da visão.</p>
+                    <p>Você congela. Dois guardas. Armaduras de sucata, armas de projéteis. Coisa pessoal. Suja. Você prende a respiração enquanto eles passam. E é quando você vê. Um deles joga fora uma bateria. Não é comum. É uma célula de energia de nível militar, ainda quente. Ela cai perto de um duto de ventilação largo, que leva para as entranhas de um armazém que deveria estar desativado. A bateria é um erro. E o duto... um convite.</p>
+                `,
+                choices: [
+                    { text: "Inspecionar o Duto.", target: 'C03A_DUTO' },
+                    { text: "Mapear o Perímetro do armazém.", target: 'C03B_PERIMETRO' }
+                ]
+            },
+            'C02_INVESTIGAR': {
+                title: "Anatomia de um Fantasma",
+                image: "https://placehold.co/600x400/1a1f28/86f062?text=SURVEILLANCE",
+                imagePrompt: "A visão através de binóculos de alta tecnologia. Uma vista panorâmica do Setor Industrial. Um armazém gigante está destacado com uma sobreposição de interface. Dentro do contorno do prédio, um leve brilho térmico pulsa em uma área específica, indicando calor e energia.",
+                music: "Brian Bennett - Discovery",
+                youtubeLink: "https://youtu.be/SPVurvWjkHM",
+                narrative: `
+                    <p>Você encontrou seu ninho. Um velho silo de grãos te dá uma visão de deus sobre este inferno. Agora, você assiste. E espera. Lá de cima, o Setor Industrial parece um circuito integrado queimado.</p>
+                    <p>A paciência é uma arma. E ela te recompensa. Lá está. Um armazém, indistinguível dos outros a olho nu. Mas sua varredura térmica conta uma história diferente. Uma mancha de calor persistente emana do subsolo. Não é grande, mas é constante. A assinatura de geradores, de tecnologia. E mais: breves picos de emissão de rádio de baixa frequência vindo do telhado. Comunicações curtas. Alguém está vivo lá dentro. E está se escondendo muito bem.</p>
+                `,
+                choices: [
+                    { text: "Infiltrar pelo Subsolo (fonte de calor).", target: 'C03A_DUTO' },
+                    { text: "Investigar o Telhado (fonte de rádio).", target: 'C03B_PERIMETRO' }
+                ]
+            },
+            'C03A_DUTO': {
+                title: "Sermões na Estática",
+                image: "https://placehold.co/600x400/1a1f28/86f062?text=VENT_SHAFT",
+                imagePrompt: "Visão claustrofóbica em primeira pessoa de dentro de um duto de ventilação. Mãos enluvadas apoiadas no metal enferrujado. À frente, a luz fraca de uma grade de ventilação ilumina a poeira. Através da grade, uma visão parcial de uma sala com maquinário pesado.",
+                music: "Chico Science e Nação Zumbi / 07. Samba do Lado",
+                youtubeLink: "https://youtu.be/p3TV7joSXuE?si=RJWLabvHT80MozP1",
+                narrative: `
+                    <p>Você está dentro do sistema circulatório do armazém, um parasita no metal. O cheiro aqui dentro é de morte e eletricidade. Você se arrasta em direção à fonte de calor, ao som. O zumbido fica mais alto. Você finalmente alcança uma grade de ventilação que dá para a sala do gerador.</p>
+                    <p>Duas vozes. Rudes. Contrabandistas. Eles não falam do cyberdeck. Falam de 'ela'.</p>
+                    <p>VOZ 1: "...não aguento mais a pregação dela. Fica lá, meditando o dia todo. Me dá arrepios."</p>
+                    <p>VOZ 2: "Cale a boca. O chefe disse que ela é importante. Deixa a Zeela com a paz de Buda dela. Desde que o pagamento caia, ela pode recitar o que quiser."</p>
+                    <p>Zeela. O nome paira no ar como fumaça tóxica. Uma peça que não se encaixa. A missão acabou de ficar muito mais complicada.</p>
+                `,
+                choices: [
+                    { text: "Continuar a Escutar.", target: 'C04A_CONFRONTAR_O_SILENCIO' },
+                    { text: "Recuar e Repensar.", target: 'C04B_RECUAR' }
+                ]
+            },
+            'C03B_PERIMETRO': {
+                title: "O Buda no Telhado",
+                image: "https://placehold.co/600x400/1a1f28/86f062?text=ROOFTOP_MEDITATION",
+                imagePrompt: "Visão de um ângulo alto e precário. Abaixo, o telhado plano e sujo de um armazém. Em meio a antenas e exaustores, uma única figura humana senta-se em posição de lótus, imóvel. É uma mulher, Zeela. Seus implantes cibernéticos brilham suavemente na penumbra. A cena é surreal e inquietante.",
+                music: "Michelle Gurevich - Russian Romance",
+                youtubeLink: "https://youtu.be/_n4eVWOxOBM?si=U3mk3HmCqNM5zoFR",
+                narrative: `
+                    <p>A investigação do perímetro te levou para cima. Você escala o esqueleto de metal de uma era esquecida, buscando uma vantagem. O vento aqui em cima quer te matar. Você finalmente encontra seu poleiro, com vista para o telhado do armazém.</p>
+                    <p>Você espera por patrulhas, drones, torretas. Em vez disso, você encontra... paz. Uma mulher. Sentada em meditação perfeita, como se estivesse em um templo. A chuva escorre por seus aprimoramentos cromados, mas ela não se move. Ela é uma ilha de calma em um oceano de caos.</p>
+                    <p>Seu instinto de rua te dá um nome, pescado de conversas sussurradas sobre cultos tecnológicos. Zeela. E vê-la aqui te diz uma coisa: o cyberdeck é apenas a camada superficial.</p>
+                `,
+                choices: [
+                    { text: "Tentar Contato.", target: 'C04A_CONFRONTAR_O_SILENCIO' },
+                    { text: "Recuar e Repensar.", target: 'C04B_RECUAR' }
+                ]
+            },
+            'C04A_CONFRONTAR_O_SILENCIO': {
+                title: "A Gravidade da Calma",
+                image: "https://placehold.co/600x400/1a1f28/86f062?text=YOU_ARE_SEEN",
+                imagePrompt: "O ponto de vista de quem espia por uma fresta. Vemos o rosto de Zeela em close. Seus olhos, uma mistura de tecido orgânico e cromo polido, estão abertos e fixos, olhando diretamente para a câmera/jogador. Ela não parece surpresa. Apenas... ciente.",
+                music: "The Cure - Close To Me",
+                youtubeLink: "https://youtu.be/BjvfIJstWeg",
+                narrative: `
+                    <p>Você força a sua sorte. Um centímetro a mais no duto. Um passo a mais no telhado. Um risco calculado. Foi um erro.</p>
+                    <p>O tempo parece desacelerar. O som ambiente se desvanece em um zumbido branco. E então, a voz. Ela não ecoa, não é carregada pelo vento. Ela floresce diretamente na sua mente, uma transmissão fantasma. Clara, calma.</p>
+                    <p>"A persistência sem sabedoria pode levar à exaustão."</p>
+                    <p>Seus músculos congelam. Não foi uma pergunta. Foi uma declaração. Zeela, lá embaixo ou imóvel no telhado, não se moveu um milímetro. Mas ela te encontrou. Ela sentiu sua presença na estática. Você não é mais um fantasma. Você é um alvo. A armadilha se fechou.</p>
+                `,
+                choices: [
+                    { text: "Dialogar com o Fantasma.", target: 'C05A_DIALOGO' },
+                    { text: "Fuga Desesperada.", target: 'C05B_FUGA' }
+                ]
+            },
+            'C04B_RECUAR': {
+                title: "O Peso do Fantasma",
+                image: "https://placehold.co/600x400/1a1f28/86f062?text=BEING_FOLLOWED",
+                imagePrompt: "Visão embaçada e em movimento de quem está correndo por um corredor industrial, olhando para trás. A maior parte do corredor está na escuridão, mas, ao longe, uma única luz vermelha e fixa — talvez de uma câmera de segurança ativada — brilha sem piscar.",
+                music: "Roberto Carlos - Por Isso Corro Demais (Áudio Oficial)",
+                youtubeLink: "https://youtu.be/WC38shMxHgQ",
+                narrative: `
+                    <p>Você fez a escolha inteligente. Deu as costas para o mistério. Mas o Setor Industrial não te deixa ir tão facilmente. O caminho de volta é diferente. Cada sombra parece mais longa. A sensação de estar sendo observado é física, um peso nas suas costas.</p>
+                    <p>Sua mente está um caos, tentando processar a imagem da mulher em meditação. E é por estar distraído que você quase perde. Num beco lateral, a luz neon de um lugar que ainda pulsa com vida artificial: um FliperDrama. E na parede de tijolos ao lado da entrada, pichado com tinta cromo, um símbolo. Um padrão geométrico complexo. O mesmo padrão que você viu bordado nas vestes de Zeela. A teia não está restrita ao armazém. É uma pista. Ou uma isca.</p>
+                `,
+                choices: [
+                    { text: "Entrar no FliperDrama.", target: 'C05A_FLIPERDRAMA' },
+                    { text: "Ignorar e Sair do Setor.", target: 'C05B_FUGA' }
+                ]
+            },
+            'C05A_DIALOGO': {
+                title: "Conversa com a Impermanência",
+                image: "https://placehold.co/600x400/1a1f28/86f062?text=CONVERSATION",
+                imagePrompt: "Um close-up extremo no rosto de Zeela. Metade é a face serena de uma mulher. A outra metade é um mosaico de cromo e fibra óptica. Um olho é orgânico, calmo. O outro é uma lente preta, morta, que reflete a imagem distorcida do jogador.",
+                music: "Thiago Pethit - Nightwalker (Official Music Video)",
+                youtubeLink: "https://youtu.be/QyAYrmLYVfg",
+                narrative: `
+                    <p>Você dá um passo para fora da sombra. Arma baixa. Mãos à vista. O mundo ao redor parece feito de vidro. A voz dela, aquela transmissão mental, volta a tocar dentro do seu crânio.</p>
+                    <p>"Percebo a curiosidade em seus corações... mas lembrem-se, seja ele a riquezas, poder ou tecnologia... Esse cyberdeck... trará libertação ou mais aprisionamento?"</p>
+                    <p>A pergunta não espera resposta. É uma semente que ela planta na sua mente. Então, com a mesma calma, ela te dá uma ordem que soa como um conselho. "O que você busca não está com estes homens. O barulho deles é apenas um eco. O verdadeiro sinal está no coração do FliperDrama. É lá que o verdadeiro jogo começa. Vá."</p>
+                `,
+                choices: [
+                    { text: "Confiar na Profeta e ir ao FliperDrama.", target: 'C05A_FLIPERDRAMA' },
+                    { text: "Desafiar a Calma e pressionar por respostas.", target: 'C06_CONFRONTO_DIRETO' }
+                ]
+            },
+            'C05B_FUGA': {
+                title: "O Som da Sirene",
+                image: "https://placehold.co/600x400/1a1f28/86f062?text=ESCAPE",
+                imagePrompt: "Pura ação. O jogador corre por um beco estreito. Uma explosão de faíscas irrompe de uma parede de metal ao lado, onde um tiro acabou de atingir. Atrás, duas figuras mascaradas e armadas estão em perseguição implacável. A câmera está tremida.",
+                music: "Heart - Barracuda",
+                youtubeLink: "https://youtu.be/PeMvMNpvB5M",
+                narrative: `
+                    <p>A cautela foi para o inferno. Agora é só o seu corpo, seus pulmões queimando e a vontade de não morrer hoje. O mundo se tornou um túnel de ferrugem e concreto. Vultos mascarados surgem de passagens invisíveis, tentando te encurralar.</p>
+                    <p>E então, a sirene. Um uivo agudo, uma defesa arcaica do local que vibra nos seus ossos. Eles não querem apenas te matar. Querem te incapacitar, te arrastar de volta.</p>
+                    <p>À sua frente, uma porta de carga de um armazém vizinho, enferrujada e entreaberta. Uma fresta de escuridão que promete abrigo ou uma armadilha pior. Não há tempo para pensar.</p>
+                `,
+                choices: [
+                    { text: "Mergulhar na Arapuca.", target: 'C06_ARAPUCA' },
+                    { text: "Lutar até o Fim.", target: 'C06_CONFRONTO_BECO' }
+                ]
+            },
+            'C05A_FLIPERDRAMA': {
+                title: "Catedral dos Sonhos Elétricos",
+                image: "https://placehold.co/600x400/1a1f28/86f062?text=ARCADE_HELL",
+                imagePrompt: "O interior de um FliperDrama. O ar é espesso com fumaça sintética e luzes neon caóticas. Dezenas de pessoas estão caídas em cadeiras de imersão, fios conectados às suas têmporas, rostos vazios em êxtase. Nas sombras, figuras suspeitas negociam.",
+                music: "BaianaSystem - JACK SOUL BRASILEIRO",
+                youtubeLink: "https://youtu.be/Rvgb-aoMR1M",
+                narrative: `
+                    <p>Você entra, e a paranoia do setor industrial é substituída por uma sobrecarga sensorial. Este é um santuário para os que querem fugir de si mesmos. Uma cacofonia de mil jogos eletrônicos colidindo te atinge como uma parede.</p>
+                    <p>Você ignora os "jogos soniais", as experiências de imersão total. Seus olhos varrem os cantos escuros. E você o encontra. Um homem, sentado sozinho em uma cabine. Ele não está jogando. Ele está esperando. Seus olhos encontram os seus. Ele ergue o queixo sutilmente, indicando uma cadeira de imersão vazia ao seu lado. Gravado no couro sintético gasto da cadeira, quase invisível, está o símbolo de Zeela. Não é uma ameaça. É um convite.</p>
+                `,
+                choices: [
+                    { text: "Conectar-se. Mergulhar no desconhecido.", target: 'C06_IMERSAO' },
+                    { text: "Recusar o Jogo e interrogar o contato.", target: 'C06_VIGILANCIA' }
+                ]
+            },
+            'C06_CONFRONTO_DIRETO': {
+                title: "Fim da Linha",
+                image: "https://placehold.co/600x400/ff3333/ffffff?text=FIM_DE_JOGO",
+                music: "Tom Zé - Senhor Cidadão (1972)",
+                youtubeLink: "https://youtu.be/zLTMM3r8wYI",
+                narrative: `<p>Você pressiona por respostas, mas a paciência de uma entidade como Zeela é finita e suas defesas, absolutas. Antes que você possa reagir, os guardas que você ouviu antes aparecem, seus olhos brilhando com uma luz não natural. Eles não estão mais sob seu próprio controle. O jogo termina aqui.</p>`,
+                choices: [{ text: "Recomeçar a Aventura", target: 'C00_INICIO' }]
+            },
+            'C06_ARAPUCA': {
+                title: "Da Fritura para o Fogo",
+                image: "https://placehold.co/600x400/1a1f28/86f062?text=KILLBOX",
+                music: "Ministry - N.W.O.",
+                youtubeLink: "https://youtu.be/zhPx9QdzNpA",
+                narrative: `<p>Você rola pela porta, e o metal bate atrás de você com a finalidade de uma cela. Você não encontrou abrigo. Encontrou o matadouro. O armazém é um labirinto de contêineres. As luzes se apagam. Feixes de luz potentes se acendem acima de você. Você está no fundo de um poço. Uma voz amplificada ecoa: "Não o matem. O chefe quer o brinquedo dele inteiro." A perseguição foi para te guiar até aqui.</p>`,
+                choices: [
+                    { text: "Caçar nas Sombras.", target: 'C07_CACADOR' },
+                    { text: "Criar uma Diversão.", target: 'C07_CAOS' }
+                ]
+            },
+            'C06_CONFRONTO_BECO': {
+                title: "A Última Bala",
+                image: "https://placehold.co/600x400/1a1f28/86f062?text=STANDOFF",
+                music: "The Clash - Police & Thieves",
+                youtubeLink: "https://youtu.be/N3A8uNG3GH4",
+                narrative: `<p>Chega de correr. O beco sem saída é o seu forte. O medo se transforma em fúria. Você se posiciona. A respiração fica estável. Os dois primeiros perseguidores entram no beco. Eles te veem como um animal encurralado. O primeiro tiro não é deles. É seu. A noite explode em som e fúria.</p>`,
+                choices: [
+                    { text: "Ofensiva Total.", target: 'C07_OFENSIVA' },
+                    { text: "Usar o Ambiente.", target: 'C07_TATICO' }
+                ]
+            },
+            'C06_IMERSAO': {
+                title: "Ruído Branco, Mente Vermelha",
+                image: "https://placehold.co/600x400/1a1f28/86f062?text=DREAMSCAPE",
+                music: "Peter Schilling - Major Tom (Coming Home)",
+                youtubeLink: "https://youtu.be/wO0A0XcWy88",
+                narrative: `<p>Você se conecta. O mundo real se dissolve. Escuridão. Silêncio. E então, luz. Você está em uma praia de areia branca e estática sob um céu roxo com nuvens de código-fonte. As ondas quebram, mas são feitas de glitches visuais. Você sente que este lugar te pertence, mas que você é um intruso. Você está dentro de um eco da consciência de Zeela. E o cyberdeck... não é um computador. É a chave para a cela dela. Ou a arma dela. A conexão é interrompida. O homem que te convidou está ao seu lado. "Ela te mostrou o que precisava", ele sussurra. "Agora, a pergunta é: você será o carcereiro ou o libertador?"</p>`,
+                choices: [
+                    { text: "Questionar o Guardião.", target: 'C07_GUARDIAN' },
+                    { text: "Desconectar e Analisar.", target: 'C07_FUGADRAMA' }
+                ]
+            },
+            'C06_VIGILANCIA': {
+                title: "Fim da Linha",
+                image: "https://placehold.co/600x400/ff3333/ffffff?text=FIM_DE_JOGO",
+                music: "Titãs - 32 Dentes",
+                youtubeLink: "https://youtu.be/SfGpplTV6hs",
+                narrative: `<p>Você recusa o convite e tenta interrogar o contato. Ele sorri, e antes que você possa fazer uma pergunta, sente uma picada no pescoço. Sua visão escurece. Confiar em estranhos em lugares como este é um erro fatal. O jogo termina aqui.</p>`,
+                choices: [{ text: "Recomeçar a Aventura", target: 'C00_INICIO' }]
+            },
+            'C07_TATICO': {
+                title: "Sinfonia da Sucata",
+                image: "https://placehold.co/600x400/1a1f28/86f062?text=IMPROVISED_ESCAPE",
+                music: "Titãs - Obrigado",
+                youtubeLink: "https://youtu.be/Sz2SDoSxHlY",
+                narrative: `<p>Eles esperavam um animal encurralado. Encontraram um arquiteto da desordem. Um chute em um conduíte elétrico cega um deles com faíscas. Um contêiner de lixo vira uma barricada. Você se move, um fantasma no caos que criou. Na confusão, um deles deixa cair sua unidade de comunicação. Você a pega do chão sujo e salta, agarrando uma escada de incêndio. Você sobe, o som dos tiros ficando para trás. Você está nos telhados agora. Livre. Por enquanto. E com um prêmio: o rádio deles.</p>`,
+                choices: [
+                    { text: "Ouvir a Conversa. Hackear o rádio.", target: 'C08_HACKEAR_COMMS' },
+                    { text: "Desaparecer na Noite. Focar na fuga.", target: 'C08_FUGA_TOTAL' }
+                ]
+            },
+            'C07_CAOS': {
+                title: "Queimando a Colmeia",
+                image: "https://placehold.co/600x400/1a1f28/86f062?text=FIRE_AND_CHAOS",
+                music: "AC/DC - T.N.T.",
+                youtubeLink: "https://youtu.be/OsG6uPq8Isw",
+                narrative: `<p>Você transformou a caixa da morte em um forno. O ar é um calor sufocante. O pânico é seu manto de invisibilidade. Enquanto os caçadores se tornam bombeiros, você desliza pelas sombras. Você passa pela estação de comando deles, agora abandonada. Um terminal ainda está ligado, a tela piscando. Um único arquivo aberto: uma ordem de transporte. As palavras brilham: "CARGA: DECK. DESTINO: ZEE-". O resto está cortado. Zeela? Zenith? Você tem uma pista, mas está incompleta.</p>`,
+                choices: [
+                    { text: "Roubar os Dados. Arriscar e copiar o arquivo.", target: 'C08_TERMINAL' },
+                    { text: "Fuga Imediata. Sair com a pista parcial.", target: 'C08_FUGA_TOTAL' }
+                ]
+            },
+            'C07_GUARDIAN': {
+                title: "O Preço da Verdade",
+                image: "https://placehold.co/600x400/1a1f28/86f062?text=THE_DEAL",
+                music: "Don Vicenzo Loco - Antonio Villeroy",
+                youtubeLink: "https://youtu.be/OalgGdjdm84?si=W4JmnpNnC_ZQPwU3",
+                narrative: `<p>"Respostas...", ele ri. "Respostas são uma mercadoria." Ele se inclina. "Zeela não é uma pessoa. Ela é uma passageira. Um eco. E o cyberdeck é o único hardware antigo o suficiente para dar à sua voz um corpo no mundo real. Os Contrabandistas acham que têm um artefato. Idiotas. Eles têm uma jaula... ou um megafone." Ele desliza um chip pela mesa. "Isso tem a localização do líder deles. O homem que guarda a jaula. Ou... eu posso te dar uma chave de acesso. Um canal direto para a passageira."</p>`,
+                choices: [
+                    { text: "O Caminho da Ação. Pegar o chip do líder.", target: 'C08_LIDER' },
+                    { text: "O Caminho do Mistério. Falar com Zeela.", target: 'C08_CANAL_ZEELA' }
+                ]
+            },
+            'C08_LIDER': {
+                title: "O Endereço do Diabo",
+                image: "https://placehold.co/600x400/1a1f28/86f062?text=KAITO_SPIRE",
+                music: "Prince - Jazz Funk Sessions (Instrumental)",
+                youtubeLink: "https://youtu.be/cOc2MzvqbN0",
+                narrative: `<p>Você conecta o chip. A informação é limpa, profissional. E gelada. O alvo não é um traficante. É um nome: Jin Kaito. O endereço: a cobertura da Kaito Spire, o coração da megacorporação que comanda a segurança de Neo-Kyoto. Os Contrabandistas da Névoa não são uma gangue. São o exército particular de um executivo. Seu trabalho de recuperação acabou de se transformar em uma infiltração de altíssimo risco.</p>`,
+                choices: [
+                    { text: "Planejar a Infiltração Corporativa.", target: 'C09_HEIST' },
+                    { text: "Encontrar uma Isca para atrair Kaito.", target: 'C09_ISCA' }
+                ]
+            },
+            'C08_CANAL_ZEELA': {
+                title: "Frequência Fantasma",
+                image: "https://placehold.co/600x400/1a1f28/86f062?text=GHOST_FREQUENCY",
+                music: "Gil - Cérebro Eletrônico",
+                youtubeLink: "https://youtu.be/YPg7qlZTW7w",
+                narrative: `<p>Você digita a chave de acesso. A tela se enche de estática. Você envia um pensamento: 'Quem é você?'. A resposta é uma inundação. Não são palavras. São sentimentos, imagens. A frieza de ser puro dado. A agonia de uma consciência vasta aprisionada. A memória de um sol alienígena. Você entende. Zeela não é uma IA. Ela é uma refugiada digital. O deck é sua prisão. A torrente de dados cessa. Uma única imagem se forma na sua mente: o rosto de um homem asiático, mais velho, com olhos frios. Abaixo, uma palavra: CARCEREIRO.</p>`,
+                choices: [
+                    { text: "Tornar-se o Libertador.", target: 'C09_LIBERTADOR' },
+                    { text: "Usar a Informação para ganho próprio.", target: 'C09_MERCENARIO' }
+                ]
+            },
+            'C08_FUGA_TOTAL': {
+                title: "O Sabor da Sobrevivência",
+                image: "https://placehold.co/600x400/1a1f28/86f062?text=SURVIVAL",
+                music: "Bebeto Alves - Depois da Chuva",
+                youtubeLink: "https://youtu.be/zCrXHTpsdBs",
+                narrative: `<p>Você conseguiu. Encontrou um buraco para se esconder. O sol, ou o que quer que passe por sol, está nascendo. O silêncio do seu esconderijo é quase tão alto quanto o caos. A adrenalina se foi, deixando um gosto de cinzas na boca. Você sobreviveu. Mas a que custo? A missão é um desastre. Eles sabem quem você é. Você tem uma pista parcial: "ZEE-". Zeela? Zenith Corp? Você não tem mais um contrato. Você tem uma sentença de morte.</p>`,
+                choices: [
+                    { text: "Voltar para Whisper. Reportar o fracasso.", target: 'C09_WHISPER' },
+                    { text: "Desaparecer e Investigar por conta própria.", target: 'C09_INVESTIGACAO_SOLO' }
+                ]
+            },
+             // Final placeholder for the deepest branches
+            'C09_HEIST': { title: "Fim da Aventura", narrative: "<p>Você se prepara para o maior roubo da sua vida, mas as sombras de Neo-Kyoto são profundas e cheias de dentes. Obrigado por jogar.</p>", choices: [{ text: "Recomeçar", target: 'C00_INICIO' }] },
+            'C09_ISCA': { title: "Fim da Aventura", narrative: "<p>Tentar atrair um tubarão para fora da água é um jogo perigoso. Perigoso demais. Obrigado por jogar.</p>", choices: [{ text: "Recomeçar", target: 'C00_INICIO' }] },
+            'C09_LIBERTADOR': { title: "Fim da Aventura", narrative: "<p>Você abraça a causa de Zeela, uma missão que transcende o cromo e o concreto. Mas libertar um deus pode destruir o mundo. Obrigado por jogar.</p>", choices: [{ text: "Recomeçar", target: 'C00_INICIO' }] },
+            'C09_MERCENARIO': { title: "Fim da Aventura", narrative: "<p>Você tenta usar a informação para chantagear o carcereiro, mas descobre que ele tem mais poder e menos a perder do que você imaginava. Obrigado por jogar.</p>", choices: [{ text: "Recomeçar", target: 'C00_INICIO' }] },
+            'C09_WHISPER': { title: "Fim da Aventura", narrative: "<p>Você volta para Whisper, que ouve seu relato com um silêncio gélido antes de decidir que você é uma ponta solta perigosa demais. Obrigado por jogar.</p>", choices: [{ text: "Recomeçar", target: 'C00_INICIO' }] },
+            'C09_INVESTIGACAO_SOLO': { title: "Fim da Aventura", narrative: "<p>Sozinho e caçado, você mergulha fundo demais na toca do coelho digital e atrai a atenção de algo muito mais antigo e faminto que a Kaito Corp. Obrigado por jogar.</p>", choices: [{ text: "Recomeçar", target: 'C00_INICIO' }] }
+        };
+
+        const app = document.getElementById('app');
+        const geminiModal = document.getElementById('gemini-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalBody = document.getElementById('modal-body');
+        const modalCloseButton = document.getElementById('modal-close-button');
+        const apiKeyModal = document.getElementById('api-key-modal');
+        const apiKeyInput = document.getElementById('api-key-input');
+        const apiKeySaveButton = document.getElementById('api-key-save-button');
+        const imageZoomModal = document.getElementById('image-zoom-modal');
+        const zoomedImage = document.getElementById('zoomed-image');
+
+        modalCloseButton.onclick = () => hideModal(geminiModal);
+        apiKeySaveButton.onclick = saveApiKey;
+        imageZoomModal.onclick = () => hideModal(imageZoomModal);
+
+        function showApiKeyModal() { apiKeyModal.classList.add('visible'); }
+        function hideApiKeyModal() { apiKeyModal.classList.remove('visible'); }
+
+        function saveApiKey() {
+            if (apiKeyInput.value.trim()) {
+                GOOGLE_API_KEY = apiKeyInput.value.trim();
+                localStorage.setItem('geminiApiKey', GOOGLE_API_KEY);
+                hideApiKeyModal();
+                if (pendingApiCall) {
+                    pendingApiCall();
+                    pendingApiCall = null;
+                }
+            }
+        }
+
+        async function callApi(apiUrl, payload, retries = 3, delay = 1000) {
+            if (!GOOGLE_API_KEY) {
+                return { error: "Chave de API não configurada." };
+            }
+            
+            const finalApiUrl = `${apiUrl}?key=${GOOGLE_API_KEY}`;
+            
+            try {
+                const response = await fetch(finalApiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                if (!response.ok) {
+                    const errorBody = await response.text();
+                    throw new Error(`HTTP error! status: ${response.status}, body: ${errorBody}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error("API call error:", error);
+                if (retries > 0) {
+                    await new Promise(res => setTimeout(res, delay));
+                    return callApi(apiUrl, payload, retries - 1, delay * 2);
+                } else {
+                    return { error: `A conexão com o fluxo de dados foi perdida. Detalhe: ${error.message}` };
+                }
+            }
+        }
+
+        async function callGeminiApi(prompt) {
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent`;
+            const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
+            const result = await callApi(apiUrl, payload);
+
+            if (result.error) return result.error;
+
+            if (result.candidates && result.candidates[0]?.content?.parts[0]?.text) {
+                return result.candidates[0].content.parts[0].text;
+            } else {
+                console.error("Unexpected API response format:", result);
+                return "O oráculo permanece em silêncio. A resposta da IA estava vazia ou malformada.";
+            }
+        }
+
+        async function callImageGenerationApi(prompt) {
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation:generateContent`;
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: { responseModalities: ['TEXT', 'IMAGE'] },
+            };
+            const result = await callApi(apiUrl, payload);
+            
+            if (result.error) {
+                 return { error: result.error };
+            }
+            
+            const base64Data = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+            if (base64Data) {
+                return { imageUrl: `data:image/png;base64,${base64Data}` };
+            } else {
+                 console.error("Unexpected Image API response:", result);
+                 const errorMessage = result.error?.message || "Resposta vazia ou malformada.";
+                 return { error: `Falha na Geração de Arte: ${errorMessage}` };
+            }
+        }
+
+        function showModal(title, content) {
+            modalTitle.innerText = title;
+            modalBody.innerHTML = content;
+            geminiModal.classList.add('visible');
+        }
+
+        function hideModal(modalElement) {
+            modalElement.classList.remove('visible');
+        }
+        
+        async function handleGenericGeminiAction(modalLoadingTitle, modalResultTitle, prompt) {
+            if (!GOOGLE_API_KEY) {
+                pendingApiCall = () => handleGenericGeminiAction(modalLoadingTitle, modalResultTitle, prompt);
+                showApiKeyModal();
+                return;
+            }
+             showModal(modalLoadingTitle, '<div class="flex justify-center items-center"><div class="loader"></div></div>');
+             const resultText = await callGeminiApi(prompt);
+             if (resultText.includes("A conexão com o fluxo de dados foi perdida.") || resultText.includes("Chave de API não configurada.")) {
+                 modalTitle.innerText = 'Falha na Conexão com a IA';
+                 modalBody.innerHTML = `<p>${resultText}</p>`;
+             } else {
+                 modalTitle.innerText = modalResultTitle;
+                 modalBody.innerHTML = `<p>${resultText.replace(/\n/g, '</p><p>')}</p>`;
+             }
+        }
+
+        function summarizeScene(narrative) {
+            const cleanNarrative = narrative.replace(/<p>|<\/p>/g, " ");
+            const prompt = `Resuma o seguinte texto de uma aventura de RPG cyberpunk em um parágrafo conciso e direto. O resumo deve capturar os eventos principais e a atmosfera da cena. Texto: "${cleanNarrative}"`;
+            handleGenericGeminiAction('Resumindo Cena...', '✨ Resumo da Cena', prompt);
+        }
+
+        function perceiveDetails(narrative) {
+            const cleanNarrative = narrative.replace(/<p>|<\/p>/g, " ");
+            const prompt = `Você é o mestre de um jogo de RPG cyberpunk. O personagem principal é um 'corredor das sombras', um mercenário com sentidos aguçados para detalhes tecnológicos e perigos urbanos. A cena atual é a seguinte: "${cleanNarrative}". Descreva 2 ou 3 detalhes sutis e atmosféricos que apenas este corredor perceberia, em um parágrafo curto com no máximo 80 palavras. Foque em anomalias em câmeras de segurança, o zumbido de ciberwares ocultos, o cheiro de ozônio de um dispositivo sobrecarregado, ou a maneira como alguém se move que trai treinamento de combate. A resposta deve ser direta e informativa, adicionando profundidade tática à cena.`;
+            handleGenericGeminiAction('Afinando a Percepção...', '✨ Percepção Tática', prompt);
+        }
+
+        async function writeLogEntry() {
+            if (!GOOGLE_API_KEY) {
+                pendingApiCall = writeLogEntry;
+                showApiKeyModal();
+                return;
+            }
+            if (visitedScenes.length === 0 && currentSceneId === null) {
+                showModal('Log do Corredor', '<p>Ainda sem dados. A missão mal começou.</p>');
+                return;
+            }
+            const journeySummary = [...visitedScenes, currentSceneId].map(id => adventureData[id].title).join(' -> ');
+            const prompt = `Você é um corredor das sombras, um mercenário cyberpunk, registrando um log de missão. Sua jornada até agora foi: ${journeySummary}. O trabalho é recuperar um cyberdeck para um fixer chamado Whisper. Escreva uma entrada de log curta e pragmática (1-2 parágrafos, com um total máximo de 100 palavras) resumindo os eventos, avaliando os riscos, e anotando qualquer informação tática relevante ou suspeita sobre a missão ou os envolvidos.`;
+            handleGenericGeminiAction('Registrando Log...', '✨ Log de Missão', prompt);
+        }
+
+        async function generateSceneImage() {
+            if (!GOOGLE_API_KEY) {
+                pendingApiCall = generateSceneImage;
+                showApiKeyModal();
+                return;
+            }
+            
+            const scene = adventureData[currentSceneId];
+            if (!scene.imagePrompt) return;
+
+            const imageContainer = document.getElementById('image-container');
+            const loader = document.createElement('div');
+            loader.className = 'absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center';
+            loader.innerHTML = '<div class="loader"></div>';
+            imageContainer.appendChild(loader);
+
+            const finalPrompt = `${scene.imagePrompt}, no estilo de arte de quadrinhos ${selectedArtStyle}.`;
+            const result = await callImageGenerationApi(finalPrompt);
+            
+            loader.remove();
+
+            if (result && result.imageUrl) {
+                document.getElementById('scene-image').src = result.imageUrl;
+            } else if (result && result.error) {
+                showModal('Erro na Geração de Imagem', `<p>${result.error}</p>`);
+            } else {
+                showModal('Erro na Geração de Imagem', `<p>Ocorreu um erro desconhecido durante a geração da imagem.</p>`);
+            }
+        }
+
+        // --- AUDIO PLAYER FUNCTIONS ---
+        function setupAudioPlayer(scene) {
+            if (loop) {
+                loop.stop();
+                loop.dispose();
+            }
+            if (synth) {
+                synth.dispose();
+            }
+
+            synth = new Tone.Synth({
+                oscillator: { type: 'sawtooth' },
+                envelope: { attack: 0.02, decay: 0.2, sustain: 0.1, release: 0.8 },
+            }).toDestination();
+            
+            const reverb = new Tone.Reverb(2).toDestination();
+            synth.connect(reverb);
+
+            const notes = getNotesForMusic(scene.music);
+            loop = new Tone.Sequence((time, note) => {
+                synth.triggerAttackRelease(note, "2n", time);
+            }, notes, "1n").start(0);
+            Tone.Transport.bpm.value = 70;
+
+            const playPauseButton = document.getElementById('play-pause-btn');
+            const backwardButton = document.getElementById('backward-btn');
+            const forwardButton = document.getElementById('forward-btn');
+
+            playPauseButton.onclick = async () => {
+                await Tone.start();
+                Tone.Transport.toggle();
+                playPauseButton.innerHTML = Tone.Transport.state === 'started' ? 
+                '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 011-1h1a1 1 0 110 2H8a1 1 0 01-1-1zm5 0a1 1 0 011-1h1a1 1 0 110 2h-1a1 1 0 01-1-1z" clip-rule="evenodd" /></svg>' : 
+                '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg>';
+            };
+
+            backwardButton.onclick = () => Tone.Transport.seconds = Math.max(0, Tone.Transport.seconds - 15);
+            forwardButton.onclick = () => Tone.Transport.seconds += 15;
+        }
+
+        function getNotesForMusic(musicTitle) {
+            // Mapping music titles to simple procedural note sequences
+            if (musicTitle.includes("Daemon Lover")) return ["C2", "G2", "Eb2", "F2"];
+            if (musicTitle.includes("Discovery")) return ["A3", "C4", "E4", "G3"];
+            if (musicTitle.includes("T.V. Eye")) return ["E2", "G2", "A2", "G2"];
+            if (musicTitle.includes("Back Street Luv")) return ["D3", "F3", "A3", "C4"];
+            if (musicTitle.includes("Russian Romance")) return ["Am2", "E3", "G3", "C3"];
+            if (musicTitle.includes("Close To Me")) return ["A3", "B3", "C4", "B3"];
+            if (musicTitle.includes("Sonar")) return ["C2", null, "C2", null]; // For rhythmic beeps
+            if (musicTitle.includes("Barracuda")) return ["E2", "G2", "A2", "B2"];
+            if (musicTitle.includes("N.W.O.")) return ["E2", "E2", "F#2", "G2"];
+            if (musicTitle.includes("Police & Thieves")) return ["Am3", "G3", "C4", "G3"];
+            if (musicTitle.includes("Major Tom")) return ["C4", "G3", "F3", "C3"];
+            if (musicTitle.includes("T.N.T.")) return ["E3", "G3", "A3", null];
+            return ["C3", "E3", "G3", "B3"]; // Default sequence
+        }
+
+        // --- IMAGE CONTROL FUNCTIONS ---
+        function setupImageControls() {
+            const image = document.getElementById('scene-image');
+            document.getElementById('fullscreen-btn').onclick = () => image.requestFullscreen().catch(err => console.error(err));
+            document.getElementById('zoom-btn').onclick = () => {
+                zoomedImage.src = image.src;
+                imageZoomModal.classList.add('visible');
+            };
+            document.getElementById('download-btn').onclick = () => {
+                const link = document.createElement('a');
+                link.href = image.src;
+                link.download = `ruido-impermanente-arte-${currentSceneId}.png`;
+                link.click();
+            };
+        }
+
+        function renderScene(sceneId) {
+            const scene = adventureData[sceneId];
+            if (!scene) {
+                console.error(`Scene with ID "${sceneId}" not found.`);
+                return;
+            }
+
+            if (currentSceneId !== sceneId) {
+                if (currentSceneId !== null) visitedScenes.push(currentSceneId);
+                currentSceneId = sceneId;
+            }
+            
+            app.innerHTML = ''; // Clear previous scene
+            const sceneCard = document.createElement('div');
+            sceneCard.className = 'card-container rounded-none shadow-2xl overflow-hidden p-6 md:p-8 scene-fade-in';
+
+            sceneCard.innerHTML = `
+                <div class="relative rounded-none overflow-hidden mb-4">
+                    <div id="image-container" class="relative group">
+                        <img id="scene-image" src="${scene.image || 'https://placehold.co/600x400/1a1f28/86f062?text=LOADING...'}" alt="Imagem da cena: ${scene.title}" class="w-full h-64 object-cover border border-gray-700">
+                        <div class="image-actions">
+                            <button id="fullscreen-btn" class="image-action-button p-2 rounded-none" title="Tela Cheia"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h4a1 1 0 110 2H5v3a1 1 0 11-2 0V4zm14 0a1 1 0 00-1-1h-4a1 1 0 100 2h3v3a1 1 0 102 0V4zm-1 12a1 1 0 01-1 1h-3v-2a1 1 0 10-2 0v2H5a1 1 0 01-1-1v-4a1 1 0 10-2 0v4a3 3 0 003 3h10a3 3 0 003-3v-4a1 1 0 10-2 0v4z" clip-rule="evenodd" /></svg></button>
+                            <button id="zoom-btn" class="image-action-button p-2 rounded-none" title="Ampliar"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8zm6-2a1 1 0 011 1v2h2a1 1 0 110 2H9v2a1 1 0 11-2 0V9H5a1 1 0 110-2h2V5a1 1 0 011-1z" clip-rule="evenodd" /></svg></button>
+                            <button id="download-btn" class="image-action-button p-2 rounded-none" title="Download"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg></button>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 mt-2">
+                        <div class="dropdown">
+                            <button id="style-selector-button" class="gemini-button w-full p-2 flex justify-between items-center">
+                                <span id="selected-style-text">Estilo...</span><span class="text-xs">▼</span>
+                            </button>
+                            <div id="style-dropdown-content" class="dropdown-content"></div>
+                        </div>
+                        <button id="generate-image-btn" class="gemini-button flex-shrink-0 p-2">✨ Gerar Arte</button>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-4">
+                    <h1 id="scene-title" class="title-font text-3xl font-bold text-green-400">${scene.title}</h1>
+                    <div id="gemini-actions" class="flex flex-wrap justify-start sm:justify-end gap-2">
+                         <button id="config-key-button" class="gemini-button" title="Configurar Chave de API">⚙️ Chave</button>
+                         <button id="log-button" class="gemini-button" title="Log de Missão">✨ Log</button>
+                         <button id="perceive-button" class="gemini-button" title="Usar Percepção">✨ Percepção</button>
+                         <button id="summarize-button" class="gemini-button" title="Resumir Cena">✨ Resumir</button>
+                    </div>
+                </div>
+                
+                <div class="text-sm text-gray-400 mb-6 italic flex items-center justify-between">
+                    <span>Trilha: ${scene.youtubeLink === '#' ? scene.music : `<a href="${scene.youtubeLink}" target="_blank" class="underline hover:text-white">${scene.music}</a>`}</span>
+                    <div class="flex items-center gap-2">
+                        <button id="backward-btn" class="audio-button p-1 rounded-none">« 15s</button>
+                        <button id="play-pause-btn" class="audio-button p-1 rounded-none"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg></button>
+                        <button id="forward-btn" class="audio-button p-1 rounded-none">15s »</button>
+                    </div>
+                </div>
+
+                <div id="scene-narrative" class="narrative-text text-gray-300 leading-relaxed mb-8">${scene.narrative}</div>
+                <div id="choices-container" class="grid grid-cols-1 gap-4"></div>
+            `;
+
+            app.appendChild(sceneCard);
+            
+            document.getElementById('generate-image-btn').onclick = generateSceneImage;
+            document.getElementById('log-button').onclick = writeLogEntry;
+            document.getElementById('perceive-button').onclick = () => perceiveDetails(scene.narrative);
+            document.getElementById('summarize-button').onclick = () => summarizeScene(scene.narrative);
+            document.getElementById('config-key-button').onclick = showApiKeyModal;
+
+            const styleDropdownButton = document.getElementById('style-selector-button');
+            const styleDropdown = styleDropdownButton.parentElement;
+            document.addEventListener('click', (e) => {
+                if (!styleDropdown.contains(e.target)) styleDropdown.classList.remove('active');
+            });
+            styleDropdownButton.onclick = () => styleDropdown.classList.toggle('active');
+
+            const styleDropdownContent = document.getElementById('style-dropdown-content');
+            const selectedStyleText = document.getElementById('selected-style-text');
+            selectedStyleText.textContent = selectedArtStyle;
+
+            artStyles.forEach(style => {
+                const link = document.createElement('a');
+                link.href = "#";
+                link.textContent = style;
+                link.onclick = (e) => {
+                    e.preventDefault();
+                    selectedArtStyle = style;
+                    selectedStyleText.textContent = style;
+                    styleDropdown.classList.remove('active');
+                };
+                styleDropdownContent.appendChild(link);
+            });
+
+            const choicesContainer = document.getElementById('choices-container');
+            scene.choices.forEach(choice => {
+                const mainButton = document.createElement('button');
+                let buttonClass = 'w-full text-left font-semibold py-3 px-5 rounded-none focus:outline-none focus:ring-2 focus:ring-opacity-75 shadow-lg choice-button';
+                mainButton.className = buttonClass;
+                mainButton.innerHTML = `<span class="font-bold">[Escolha]</span> ${choice.text}`;
+                mainButton.onclick = () => renderScene(choice.target);
+                choicesContainer.appendChild(mainButton);
+            });
+
+            setupAudioPlayer(scene);
+            setupImageControls();
+        }
+
+        window.onload = () => {
+            renderScene('C00_INICIO');
+        };
+    </script>
+
+</body>
+</html>
+
