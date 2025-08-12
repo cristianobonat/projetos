@@ -1,1 +1,929 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fliperdrama: O Segredo do Ídolo Dourado</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto+Mono:wght@400;700&family=Lora:ital,wght@0,400;0,700;1,400&family=Creepster&display=swap" rel="stylesheet">
+    <style>
+        /* --- Tema Cyberpunk (Tela Inicial) --- */
+        :root {
+            --screen-bg: #0a0f18;
+            --card-bg: rgba(10, 15, 24, 0.8);
+            --text-color: #96e072;
+            --glow-color: rgba(50, 255, 126, 0.5);
+            --border-color: rgba(50, 255, 126, 0.2);
+            --button-bg: rgba(50, 255, 126, 0.1);
+            --button-hover-bg: rgba(50, 255, 126, 0.2);
+        }
+        body {
+            background-color: var(--screen-bg);
+            color: var(--text-color);
+            font-family: 'Roboto Mono', monospace;
+            transition: background-color 0.8s ease, color 0.8s ease;
+        }
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1));
+            background-size: 100% 4px;
+            animation: scan 0.2s linear infinite;
+        }
+        @keyframes scan {
+            from { background-position: 0 0; }
+            to { background-position: 0 4px; }
+        }
+        .crt-glow {
+            box-shadow: 0 0 20px var(--glow-color);
+        }
+        .font-display-cyber { font-family: 'Orbitron', sans-serif; }
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(5px);
+            transition: background-color 0.5s ease, border-color 0.5s ease;
+        }
+        .typing-effect::after {
+            content: '█';
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-left-color: var(--text-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* --- Tema Allen (Horror Clássico) --- */
+        body.theme-allen {
+            --screen-bg: #fdf6e3;
+            --card-bg: rgba(243, 234, 217, 0.8);
+            --text-color: #586e75;
+            --glow-color: rgba(181, 137, 0, 0.4);
+            --border-color: #eee8d5;
+            --button-bg: rgba(181, 137, 0, 0.05);
+            --button-hover-bg: rgba(181, 137, 0, 0.15);
+        }
+        body.theme-allen .scanlines, body.theme-burton .scanlines { display: none; }
+        body.theme-allen .crt-glow { box-shadow: 0 2px 15px rgba(0,0,0,0.1); }
+        body.theme-allen .font-display, body.theme-burton .font-display { font-family: 'Lora', serif; }
+        body.theme-allen .card, body.theme-burton .card {
+            background-color: var(--card-bg);
+            border-color: var(--border-color);
+        }
+        body.theme-allen .spinner { border-left-color: #b58900; }
+        
+        /* --- Tema Burton (Horror Bizarro) --- */
+        body.theme-burton {
+            --screen-bg: #1a1d24;
+            --card-bg: rgba(10, 10, 15, 0.7);
+            --text-color: #c0c5ce;
+            --glow-color: rgba(108, 99, 255, 0.4);
+            --border-color: #3b4252;
+            --button-bg: rgba(108, 99, 255, 0.1);
+            --button-hover-bg: rgba(108, 99, 255, 0.2);
+        }
+        body.theme-burton .font-display { font-family: 'Creepster', cursive; letter-spacing: 1px; }
+        body.theme-burton .spinner { border-left-color: #6c63ff; }
+        body.theme-burton .gemini-button {
+             background-color: #2e3440;
+             color: #d8dee9;
+             border-color: #4c566a;
+        }
+        body.theme-burton .gemini-button:hover { background-color: #4c566a; }
+
+        .choice-button {
+            border: 1px solid var(--border-color);
+            background-color: var(--button-bg);
+            transition: all 0.2s ease-in-out;
+        }
+        .choice-button:hover {
+            background-color: var(--button-hover-bg);
+            box-shadow: 0 0 10px var(--glow-color);
+        }
+        .choice-button-allen {
+            border-color: #dc322f;
+            color: #dc322f;
+        }
+        .choice-button-allen:hover {
+            background-color: rgba(220, 50, 47, 0.1);
+            box-shadow: 0 0 10px rgba(220, 50, 47, 0.4);
+        }
+        .choice-button-burton {
+            border-color: #268bd2;
+            color: #268bd2;
+        }
+        .choice-button-burton:hover {
+            background-color: rgba(38, 139, 210, 0.1);
+            box-shadow: 0 0 10px rgba(38, 139, 210, 0.4);
+        }
+        .gemini-button {
+            background-color: #eee8d5;
+            color: #657b83;
+            border: 1px solid #d3c5a8;
+        }
+        .gemini-button:hover {
+            background-color: #d3c5a8;
+        }
+        .modal-bg {
+            background-color: rgba(10, 15, 24, 0.8);
+            backdrop-filter: blur(10px);
+        }
+        .examinable {
+            color: #cb4b16;
+            text-decoration: underline;
+            text-decoration-style: dotted;
+            cursor: pointer;
+        }
+        .custom-select {
+            background-color: var(--button-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="scanlines"></div>
+
+    <div id="start-screen" class="min-h-screen flex flex-col items-center justify-center text-center p-4">
+        <div class="card rounded-lg shadow-lg p-8 crt-glow max-w-3xl">
+            <h1 class="font-display-cyber text-3xl md:text-5xl text-white">CARREGANDO FLIPERDRAMA...</h1>
+            <p class="mt-2 text-lg">> PRONTO</p>
+            <p class="mt-6 text-xl font-bold font-display-cyber">> TÍTULO: O SEGREDO DO ÍDOLO DOURADO</p>
+            <p class="mt-2">> FORMATO: ARCADRAMA / SÉRIE INTERATIVA (PULP_BOOK)</p>
+            <p class="mt-6 text-sm">AVISO: As escolhas a seguir irão modular a sua assinatura psíquica. A realidade é subjetiva. A garantia cósmica não cobre danos existenciais. Proceda com cautela e um saudável sentido de absurdo.</p>
+            <p class="mt-4 text-xs text-gray-400">Nota: As funcionalidades de IA (✨) podem ser bloqueadas por alguns navegadores quando o ficheiro é aberto localmente (file://). Para uma experiência completa, recomenda-se a execução a partir de um servidor web.</p>
+            <button id="start-button" class="mt-8 px-8 py-3 choice-button font-bold rounded-lg text-lg">
+                INICIAR NARRATIVA
+            </button>
+        </div>
+    </div>
+
+    <main id="game-screen" class="hidden w-full max-w-7xl mx-auto p-4 md:p-8">
+        <div class="card rounded-lg shadow-lg p-6 md:p-8 crt-glow">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="md:col-span-2">
+                    <div id="narrative-panel" class="mb-8 relative">
+                        <h2 id="scene-title" class="font-display text-2xl border-b-2 pb-2 mb-4" style="border-color: var(--border-color);"></h2>
+                        <div id="tts-controls" class="absolute top-0 right-0"></div>
+                        <div id="scene-content" class="text-lg leading-relaxed space-y-4"></div>
+                    </div>
+                    <div id="choice-panel">
+                         <p class="text-center text-sm text-gray-400 mb-4">//: A percepção molda a realidade. Escolha uma lente.</p>
+                         <div id="choices-container" class="space-y-4"></div>
+                    </div>
+                </div>
+                <div id="image-panel" class="md:col-span-1 hidden">
+                    <h3 class="font-display text-xl mb-4">VISUALIZADOR DE CENA</h3>
+                    <div id="image-container" class="relative group">
+                        <div id="image-display-area" class="w-full h-64 bg-black/5 flex items-center justify-center rounded-md mb-4 border" style="border-color: var(--border-color);">
+                            <p class="text-gray-500 text-sm p-4 text-center">Gere uma ilustração para visualizar este momento.</p>
+                        </div>
+                        <div id="image-toolbar" class="absolute bottom-6 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button id="fullscreen-button" title="Tela Cheia" class="p-2 gemini-button rounded-full hidden"><svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 1v4m0 0h-4m4 0l-5-5" /></svg></button>
+                            <a id="download-link" href="#" download="fliperdrama-cena.png" title="Baixar Imagem" class="p-2 gemini-button rounded-full hidden"><svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg></a>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="font-bold text-sm block mb-2">DIRETOR DE CENA:</label>
+                            <select id="director-selector" class="w-full p-2 rounded-md custom-select"></select>
+                        </div>
+                        <div>
+                            <label class="font-bold text-sm block mb-2">ESTILO DO ARTISTA:</label>
+                            <select id="artist-style-selector" class="w-full p-2 rounded-md custom-select"></select>
+                        </div>
+                        <button id="generate-image-button" class="w-full px-6 py-3 choice-button rounded-lg">✨ GERAR ILUSTRAÇÃO</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="precog-modal" class="fixed inset-0 z-50 items-center justify-center hidden">
+        <div class="modal-bg absolute inset-0"></div>
+        <div class="relative card rounded-lg shadow-2xl max-w-lg w-11/12 p-6 border-2" style="border-color: #d3c5a8;">
+            <h3 class="font-display text-xl text-gray-700 mb-4">✨ PRECOGNIÇÃO ATIVADA...</h3>
+            <div id="precog-content" class="text-base text-gray-600 h-32 overflow-y-auto"></div>
+            <button id="modal-close-precog-button" class="mt-4 px-6 py-2 gemini-button rounded-lg w-full">FECHAR CANAL</button>
+        </div>
+    </div>
+    
+    <div id="investigation-modal" class="fixed inset-0 z-50 items-center justify-center hidden">
+        <div class="modal-bg absolute inset-0"></div>
+        <div class="relative card rounded-lg shadow-2xl max-w-lg w-11/12 p-6 border-2" style="border-color: #cb4b16;">
+            <h3 id="investigation-title" class="font-display text-xl text-gray-700 mb-4"></h3>
+            <div id="investigation-content" class="text-base text-gray-600 h-40 overflow-y-auto"></div>
+            <button id="modal-close-investigation-button" class="mt-4 px-6 py-2 gemini-button rounded-lg w-full">FECHAR ARQUIVO</button>
+        </div>
+    </div>
+
+    <div id="character-chat-modal" class="fixed inset-0 z-50 items-center justify-center hidden">
+        <div class="modal-bg absolute inset-0"></div>
+        <div class="relative card rounded-lg shadow-2xl max-w-lg w-11/12 p-6 border-2 flex flex-col" style="border-color: #6c71c4;">
+            <h3 id="chat-title" class="font-display text-xl text-gray-700 mb-4 flex-shrink-0"></h3>
+            <div id="chat-log" class="flex-grow h-64 overflow-y-auto mb-4 p-2 bg-black/5 border" style="border-color: var(--border-color);"></div>
+            <div class="flex-shrink-0 flex gap-2">
+                <input type="text" id="chat-input" class="flex-grow bg-white/50 border text-gray-700 p-2 rounded-md" style="border-color: var(--border-color);" placeholder="Faça uma pergunta...">
+                <button id="chat-send-button" class="gemini-button px-4 rounded-md">Enviar</button>
+            </div>
+             <button id="modal-close-chat-button" class="mt-4 px-6 py-2 gemini-button rounded-lg w-full">ENCERRAR CONVERSA</button>
+        </div>
+    </div>
+
+    <script>
+        const storyData = {
+            start: {
+                title: "001: ANSIEDADE ENTRÓPICA",
+                content: [
+                    { type: "normal", text: "O escritório era menos um espaço e mais um monumento à procrastinação. Pilhas de ✨<span class='examinable' data-term='livros de filosofia'>livros sobre filosofia existencial</span>✨ inclinavam-se em ângulos que desafiavam a geometria, ameaçando uma avalanche de conhecimento inútil. Na janela, uma ✨<span class='examinable' data-term='samambaia'>samambaia</span>✨ solitária, batizada de 'Nietzsche', tinha claramente desistido da fotossíntese por razões ideológicas." },
+                    { type: "monologue", text: "// MONÓLOGO INTERNO: 'Devo arrumar a secretária? Qual é o objetivo? O universo tende para a entropia. Arrumar é apenas... lutar contra a cosmologia. É arrogante, se pensarmos bem. Quem sou eu para desafiar a segunda lei da termodinâmica com um espanador? É como a arqueologia do dia-a-dia.'" }
+                ],
+                choices: [
+                    { text: "O terminal pisca. Uma chamada encriptada rasga o silêncio. Atender.", target: "crimeSceneIntro" }
+                ],
+                imagePrompt: "A detective's office, a monument to procrastination. Stacks of philosophy books lean precariously. A single, depressed-looking fern sits by the window."
+            },
+            crimeSceneIntro: {
+                title: "002: MORTE POR DESAPONTAMENTO",
+                content: [
+                    { type: "normal", text: "A chamada era sobre Alistair Finch. Colecionador de objetos que induzem melancolia, Finch fora encontrado morto. Não de forma violenta, mas... final. O seu apartamento, um santuário gótico ao bom gosto e à tristeza, estava imaculado, exceto pelo ✨<span class='examinable' data-term='pedestal vazio'>pedestal vazio</span>✨ no centro da sala. Finch jazia no chão, abraçando o pedestal, o rosto congelado numa expressão de desapontamento cósmico. O famoso Ídolo Dourado tinha desaparecido." },
+                    { type: "monologue", text: "// MONÓLOGO INTERNO: 'Ótimo. Um roubo. Provavelmente tenho de falar com pessoas. E olhar para... um corpo. Espero que ele tenha tido a decência de não ser demasiado gráfico. A morte é de mau gosto. E se o assassino deixou impressões digitais? Eu não trouxe luvas. Vou acabar por ser acusado, a explicar a um companheiro de cela chamado 'Brutus' a diferença entre Sartre e Camus.'" },
+                    { type: "normal", text: "A cena do crime está à sua frente, um quebra-cabeças silencioso. Um ✨<span class='examinable' data-term='guardanapo manchado'>guardanapo manchado</span>✨ de café perto da lareira. Uma estranha ✨<span class='examinable' data-term='espátula de bolo vitoriana'>espátula de bolo vitoriana</span>✨ no chão. Como abordar esta tela de desespero?" }
+                ],
+                choices: [
+                    { type: 'allen', text: "Focar-me nos absurdos lógicos da cena. Tentar encontrar um padrão racional.", target: "pathAllen1", precogPrompt: "Analisar a lógica de um guardanapo manchado." },
+                    { type: 'burton', text: "Mergulhar na beleza mórbida da atmosfera. Deixar que os objetos contem a sua história.", target: "pathBurton1", precogPrompt: "Sentir a história de uma espátula de bolo vitoriana." }
+                ],
+                imagePrompt: "A lavish gothic apartment. A man in a velvet smoking jacket hugs an empty pedestal on the floor, his face a mask of cosmic disappointment."
+            },
+            pathAllen1: {
+                title: "003A: A PISTA DO GUARDANAPO",
+                content: [
+                    { type: "normal", text: "O seu olhar evita a espátula (tétano, maldições, o costume) e pousa no guardanapo. É de um bar chamado 'O Paradoxo do Barman'. No guardanapo, um único anel de café e uma frase rabiscada: 'O universo está a expandir-se, mas para onde? E será que vai ligar quando chegar lá?'." },
+                    { type: "monologue", text: "// MONÓLOGO INTERNO: 'Fantástico. Uma pista filosófica. Isto é inútil num tribunal. 'Meritíssimo, o assassino é claramente um agnóstico com uma dieta rica em condimentos'. Se o universo me ligasse, eu não atenderia. Provavelmente seria a cobrar.'" }
+                ],
+                choices: [
+                    { type: 'allen', text: "Ok, agora a espátula. Com relutância, claro.", target: "examineSpatula_fromAllen" },
+                    { type: 'burton', text: "Esta nota é triste. O que dirá a espátula?", target: "examineSpatula_fromAllen" }
+                ],
+                imagePrompt: "Close-up on a cocktail napkin on a dusty table. A single, sad coffee ring stains it. A philosophical question is scribbled on it."
+            },
+            pathBurton1: {
+                title: "003B: A CANÇÃO DA ESPÁTULA",
+                content: [
+                    { type: "normal", text: "Ignorando o rabisco existencial no guardanapo, os seus olhos são atraídos pela espátula de bolo. É uma peça vitoriana, a prata escurecida como um segredo. O cabo de madrepérola brilha com uma luz fraca e leitosa. Não parece uma arma, mas uma ferramenta para uma celebração solitária." },
+                    { type: "monologue", text: "// MONÓLOGO INTERNO: 'Certo, é um objeto bonito. Mas é prático? E está frio. O tipo de frio que se sente quando se percebe que se esqueceu do aniversário da própria mãe. Tocar nisto é uma má ideia. É assim que se acaba assombrado.'" }
+                ],
+                choices: [
+                    { type: 'allen', text: "Certo, já vi o suficiente deste objeto assombrado. E o guardanapo?", target: "examineNapkin_fromBurton" },
+                    { type: 'burton', text: "Esta beleza melancólica é uma pista. Vejamos o guardanapo.", target: "examineNapkin_fromBurton" }
+                ],
+                imagePrompt: "An ornate Victorian cake spatula lies on a dark wooden floor. It's strangely menacing, with a patina of rust like dried blood."
+            },
+            examineSpatula_fromAllen: {
+                title: "004A: REEXAME (LÓGICO) DA ESPÁTULA",
+                content: [
+                    { type: "monologue", text: "// MONÓLOGO INTERNO: 'Ok, respira fundo. É só uma espátula.' Você pega nela com a ponta dos dedos. É estranhamente fria. A forma é elegante, mas a ponta é mais afiada do que deveria. A causa da morte de Finch, você conjetura, não foi a espátula, mas um caso agudo de auto-piedade. Uma arma do crime que me julga. Cada vez que olho para ela, sinto que devia ter aprendido a tocar violoncelo.'" }
+                ],
+                choices: [
+                    { text: "Com duas pistas bizarras em mãos, é hora de sair deste apartamento deprimente.", target: "leaveScene" }
+                ]
+            },
+             examineNapkin_fromBurton: {
+                title: "004B: REEXAME (MÓRBIDO) DO GUARDANAPO",
+                content: [
+                    { type: "normal", text: "Você pega no guardanapo. O papel é de alta qualidade, mas a mancha de café parece um olho a chorar uma lágrima castanha. A frase, 'O universo está a expandir-se...', parece menos uma piada e mais um lamento sussurrado para o vazio. A mancha de mostarda, sob a luz fraca, parece um cometa a morrer." }
+                ],
+                choices: [
+                    { text: "Com duas pistas poéticas e inúteis em mãos, é hora de abandonar este palco de tragédia.", target: "leaveScene" }
+                ]
+            },
+            leaveScene: {
+                title: "005: O PRÓXIMO PASSO",
+                content: [
+                    { type: "normal", text: "De volta às ruas de Xangai, a cidade parece um sonho febril. Os arranha-céus arranham um céu da cor de um hematoma e os letreiros de néon sussurram promessas em mandarim que você não compreende." },
+                    { type: "normal", text: "Você tem duas pistas: um guardanapo com uma crise existencial e uma espátula com depressão clínica. O que fazer agora?" }
+                ],
+                choices: [
+                     { type: 'allen', text: "Ir ao 'Paradoxo do Barman'. Pelo menos pode haver álcool envolvido.", target: "barParadoxo", precogPrompt: "Visitar um bar onde os músicos não fazem som." },
+                     { type: 'burton', text: "Procurar a origem da espátula. Mergulhar nas histórias esquecidas da cidade.", target: "antiquario", precogPrompt: "Perguntar a um velho sobre uma lâmina triste." }
+                ]
+            },
+            barParadoxo: {
+                title: "O PARADOXO DO BARMAN",
+                content: [
+                    { type: "normal", text: "O bar é um 'Clube de Jazz Silencioso'. Os ✨<span class='examinable' data-term='músicos silenciosos'>músicos</span>✨ no palco tocam com uma paixão febril, mas os seus instrumentos não emitem som. A plateia assiste atentamente, estalando os dedos e aplaudindo em silêncio absoluto. O ar é denso de subtexto. O ✨<span class='examinable' data-term='barman enigmático'>barman</span>✨ limpa um copo com um pano que parece absorver a luz." },
+                    { type: "monologue", text: "// MONÓLOGO INTERNO: 'Claro. Porque não? Um bar onde a principal atração é o zumbido nos meus ouvidos. Isto não é um bar, é uma metáfora para as minhas relações. Todos falam, ninguém ouve.'" }
+                ],
+                choices: [ 
+                    { text: "Deixar o bar e continuar a investigar.", target: "endSuspense" }
+                ],
+                characterInteraction: {
+                    characterName: "O Barman",
+                    systemPrompt: "Você é o enigmático barman do 'Paradoxo do Barman', um clube de jazz silencioso. Você fala apenas em metáforas e enigmas poéticos. Você nunca dá uma resposta direta. Você viu Alistair Finch na noite em que ele morreu. Ele estava ansioso, esperando por alguém que nunca chegou. Ele rabiscou algo num guardanapo. Responda às perguntas do detetive com este personagem em mente. Responda em português."
+                }
+            },
+            antiquario: {
+                title: "A LOJA DE COISAS ESQUECIDAS",
+                content: [
+                    { type: "normal", text: "O antiquário cheira a tempo. O ✨<span class='examinable' data-term='dono do antiquário'>proprietário</span>✨ é um homem velho com olhos que parecem ter visto o nascer e o morrer de estrelas. Ele olha para a espátula e sorri um sorriso triste. 'Ah, sim. A 'Lâmina do Aniversário Solitário'. Diz-se que foi usada para cortar o bolo no último aniversário de Edgar Allan Poe. Ele não comeu nenhuma fatia.'" },
+                    { type: "monologue", text: "// MONÓLOGO INTERNO: 'Edgar Allan Poe. Claro. Porque não o bolo de casamento de Medusa? Seria mais alegre. A minha vida é um conto gótico escrito por um comediante que está a passar por um divórcio complicado.'" }
+                ],
+                choices: [ 
+                    { text: "Agradecer ao velho e sair para a noite.", target: "endSuspense" }
+                ],
+                characterInteraction: {
+                    characterName: "O Dono do Antiquário",
+                    systemPrompt: "Você é o velho e poeirento dono de um antiquário. Você conhece a história sombria de cada objeto na sua loja. Você fala de forma lenta e melancólica, como se cada palavra fosse um esforço. Você sabe que a espátula pertenceu a uma sociedade secreta de 'Estetas da Entropia', que acreditam que a beleza só pode ser encontrada na decadência e no desapontamento. Alistair Finch era um membro. Responda às perguntas do detetive com este personagem em mente. Responda em português."
+                }
+            },
+            endSuspense: {
+                title: "AGUARDE...",
+                content: [
+                    { type: "normal", text: "As pistas flutuam na sua mente como fumo de cigarro numa sala mal iluminada. Um guardanapo, uma espátula, um barman silencioso... as peças estão no tabuleiro, mas a imagem que formam é um absurdo. A noite ainda é uma criança, e os seus segredos são profundos." },
+                    { type: "monologue", text: "// MONÓLOGO INTERNO: 'Será que algum dia isto fará sentido? Ou será que o sentido é a própria falta dele? Talvez eu devesse ter sido contabilista. Pelo menos os números não têm crises existenciais.'" }
+                ],
+                choices: [ { text: "FIM DO EPISÓDIO 1. REINICIAR?", target: "start" } ]
+            }
+        };
+
+        const artistStyles = {
+            "hellboy": { name: "Estilo 'Hellboy'", prompt: "in the distinct art style of Mike Mignola's Hellboy comics, with heavy use of black ink, dramatic shadows, and blocky, stylized figures." },
+            "ec_comics": { name: "Estilo 'EC Comics'", prompt: "in the style of a vintage EC Comics horror cover from the 1950s, like 'Tales from the Crypt', with detailed, lurid line work and a sense of suspenseful dread." },
+            "addams": { name: "Estilo 'Charles Addams'", prompt: "in the macabre and humorous single-panel cartoon style of Charles Addams, with grayscale washes and a charmingly ghoulish atmosphere." },
+            "vasquez": { name: "Estilo 'Jhonen Vasquez'", prompt: "in the chaotic, sharp-angled, and grotesquely cute style of Jhonen Vasquez, with a dark and energetic feel." }
+        };
+
+        const directorStyles = {
+            "kubrick": { name: "S. Kubrick", prompt: "The scene is framed with Kubrickian precision, emphasizing one-point perspective, unsettling symmetry, and a cold, detached atmosphere." },
+            "depalma": { name: "B. De Palma", prompt: "The scene is captured with a De Palma-esque split-screen or a slow, voyeuristic tracking shot, building suspense and a sense of paranoia." },
+            "lynch": { name: "D. Lynch", prompt: "The scene is depicted through a Lynchian lens, where the mundane becomes surreal and menacing, with strange textures, distorted sounds, and a dreamlike, illogical quality." },
+            "gilliam": { name: "T. Gilliam", prompt: "The scene is viewed through a Terry Gilliam-style wide-angle lens, distorting the edges and filling the frame with bizarre, cluttered details and a sense of anarchic energy." }
+        };
+
+        let gameState = { currentScene: 'start', currentImagePrompt: '', audioPlayer: null, audioUrl: null, chatHistory: [], currentTheme: 'allen' };
+        let typewriterInterval;
+        let sounds;
+        let isTypingSoundBusy = false;
+
+        const startScreen = document.getElementById('start-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const startButton = document.getElementById('start-button');
+        const sceneTitle = document.getElementById('scene-title');
+        const sceneContent = document.getElementById('scene-content');
+        const choicesContainer = document.getElementById('choices-container');
+        const ttsControls = document.getElementById('tts-controls');
+        
+        const precogModal = document.getElementById('precog-modal');
+        const precogContent = document.getElementById('precog-content');
+        const modalClosePrecogButton = document.getElementById('modal-close-precog-button');
+
+        const investigationModal = document.getElementById('investigation-modal');
+        const investigationTitle = document.getElementById('investigation-title');
+        const investigationContent = document.getElementById('investigation-content');
+        const modalCloseInvestigationButton = document.getElementById('modal-close-investigation-button');
+
+        const characterChatModal = document.getElementById('character-chat-modal');
+        const chatTitle = document.getElementById('chat-title');
+        const chatLog = document.getElementById('chat-log');
+        const chatInput = document.getElementById('chat-input');
+        const chatSendButton = document.getElementById('chat-send-button');
+        const modalCloseChatButton = document.getElementById('modal-close-chat-button');
+
+        const imagePanel = document.getElementById('image-panel');
+        const imageContainer = document.getElementById('image-container');
+        const imageDisplayArea = document.getElementById('image-display-area');
+        const directorSelector = document.getElementById('director-selector');
+        const artistStyleSelector = document.getElementById('artist-style-selector');
+        const generateImageButton = document.getElementById('generate-image-button');
+        const fullscreenButton = document.getElementById('fullscreen-button');
+        const downloadLink = document.getElementById('download-link');
+
+        function setupSounds() {
+            sounds = {
+                click: new Tone.Synth({ oscillator: { type: 'sine' }, envelope: { attack: 0.005, decay: 0.1, sustain: 0.3, release: 1 } }).toDestination(),
+                type: new Tone.NoiseSynth({ noise: { type: 'brown' }, envelope: { attack: 0.005, decay: 0.05, sustain: 0 } }).toDestination(),
+                precog: new Tone.AMSynth({ harmonicity: 1.5, envelope: { attack: 0.1, decay: 0.2, sustain: 0.1, release: 0.5 } }).toDestination(),
+                investigate: new Tone.MembraneSynth().toDestination(),
+                imageGen: new Tone.FMSynth({ harmonicity: 0.8, modulationIndex: 7, envelope: { attack: 0.1, decay: 0.5 } }).toDestination(),
+                ttsGen: new Tone.PluckSynth().toDestination()
+            };
+            sounds.type.volume.value = -20;
+        }
+        
+        function typeWriter(element, html, onComplete) {
+            if (typewriterInterval) clearInterval(typewriterInterval);
+            element.innerHTML = '';
+            let i = 0;
+            element.classList.add('typing-effect');
+            
+            typewriterInterval = setInterval(() => {
+                if (i < html.length) {
+                    const char = html.charAt(i);
+                    if (char === '<') {
+                        const tagEnd = html.indexOf('>', i);
+                        if (tagEnd !== -1) {
+                            element.innerHTML += html.substring(i, tagEnd + 1);
+                            i = tagEnd;
+                        }
+                    } else {
+                        element.innerHTML += char;
+                        if (char.trim() !== '' && sounds && !isTypingSoundBusy) {
+                            isTypingSoundBusy = true;
+                            sounds.type.triggerAttackRelease("8n");
+                            setTimeout(() => { isTypingSoundBusy = false; }, 50);
+                        }
+                    }
+                    i++;
+                } else {
+                    clearInterval(typewriterInterval);
+                    element.classList.remove('typing-effect');
+                    if (onComplete) onComplete();
+                }
+            }, 30);
+        }
+
+        function renderScene(sceneId) {
+            const scene = storyData[sceneId];
+            if (!scene) return;
+            
+            if(gameState.audioPlayer) {
+                gameState.audioPlayer.pause();
+                gameState.audioPlayer = null;
+                URL.revokeObjectURL(gameState.audioUrl);
+                gameState.audioUrl = null;
+            }
+
+            gameState.currentScene = sceneId;
+            gameState.currentImagePrompt = scene.imagePrompt || '';
+            
+            sceneTitle.textContent = scene.title;
+            sceneContent.innerHTML = '';
+            choicesContainer.innerHTML = '';
+            renderTTSControls();
+            
+            let contentIndex = 0;
+            function showNextContent() {
+                if(contentIndex < scene.content.length) {
+                    const contentItem = scene.content[contentIndex];
+                    const p = document.createElement('p');
+                    if (contentItem.type === 'monologue') {
+                        p.className = 'text-gray-500 italic';
+                    }
+                    
+                    sceneContent.appendChild(p);
+                    
+                    typeWriter(p, contentItem.text, showNextContent);
+                    contentIndex++;
+                } else {
+                    renderChoices(scene.choices);
+                    if (scene.imagePrompt) {
+                        imagePanel.classList.remove('hidden');
+                        imageDisplayArea.innerHTML = '<p class="text-gray-500 text-sm p-4 text-center">Gere uma ilustração para visualizar este momento.</p>';
+                        fullscreenButton.classList.add('hidden');
+                        downloadLink.classList.add('hidden');
+                    } else {
+                        imagePanel.classList.add('hidden');
+                    }
+                }
+            }
+            showNextContent();
+        }
+
+        function renderChoices(choices) {
+             const scene = storyData[gameState.currentScene];
+             if (scene.characterInteraction) {
+                const button = document.createElement('button');
+                button.className = 'w-full p-4 rounded-none shadow-md text-left text-lg choice-button';
+                button.innerHTML = `✨ <span class="font-bold">[INTERROGAR]</span> Falar com ${scene.characterInteraction.characterName}`;
+                button.onclick = () => handleCharacterInteraction(scene.characterInteraction);
+                choicesContainer.appendChild(button);
+             }
+
+             choices.forEach(choice => {
+                const choiceWrapper = document.createElement('div');
+                choiceWrapper.className = 'flex items-stretch';
+
+                const mainButton = document.createElement('button');
+                const buttonClass = 'w-full p-4 rounded-none shadow-md text-left text-lg';
+                
+                if (choice.type) {
+                    mainButton.className = `${buttonClass} choice-button-${choice.type}`;
+                    mainButton.innerHTML = `<span class="font-bold">[PERSPECTIVA ${choice.type === 'allen' ? 'NEURÓTICA' : 'GÓTICA'}]</span> ${choice.text}`;
+                    mainButton.onclick = () => {
+                        sounds.click.triggerAttackRelease("C4", "8n");
+                        gameState.currentTheme = choice.type;
+                        document.body.className = `antialiased theme-${gameState.currentTheme}`;
+                        renderScene(choice.target);
+                    };
+                } else {
+                    mainButton.className = `${buttonClass} choice-button`;
+                    mainButton.innerHTML = `<span class="font-bold">[AÇÃO]</span> ${choice.text}`;
+                    mainButton.onclick = () => {
+                        sounds.click.triggerAttackRelease("C4", "8n");
+                        renderScene(choice.target);
+                    };
+                }
+                choiceWrapper.appendChild(mainButton);
+                
+                if (choice.precogPrompt) {
+                    const precogButton = document.createElement('button');
+                    precogButton.className = 'gemini-button flex-shrink-0 p-3 rounded-none shadow-lg';
+                    precogButton.title = '✨ Usar Precognição';
+                    precogButton.innerHTML = `✨`;
+                    precogButton.onclick = () => handlePrecognition(choice.precogPrompt);
+                    choiceWrapper.appendChild(precogButton);
+                }
+
+                choicesContainer.appendChild(choiceWrapper);
+            });
+        }
+
+        async function handlePrecognition(prompt) {
+            sounds.precog.triggerAttackRelease("A#2", "0.5");
+            precogModal.style.display = 'flex';
+            precogContent.innerHTML = '<div class="flex justify-center items-center h-full"><div class="spinner"></div></div>';
+
+            const fullPrompt = `Como um detetive noir com habilidades psíquicas, você tem um flash de insight sobre a ação: '${prompt}'. Descreva essa visão enigmática em uma ou duas frases curtas, poéticas e agourentas. A situação atual é: '${storyData[gameState.currentScene].title}'. Responda em português.`;
+            
+            let chatHistory = [{ role: "user", parts: [{ text: fullPrompt }] }];
+            const payload = { contents: chatHistory };
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0 && result.candidates[0].content.parts.length > 0) {
+                    const precogText = result.candidates[0].content.parts[0].text;
+                    typeWriter(precogContent, precogText);
+                } else {
+                    throw new Error("Resposta da API inválida.");
+                }
+            } catch (error) {
+                console.error("Erro na Precognição:", error);
+                precogContent.textContent = "As estáticas do futuro são indecifráveis. (Nota: Se estiver a executar este ficheiro localmente, o seu navegador pode estar a bloquear esta funcionalidade.)";
+            }
+        }
+
+        async function handleInvestigation(term) {
+            sounds.investigate.triggerAttackRelease("C2", "8n");
+            investigationModal.style.display = 'flex';
+            investigationTitle.textContent = `INVESTIGANDO: ${term.toUpperCase()}`;
+            investigationContent.innerHTML = '<div class="flex justify-center items-center h-full"><div class="spinner"></div></div>';
+            
+            const fullPrompt = `Você é o mestre de um jogo de RPG de mistério noir com um tom de comédia sombria e absurda. O jogador quer investigar um objeto ou conceito específico da cena. Forneça uma descrição detalhada, poética e ligeiramente filosófica para o seguinte item: '${term}'. O contexto da cena atual é: '${storyData[gameState.currentScene].title}'. Mantenha o tom e o estilo da aventura. Responda em português.`;
+
+            let chatHistory = [{ role: "user", parts: [{ text: fullPrompt }] }];
+            const payload = { contents: chatHistory };
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0 && result.candidates[0].content.parts.length > 0) {
+                    const investigationText = result.candidates[0].content.parts[0].text;
+                    typeWriter(investigationContent, investigationText);
+                } else {
+                    throw new Error("Resposta da API inválida.");
+                }
+            } catch (error) {
+                console.error("Erro na Investigação:", error);
+                investigationContent.textContent = "A sua mente tenta focar-se no objeto, mas só encontra um vazio existencial. (Nota: Se estiver a executar este ficheiro localmente, o seu navegador pode estar a bloquear esta funcionalidade.)";
+            }
+        }
+        
+        function handleCharacterInteraction(characterData) {
+            sounds.click.triggerAttackRelease("E4", "8n");
+            chatTitle.textContent = `CONVERSANDO COM: ${characterData.characterName.toUpperCase()}`;
+            chatLog.innerHTML = '';
+            chatInput.value = '';
+            gameState.chatHistory = [{ role: "user", parts: [{ text: characterData.systemPrompt }] }];
+            characterChatModal.style.display = 'flex';
+        }
+
+        async function sendChatMessage() {
+            const userMessage = chatInput.value.trim();
+            if (userMessage === '') return;
+
+            chatInput.value = '';
+            addMessageToChatLog('Você', userMessage);
+
+            gameState.chatHistory.push({ role: "user", parts: [{ text: userMessage }] });
+
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'text-left mb-2';
+            loadingDiv.innerHTML = `<p class="font-bold text-gray-500">_</p><div class="p-2 rounded-md bg-gray-200 inline-block"><div class="spinner w-4 h-4"></div></div>`;
+            chatLog.appendChild(loadingDiv);
+            chatLog.scrollTop = chatLog.scrollHeight;
+
+            const payload = { contents: gameState.chatHistory };
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                loadingDiv.remove();
+                if (result.candidates && result.candidates.length > 0 && result.candidates[0].content.parts.length > 0) {
+                    const characterResponse = result.candidates[0].content.parts[0].text;
+                    gameState.chatHistory.push({ role: "model", parts: [{ text: characterResponse }] });
+                    addMessageToChatLog(storyData[gameState.currentScene].characterInteraction.characterName, characterResponse);
+                } else {
+                    throw new Error("Resposta da API inválida.");
+                }
+            } catch (error) {
+                console.error("Erro no Chat:", error);
+                loadingDiv.remove();
+                addMessageToChatLog("Sistema", "A conexão com a consciência do personagem foi perdida... (Nota: Se estiver a executar este ficheiro localmente, o seu navegador pode estar a bloquear esta funcionalidade.)");
+            }
+        }
+
+        function addMessageToChatLog(sender, message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `text-left mb-2 ${sender === 'Você' ? 'text-right' : ''}`;
+            messageDiv.innerHTML = `<p class="font-bold text-sm ${sender === 'Você' ? 'text-blue-500' : 'text-purple-600'}">${sender}</p><p class="p-2 rounded-md inline-block ${sender === 'Você' ? 'bg-blue-100' : 'bg-purple-100'}">${message}</p>`;
+            chatLog.appendChild(messageDiv);
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+
+
+        async function handleImageGeneration() {
+            const selectedDirector = directorSelector.value;
+            const selectedArtist = artistStyleSelector.value;
+
+            if (!selectedDirector || !selectedArtist) {
+                imageDisplayArea.innerHTML = '<p class="text-red-500">ERRO: Por favor, selecione um Diretor e um Artista.</p>';
+                return;
+            }
+
+            sounds.imageGen.triggerAttackRelease("C2", "1s");
+            imageDisplayArea.innerHTML = '<div class="flex flex-col items-center gap-2"><div class="spinner"></div><p>Gerando ilustração...</p></div>';
+            fullscreenButton.classList.add('hidden');
+            downloadLink.classList.add('hidden');
+            
+            const fullPrompt = `${gameState.currentImagePrompt}, ${directorStyles[selectedDirector].prompt}, ${artistStyles[selectedArtist].prompt}`;
+            
+            const payload = { instances: [{ prompt: fullPrompt }], parameters: { "sampleCount": 1 } };
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                if (result.predictions && result.predictions.length > 0 && result.predictions[0].bytesBase64Encoded) {
+                    const imageUrl = `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`;
+                    imageDisplayArea.innerHTML = `<img src="${imageUrl}" class="w-full h-full object-contain" alt="Ilustração da cena gerada por IA">`;
+                    downloadLink.href = imageUrl;
+                    fullscreenButton.classList.remove('hidden');
+                    downloadLink.classList.remove('hidden');
+                } else {
+                    throw new Error("Resposta da API inválida ou sem imagem.");
+                }
+            } catch (error) {
+                console.error("Erro ao gerar imagem:", error);
+                imageDisplayArea.innerHTML = `<p class="text-red-500 p-4 text-center">Falha na geração da imagem. (Nota: Se estiver a executar este ficheiro localmente, o seu navegador pode estar a bloquear esta funcionalidade.)</p>`;
+            }
+        }
+        
+        function base64ToArrayBuffer(base64) {
+            const binaryString = window.atob(base64);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        function pcmToWav(pcmData, sampleRate) {
+            const numChannels = 1;
+            const bytesPerSample = 2;
+            const blockAlign = numChannels * bytesPerSample;
+            const byteRate = sampleRate * blockAlign;
+            const dataSize = pcmData.length * bytesPerSample;
+            const buffer = new ArrayBuffer(44 + dataSize);
+            const view = new DataView(buffer);
+
+            function writeString(view, offset, string) {
+                for (let i = 0; i < string.length; i++) {
+                    view.setUint8(offset + i, string.charCodeAt(i));
+                }
+            }
+
+            writeString(view, 0, 'RIFF');
+            view.setUint32(4, 36 + dataSize, true);
+            writeString(view, 8, 'WAVE');
+            writeString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, numChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, byteRate, true);
+            view.setUint16(32, blockAlign, true);
+            view.setUint16(34, 16, true);
+            writeString(view, 36, 'data');
+            view.setUint32(40, dataSize, true);
+
+            for (let i = 0; i < pcmData.length; i++) {
+                view.setInt16(44 + i * 2, pcmData[i], true);
+            }
+
+            return new Blob([view], { type: 'audio/wav' });
+        }
+
+        async function handleTTSGeneration() {
+            const button = document.getElementById('tts-button');
+            button.innerHTML = '<div class="spinner w-5 h-5"></div>';
+            button.disabled = true;
+            
+            sounds.ttsGen.triggerAttackRelease("C4", "8n");
+
+            const scene = storyData[gameState.currentScene];
+            let ttsScript = "TTS the following conversation between Narrador and Monólogo Interno:\n";
+            scene.content.forEach(part => {
+                const speaker = part.type === 'normal' ? 'Narrador' : 'Monólogo Interno';
+                const text = part.text.replace(/\/\/\s*MONÓLOGO INTERNO:\s*/, '').replace(/<[^>]*>/g, '');
+                ttsScript += `${speaker}: ${text}\n`;
+            });
+
+            const payload = {
+                contents: [{ parts: [{ text: ttsScript }] }],
+                generationConfig: {
+                    responseModalities: ["AUDIO"],
+                    speechConfig: {
+                        multiSpeakerVoiceConfig: {
+                            speakerVoiceConfigs: [
+                                { speaker: "Narrador", voiceConfig: { prebuiltVoiceConfig: { voiceName: "Rasalgethi" } } },
+                                { speaker: "Monólogo Interno", voiceConfig: { prebuiltVoiceConfig: { voiceName: "Zubenelgenubi" } } }
+                            ]
+                        }
+                    }
+                },
+                model: "gemini-2.5-flash-preview-tts"
+            };
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                const part = result?.candidates?.[0]?.content?.parts?.[0];
+                const audioData = part?.inlineData?.data;
+                const mimeType = part?.inlineData?.mimeType;
+
+                if (audioData && mimeType && mimeType.startsWith("audio/")) {
+                    const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)[1], 10);
+                    const pcmData = base64ToArrayBuffer(audioData);
+                    const pcm16 = new Int16Array(pcmData);
+                    const wavBlob = pcmToWav(pcm16, sampleRate);
+                    gameState.audioUrl = URL.createObjectURL(wavBlob);
+                    gameState.audioPlayer = new Audio(gameState.audioUrl);
+                    gameState.audioPlayer.play();
+                    button.innerHTML = '❚❚'; // Pause
+                    button.disabled = false;
+                    gameState.audioPlayer.onended = () => {
+                        button.innerHTML = '▶'; // Play
+                    };
+                } else {
+                    throw new Error("Dados de áudio inválidos na resposta.");
+                }
+            } catch (error) {
+                console.error("Erro ao gerar TTS:", error);
+                button.innerHTML = '▶';
+                button.disabled = false;
+            }
+        }
+
+        function renderTTSControls() {
+            ttsControls.innerHTML = '';
+            const button = document.createElement('button');
+            button.id = 'tts-button';
+            button.className = 'gemini-button p-2 rounded-full';
+            button.title = '✨ Ouvir Cena';
+            button.innerHTML = '▶'; // Play icon
+            button.onclick = () => {
+                if (!gameState.audioPlayer) {
+                    handleTTSGeneration();
+                } else if (gameState.audioPlayer.paused) {
+                    gameState.audioPlayer.play();
+                    button.innerHTML = '❚❚'; // Pause
+                } else {
+                    gameState.audioPlayer.pause();
+                    button.innerHTML = '▶'; // Play
+                }
+            };
+            ttsControls.appendChild(button);
+        }
+
+        function hidePrecogModal() {
+            sounds.click.triggerAttackRelease("A3", "8n");
+            precogModal.style.display = 'none';
+        }
+        
+        function hideInvestigationModal() {
+            sounds.click.triggerAttackRelease("A3", "8n");
+            investigationModal.style.display = 'none';
+        }
+
+        function hideChatModal() {
+            sounds.click.triggerAttackRelease("A3", "8n");
+            characterChatModal.style.display = 'none';
+        }
+
+        function populateDropdown(selectElement, data) {
+            selectElement.innerHTML = '';
+            Object.keys(data).forEach(key => {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = data[key].name;
+                selectElement.appendChild(option);
+            });
+        }
+
+        startButton.addEventListener('click', async () => {
+            await Tone.start();
+            setupSounds();
+            sounds.click.triggerAttackRelease("G4", "8n");
+            document.body.className = 'antialiased theme-allen';
+            startScreen.style.display = 'none';
+            gameScreen.style.display = 'block';
+            renderScene('start');
+        });
+
+        modalClosePrecogButton.addEventListener('click', hidePrecogModal);
+        precogModal.addEventListener('click', (e) => { if (e.target === precogModal) hidePrecogModal(); });
+
+        modalCloseInvestigationButton.addEventListener('click', hideInvestigationModal);
+        investigationModal.addEventListener('click', (e) => { if (e.target === investigationModal) hideInvestigationModal(); });
+
+        chatSendButton.addEventListener('click', sendChatMessage);
+        chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendChatMessage(); });
+        modalCloseChatButton.addEventListener('click', hideChatModal);
+
+        sceneContent.addEventListener('click', (e) => {
+            if (e.target.classList.contains('examinable')) {
+                const term = e.target.dataset.term;
+                handleInvestigation(term);
+            }
+        });
+
+        generateImageButton.addEventListener('click', handleImageGeneration);
+        
+        fullscreenButton.addEventListener('click', () => {
+            const imgElement = imageDisplayArea.querySelector('img');
+            if (imgElement && imgElement.requestFullscreen) {
+                imgElement.requestFullscreen();
+            }
+        });
+
+        populateDropdown(directorSelector, directorStyles);
+        populateDropdown(artistStyleSelector, artistStyles);
+
+    </script>
+</body>
+</html>
 
