@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Infográfico: Estratégia de RPG no Instagram (Storyflip)</title>
+    <title>Infográfico: Estratégia de RPG no Instagram</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -75,6 +75,18 @@
             <h1 class="text-4xl md:text-5xl font-bold section-title mb-4">O RPG do Instagram</h1>
             <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">Uma análise visual da estratégia para transformar uma ideia criativa num negócio sustentável na economia dos criadores.</p>
         </header>
+
+        <section id="api-key-setup" class="mb-12 md:mb-16">
+            <div class="card max-w-2xl mx-auto">
+                <h2 class="text-2xl font-bold text-center mb-4 section-title">Configuração da API Gemini</h2>
+                <p class="text-center text-gray-600 mb-4">Para que as funcionalidades de IA funcionem, precisa de uma chave da API Gemini. Pode obter uma gratuitamente no <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-blue-600 hover:underline">Google AI Studio</a>.</p>
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <input type="password" id="api-key-input" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Insira a sua chave da API aqui">
+                    <button id="save-api-key-btn" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 transition duration-300">Guardar Chave</button>
+                </div>
+                <p id="api-key-status" class="text-center text-green-600 mt-2 h-4"></p>
+            </div>
+        </section>
 
         <section id="opportunity" class="mb-12 md:mb-16">
             <h2 class="text-3xl font-bold text-center mb-8 section-title">A Oportunidade de Mercado é Real</h2>
@@ -332,6 +344,12 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            let geminiApiKey = '';
+
+            const apiKeyInput = document.getElementById('api-key-input');
+            const saveApiKeyBtn = document.getElementById('save-api-key-btn');
+            const apiKeyStatus = document.getElementById('api-key-status');
+
             const generateIdeasBtn = document.getElementById('generate-ideas-btn');
             const promptInput = document.getElementById('prompt-input');
             const ideasResult = document.getElementById('ideas-result');
@@ -364,7 +382,34 @@
             const arcInput = document.getElementById('arc-input');
             const arcResult = document.getElementById('arc-result');
 
+            function saveApiKey() {
+                const key = apiKeyInput.value;
+                if (key) {
+                    localStorage.setItem('geminiApiKey', key);
+                    geminiApiKey = key;
+                    apiKeyStatus.textContent = 'Chave API guardada com sucesso!';
+                    setTimeout(() => { apiKeyStatus.textContent = '' }, 3000);
+                }
+            }
+
+            function loadApiKey() {
+                const savedKey = localStorage.getItem('geminiApiKey');
+                if (savedKey) {
+                    geminiApiKey = savedKey;
+                    apiKeyInput.value = savedKey;
+                }
+            }
+            
+            saveApiKeyBtn.addEventListener('click', saveApiKey);
+            loadApiKey();
+
+
             async function callGemini(fullPrompt, resultElement, buttonElement) {
+                if (!geminiApiKey) {
+                    resultElement.innerHTML = '<p class="text-red-500">Por favor, insira a sua chave da API Gemini na secção de configuração no topo da página.</p>';
+                    return null;
+                }
+
                 resultElement.innerHTML = '<div class="flex justify-center items-center h-full"><div class="loader"></div><p class="ml-3 text-gray-600">A gerar...</p></div>';
                 buttonElement.disabled = true;
 
@@ -372,8 +417,7 @@
                     let chatHistory = [];
                     chatHistory.push({ role: "user", parts: [{ text: fullPrompt }] });
                     const payload = { contents: chatHistory };
-                    const apiKey = ""; 
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${geminiApiKey}`;
                     
                     const response = await fetch(apiUrl, {
                         method: 'POST',
@@ -539,4 +583,4 @@
     </script>
 
 </body>
-</html>
+</ht
