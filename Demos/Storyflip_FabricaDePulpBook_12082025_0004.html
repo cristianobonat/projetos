@@ -3,20 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Infográfico: Estratégia de RPG no Instagram</title>
+    <title>Infográfico: Estratégia de RPG no Instagram (Storyflip)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <!-- Chosen Palette: Brilliant Blues -->
-    <!-- Application Structure Plan: A single-page, top-to-bottom infographic telling a strategic story. It starts with the broad market opportunity (The Why), moves to a competitive analysis (The Where), narrows to a project-specific SWOT (The What), and concludes with a clear, actionable strategy (The How), now including an AI-powered ideation tool to demonstrate overcoming creative challenges. -->
+    <!-- Application Structure Plan: A single-page, top-to-bottom infographic telling a strategic story. It starts with the broad market opportunity (The Why), moves to a competitive analysis (The Where), narrows to a project-specific SWOT (The What), and concludes with a clear, actionable strategy (The How), now including a full suite of AI-powered tools for the entire creative workflow, from high-level story structure to community management. -->
     <!-- Visualization & Content Choices: 
         - Market Stats (Report 1.1) -> Goal: Inform -> Method: Large stat cards -> Justification: High-impact, immediate communication of key numbers.
         - Platform Comparison (Table 1) -> Goal: Compare -> Method: Custom HTML/CSS table with icons -> Justification: A simplified visual summary of the detailed table.
         - SWOT Analysis (Report 2) -> Goal: Organize/Analyze -> Method: Four-quadrant HTML/CSS grid -> Justification: Classic, instantly recognizable layout for strategic analysis.
         - Monetization Funnel (Report 3.2) -> Goal: Explain Process -> Method: HTML/CSS flow diagram -> Justification: Visualizes the user journey from free content to paid support.
-        - AI Ideation Tool -> Goal: Demonstrate Solution -> Method: Interactive input with Gemini API call -> Justification: Provides a tangible tool that addresses the "content creation burden" weakness identified in the SWOT.
+        - AI Ideation Tool -> Goal: Demonstrate Solution -> Method: Interactive input with Gemini API call -> Justification: Addresses the "content creation burden" weakness.
+        - AI Image Prompt Generator -> Goal: Demonstrate Solution -> Method: Interactive input with Gemini API call -> Justification: Tackles the "visual production burden".
+        - AI Interaction Generator -> Goal: Demonstrate Solution -> Method: Interactive input with Gemini API call -> Justification: Tackles "poll fatigue" by generating creative choices.
+        - AI Lore Generator -> Goal: Demonstrate Solution -> Method: Interactive input with Gemini API call -> Justification: Tackles "content saturation" by enabling deep, unique world-building.
+        - AI Monetization Helper -> Goal: Demonstrate Solution -> Method: Interactive input with Gemini API call -> Justification: Provides actionable, creative ideas for Patreon tiers.
+        - AI Social Media Helper -> Goal: Demonstrate Solution -> Method: Interactive input with Gemini API call -> Justification: Assists with writing engaging Instagram captions.
+        - AI Community Helper -> Goal: Demonstrate Solution -> Method: Interactive input with Gemini API call -> Justification: Helps maintain an active Discord community.
+        - AI Story Arc Planner -> Goal: Demonstrate Solution -> Method: Interactive input with Gemini API call -> Justification: Directly solves the "narrative cohesion" weakness by providing a high-level story structure.
     -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
@@ -169,7 +176,7 @@
             </div>
         </section>
 
-        <section id="monetization" class="mb-12 md:mb-16">
+        <section id="monetization-funnel" class="mb-12 md:mb-16">
             <h2 class="text-3xl font-bold text-center mb-8 section-title">A Estratégia do Funil de Monetização</h2>
             <p class="text-center text-gray-600 max-w-2xl mx-auto mb-10">A abordagem mais segura e eficaz: usar o Instagram para construir um público e o Patreon para gerar receita sustentável.</p>
             
@@ -195,45 +202,125 @@
                     <p class="text-blue-700">Fãs dedicados apoiam o projeto no Patreon em troca de conteúdo exclusivo.</p>
                 </div>
             </div>
-
-            <div class="mt-12">
-                <h3 class="text-2xl font-bold text-center mb-6 section-title">Exemplo de Níveis no Patreon</h3>
-                <div class="grid md:grid-cols-3 gap-6">
-                    <div class="card text-center">
-                        <h4 class="font-bold">Apoiante</h4>
-                        <p class="text-3xl font-bold my-2 stat-number">$3<span class="text-base font-normal text-gray-500">/mês</span></p>
-                        <p class="text-gray-600">Acesso ao Discord e créditos de agradecimento.</p>
-                    </div>
-                    <div class="card text-center border-2 border-blue-500 shadow-xl">
-                        <h4 class="font-bold">Sábio do Lore</h4>
-                        <p class="text-3xl font-bold my-2 stat-number">$10<span class="text-base font-normal text-gray-500">/mês</span></p>
-                        <p class="text-gray-600">Acesso antecipado, lore exclusivo e downloads de arte.</p>
-                    </div>
-                    <div class="card text-center">
-                        <h4 class="font-bold">Co-Criador</h4>
-                        <p class="text-3xl font-bold my-2 stat-number">$20<span class="text-base font-normal text-gray-500">/mês</span></p>
-                        <p class="text-gray-600">Direito de voto em pontos cruciais e submissão de nomes.</p>
-                    </div>
-                </div>
-            </div>
         </section>
 
-        <section id="ai-ideation" class="mb-12 md:mb-16">
-            <h2 class="text-3xl font-bold text-center mb-8 section-title">Potencializando a Criatividade com IA ✨</h2>
-            <p class="text-center text-gray-600 max-w-2xl mx-auto mb-10">
-                Supere o bloqueio criativo e acelere a produção de conteúdo. Use a IA para gerar ganchos de enredo, personagens ou reviravoltas a partir de um simples conceito.
-            </p>
-            <div class="card max-w-2xl mx-auto">
-                <div class="space-y-4">
-                    <label for="prompt-input" class="block font-bold text-gray-700">Insira um conceito para a sua história:</label>
-                    <input type="text" id="prompt-input" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Ex: Um detetive num mundo de fantasia élfica...">
-                    <button id="generate-ideas-btn" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-md hover:bg-blue-700 transition duration-300 flex items-center justify-center">
-                        Gerar Ideias com IA
-                    </button>
-                    <div id="ideas-result" class="mt-4 p-4 border border-gray-200 rounded-md bg-gray-50 min-h-[150px]">
-                        <p class="text-gray-500">As suas ideias aparecerão aqui...</p>
+        <section id="ai-tools" class="mb-12 md:mb-16">
+            <h2 class="text-3xl font-bold text-center mb-8 section-title">Seu Kit de Ferramentas Criativas com IA</h2>
+            <p class="text-center text-gray-600 max-w-2xl mx-auto mb-10">Use a IA como sua assistente para superar os principais desafios da criação de conteúdo, da ideação à gestão da comunidade.</p>
+
+            <div class="grid lg:grid-cols-2 gap-8">
+                <div class="card">
+                    <h3 class="text-xl font-bold mb-3 text-blue-700">Potencializando a Criatividade ✨</h3>
+                    <div class="space-y-4">
+                        <label for="prompt-input" class="block font-semibold text-gray-700">Conceito da história:</label>
+                        <input type="text" id="prompt-input" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Ex: Um detetive num mundo de fantasia élfica...">
+                        <button id="generate-ideas-btn" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 transition duration-300 flex items-center justify-center">
+                            Gerar Ganchos de Enredo
+                        </button>
+                        <div id="ideas-result" class="mt-4 p-3 border border-gray-200 rounded-md bg-gray-50 min-h-[120px]">
+                            <p class="text-gray-500 text-sm">Suas ideias de enredo aparecerão aqui...</p>
+                        </div>
                     </div>
                 </div>
+
+                <div class="card">
+                    <h3 class="text-xl font-bold mb-3 text-indigo-700">Visualizando o Mundo ✨</h3>
+                    <div class="space-y-4">
+                        <label for="scene-input" class="block font-semibold text-gray-700">Descrição da cena:</label>
+                        <textarea id="scene-input" class="w-full p-2 border border-gray-300 rounded-md" rows="2" placeholder="Ex: O detetive élfico interroga um anão..."></textarea>
+                        <button id="generate-prompt-btn" class="w-full bg-indigo-600 text-white font-bold py-2 px-4 rounded-md hover:bg-indigo-700 transition duration-300 flex items-center justify-center">
+                            Gerar Prompt de Imagem
+                        </button>
+                        <div id="prompt-result" class="mt-4 p-3 border border-gray-200 rounded-md bg-gray-50 min-h-[120px]">
+                            <p class="text-gray-500 text-sm">Seu prompt de imagem aparecerá aqui...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="text-xl font-bold mb-3 text-teal-700">Criando Interações Cativantes ✨</h3>
+                    <div class="space-y-4">
+                        <label for="decision-input" class="block font-semibold text-gray-700">Ponto de decisão:</label>
+                        <textarea id="decision-input" class="w-full p-2 border border-gray-300 rounded-md" rows="2" placeholder="Ex: A heroína encontra uma porta selada..."></textarea>
+                        <button id="generate-choices-btn" class="w-full bg-teal-600 text-white font-bold py-2 px-4 rounded-md hover:bg-teal-700 transition duration-300 flex items-center justify-center">
+                            Gerar Opções de Voto
+                        </button>
+                        <div id="choices-result" class="mt-4 p-3 border border-gray-200 rounded-md bg-gray-50 min-h-[120px]">
+                            <p class="text-gray-500 text-sm">Suas opções de voto aparecerão aqui...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="text-xl font-bold mb-3 text-purple-700">Aprofundando o Mundo ✨</h3>
+                    <div class="space-y-4">
+                        <label for="lore-input" class="block font-semibold text-gray-700">Elemento do mundo:</label>
+                        <input type="text" id="lore-input" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Ex: A Espada Sussurrante de Ébano...">
+                        <button id="generate-lore-btn" class="w-full bg-purple-600 text-white font-bold py-2 px-4 rounded-md hover:bg-purple-700 transition duration-300 flex items-center justify-center">
+                            Gerar Lore
+                        </button>
+                        <div id="lore-result" class="mt-4 p-3 border border-gray-200 rounded-md bg-gray-50 min-h-[120px]">
+                            <p class="text-gray-500 text-sm">A história do seu mundo aparecerá aqui...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                     <h3 class="text-xl font-bold mb-3 text-pink-700">Planejando sua Monetização ✨</h3>
+                     <div class="space-y-4">
+                        <label for="monetization-input" class="block font-semibold text-gray-700">Conceito geral da sua história:</label>
+                        <input type="text" id="monetization-input" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Ex: Uma aventura de fantasia sombria...">
+                        <button id="generate-tiers-btn" class="w-full bg-pink-600 text-white font-bold py-2 px-4 rounded-md hover:bg-pink-700 transition duration-300 flex items-center justify-center">
+                            Gerar Ideias para Patreon
+                        </button>
+                        <div id="tiers-result" class="mt-4 p-3 border border-gray-200 rounded-md bg-gray-50 min-h-[120px]">
+                            <p class="text-gray-500 text-sm">Suas ideias de níveis aparecerão aqui...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                     <h3 class="text-xl font-bold mb-3 text-orange-700">Escrevendo Posts Cativantes ✨</h3>
+                     <div class="space-y-4">
+                        <label for="post-input" class="block font-semibold text-gray-700">Descrição do evento do post:</label>
+                        <input type="text" id="post-input" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Ex: O herói decide seguir o mapa antigo...">
+                        <button id="generate-post-btn" class="w-full bg-orange-600 text-white font-bold py-2 px-4 rounded-md hover:bg-orange-700 transition duration-300 flex items-center justify-center">
+                            Gerar Legenda para Post
+                        </button>
+                        <div id="post-result" class="mt-4 p-3 border border-gray-200 rounded-md bg-gray-50 min-h-[120px] whitespace-pre-wrap">
+                            <p class="text-gray-500 text-sm">Sua legenda para o Instagram aparecerá aqui...</p>
+                        </div>
+                    </div>
+                </div>
+
+                 <div class="card">
+                     <h3 class="text-xl font-bold mb-3 text-green-700">Engajando sua Comunidade ✨</h3>
+                     <div class="space-y-4">
+                        <label for="community-input" class="block font-semibold text-gray-700">Descreva o último evento ou plot twist:</label>
+                        <input type="text" id="community-input" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Ex: O herói descobriu que o rei é um impostor...">
+                        <button id="generate-community-btn" class="w-full bg-green-600 text-white font-bold py-2 px-4 rounded-md hover:bg-green-700 transition duration-300 flex items-center justify-center">
+                            Gerar Perguntas para a Comunidade
+                        </button>
+                        <div id="community-result" class="mt-4 p-3 border border-gray-200 rounded-md bg-gray-50 min-h-[120px]">
+                            <p class="text-gray-500 text-sm">Suas perguntas para o Discord aparecerão aqui...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card lg:col-span-2">
+                     <h3 class="text-xl font-bold mb-3 text-slate-700">Planejando o Arco da História ✨</h3>
+                     <div class="space-y-4">
+                        <label for="arc-input" class="block font-semibold text-gray-700">Conceito central da sua história:</label>
+                        <input type="text" id="arc-input" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Ex: Um cavaleiro caído busca redenção caçando a fera que o amaldiçoou...">
+                        <button id="generate-arc-btn" class="w-full bg-slate-600 text-white font-bold py-2 px-4 rounded-md hover:bg-slate-700 transition duration-300 flex items-center justify-center">
+                            Gerar Estrutura de 3 Atos
+                        </button>
+                        <div id="arc-result" class="mt-4 p-3 border border-gray-200 rounded-md bg-gray-50 min-h-[120px]">
+                            <p class="text-gray-500 text-sm">A estrutura da sua história aparecerá aqui...</p>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </section>
         
@@ -245,22 +332,42 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const generateBtn = document.getElementById('generate-ideas-btn');
+            const generateIdeasBtn = document.getElementById('generate-ideas-btn');
             const promptInput = document.getElementById('prompt-input');
             const ideasResult = document.getElementById('ideas-result');
 
-            generateBtn.addEventListener('click', async () => {
-                const userPrompt = promptInput.value;
-                if (!userPrompt) {
-                    ideasResult.innerHTML = '<p class="text-red-500">Por favor, insira um conceito para a história.</p>';
-                    return;
-                }
+            const generatePromptBtn = document.getElementById('generate-prompt-btn');
+            const sceneInput = document.getElementById('scene-input');
+            const promptResult = document.getElementById('prompt-result');
 
-                ideasResult.innerHTML = '<div class="flex justify-center items-center h-full"><div class="loader"></div><p class="ml-3 text-gray-600">A gerar ideias...</p></div>';
-                generateBtn.disabled = true;
+            const generateChoicesBtn = document.getElementById('generate-choices-btn');
+            const decisionInput = document.getElementById('decision-input');
+            const choicesResult = document.getElementById('choices-result');
 
-                const fullPrompt = `Como um mestre de RPG experiente, crie 3 ganchos de enredo curtos e intrigantes para uma história de RPG baseada no seguinte conceito. Cada gancho deve ser adequado para um post de Instagram, terminando com uma pergunta para engajar o público. Formate a resposta como uma lista com marcadores. Conceito: "${userPrompt}"`;
-                
+            const generateLoreBtn = document.getElementById('generate-lore-btn');
+            const loreInput = document.getElementById('lore-input');
+            const loreResult = document.getElementById('lore-result');
+
+            const generateTiersBtn = document.getElementById('generate-tiers-btn');
+            const monetizationInput = document.getElementById('monetization-input');
+            const tiersResult = document.getElementById('tiers-result');
+
+            const generatePostBtn = document.getElementById('generate-post-btn');
+            const postInput = document.getElementById('post-input');
+            const postResult = document.getElementById('post-result');
+
+            const generateCommunityBtn = document.getElementById('generate-community-btn');
+            const communityInput = document.getElementById('community-input');
+            const communityResult = document.getElementById('community-result');
+
+            const generateArcBtn = document.getElementById('generate-arc-btn');
+            const arcInput = document.getElementById('arc-input');
+            const arcResult = document.getElementById('arc-result');
+
+            async function callGemini(fullPrompt, resultElement, buttonElement) {
+                resultElement.innerHTML = '<div class="flex justify-center items-center h-full"><div class="loader"></div><p class="ml-3 text-gray-600">A gerar...</p></div>';
+                buttonElement.disabled = true;
+
                 try {
                     let chatHistory = [];
                     chatHistory.push({ role: "user", parts: [{ text: fullPrompt }] });
@@ -284,23 +391,148 @@
                         result.candidates[0].content && result.candidates[0].content.parts &&
                         result.candidates[0].content.parts.length > 0) {
                         const text = result.candidates[0].content.parts[0].text;
-                        
-                        const htmlResult = text
-                            .split('\n') 
-                            .filter(line => line.trim().startsWith('*')) 
-                            .map(line => `<li class="mb-2">${line.substring(1).trim().replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</li>`)
-                            .join('');
-                            
-                        ideasResult.innerHTML = `<ul class="list-disc list-inside space-y-2">${htmlResult}</ul>`;
+                        return text;
                     } else {
                         throw new Error("Resposta da API inválida ou vazia.");
                     }
-
                 } catch (error) {
                     console.error("Error calling Gemini API:", error);
-                    ideasResult.innerHTML = `<p class="text-red-500">Ocorreu um erro ao gerar as ideias. Por favor, tente novamente. Detalhes: ${error.message}</p>`;
+                    resultElement.innerHTML = `<p class="text-red-500">Ocorreu um erro ao gerar. Por favor, tente novamente. Detalhes: ${error.message}</p>`;
+                    return null;
                 } finally {
-                    generateBtn.disabled = false;
+                    buttonElement.disabled = false;
+                }
+            }
+
+            function formatListResult(textResult) {
+                return textResult
+                    .split('\n')
+                    .map(line => line.trim())
+                    .filter(line => line.length > 0)
+                    .map(line => {
+                        if (line.startsWith('**Ato') || line.startsWith('**Ato')) {
+                             return `<h4 class="font-bold mt-3">${line.replace(/\*|\:/g, '').trim()}</h4>`;
+                        }
+                        if (line.startsWith('* **') || line.startsWith('**')) {
+                            return `<h4 class="font-bold mt-3">${line.replace(/\*|\:/g, '').trim()}</h4>`;
+                        }
+                        if (line.startsWith('*')) {
+                             return `<li class="ml-4">${line.substring(1).trim()}</li>`;
+                        }
+                        return line;
+                    })
+                    .join('');
+            }
+
+            generateIdeasBtn.addEventListener('click', async () => {
+                const userPrompt = promptInput.value;
+                if (!userPrompt) {
+                    ideasResult.innerHTML = '<p class="text-red-500">Por favor, insira um conceito para a história.</p>';
+                    return;
+                }
+                const fullPrompt = `Como um mestre de RPG experiente, crie 3 ganchos de enredo curtos e intrigantes para uma história de RPG baseada no seguinte conceito. Cada gancho deve ser adequado para um post de Instagram, terminando com uma pergunta para engajar o público. Formate a resposta como uma lista com marcadores simples. Conceito: "${userPrompt}"`;
+                
+                const textResult = await callGemini(fullPrompt, ideasResult, generateIdeasBtn);
+                if (textResult) {
+                    ideasResult.innerHTML = `<ul class="list-disc list-inside space-y-2">${formatListResult(textResult)}</ul>`;
+                }
+            });
+
+            generatePromptBtn.addEventListener('click', async () => {
+                const userScene = sceneInput.value;
+                if (!userScene) {
+                    promptResult.innerHTML = '<p class="text-red-500">Por favor, descreva uma cena.</p>';
+                    return;
+                }
+                const fullPrompt = `Aja como um especialista em engenharia de prompts para geradores de imagem de IA como Midjourney. Crie um prompt detalhado e atmosférico para gerar uma imagem baseada na seguinte cena. O prompt deve incluir detalhes sobre iluminação, composição, estilo de arte (ex: 'digital painting, cinematic'), e emoção. A resposta deve ser apenas o prompt em si, sem texto adicional. Cena: "${userScene}"`;
+
+                const textResult = await callGemini(fullPrompt, promptResult, generatePromptBtn);
+                if (textResult) {
+                    promptResult.innerHTML = `<p class="text-gray-700">${textResult}</p>`;
+                }
+            });
+
+            generateChoicesBtn.addEventListener('click', async () => {
+                const userDecision = decisionInput.value;
+                if (!userDecision) {
+                    choicesResult.innerHTML = '<p class="text-red-500">Por favor, descreva um ponto de decisão.</p>';
+                    return;
+                }
+                const fullPrompt = `Aja como um roteirista criativo para uma história interativa no Instagram. Para o seguinte ponto de decisão, gere 3 opções de voto criativas e não óbvias para uma enquete. As opções devem gerar curiosidade e evitar clichês como 'sim/não'. Formate como uma lista com marcadores simples. Ponto de decisão: "${userDecision}"`;
+
+                const textResult = await callGemini(fullPrompt, choicesResult, generateChoicesBtn);
+                if(textResult) {
+                    choicesResult.innerHTML = `<ul class="list-disc list-inside space-y-2">${formatListResult(textResult)}</ul>`;
+                }
+            });
+
+            generateLoreBtn.addEventListener('click', async () => {
+                const userLore = loreInput.value;
+                if (!userLore) {
+                    loreResult.innerHTML = '<p class="text-red-500">Por favor, insira um elemento do seu mundo.</p>';
+                    return;
+                }
+                const fullPrompt = `Aja como um historiador e cronista de um mundo de fantasia. Crie uma entrada de lore curta e intrigante para o seguinte elemento do meu mundo. Descreva sua aparência, sua história e um segredo ou fato interessante sobre ele. A resposta deve ser um parágrafo bem escrito. Elemento: "${userLore}"`;
+
+                const textResult = await callGemini(fullPrompt, loreResult, generateLoreBtn);
+                if(textResult) {
+                    loreResult.innerHTML = `<p class="text-gray-700">${textResult}</p>`;
+                }
+            });
+
+             generateTiersBtn.addEventListener('click', async () => {
+                const userMonetization = monetizationInput.value;
+                if (!userMonetization) {
+                    tiersResult.innerHTML = '<p class="text-red-500">Por favor, insira um conceito para a história.</p>';
+                    return;
+                }
+                const fullPrompt = `Aja como um especialista em monetização para criadores de conteúdo. Baseado no seguinte conceito de história, gere 3 níveis (tiers) para o Patreon com nomes temáticos e 2-3 ideias de recompensas (rewards) para cada um. Foque em recompensas digitais e de baixo custo de produção. Formate a resposta com o nome do nível em negrito e as recompensas como uma lista com marcadores. Conceito: "${userMonetization}"`;
+
+                const textResult = await callGemini(fullPrompt, tiersResult, generateTiersBtn);
+                if(textResult) {
+                    tiersResult.innerHTML = `<ul>${formatListResult(textResult)}</ul>`;
+                }
+            });
+
+            generatePostBtn.addEventListener('click', async () => {
+                const userPost = postInput.value;
+                if (!userPost) {
+                    postResult.innerHTML = '<p class="text-red-500">Por favor, descreva o evento do post.</p>';
+                    return;
+                }
+                const fullPrompt = `Aja como um social media manager de uma história interativa no Instagram. Escreva uma legenda cativante para um post. A legenda deve incluir um parágrafo narrativo, uma chamada para ação clara (ex: "O que ele deve fazer? Vote nos Stories!") e 3 a 5 hashtags relevantes. O evento do post é: "${userPost}"`;
+
+                const textResult = await callGemini(fullPrompt, postResult, generatePostBtn);
+                if(textResult) {
+                    postResult.innerHTML = `<p class="text-gray-700">${textResult}</p>`;
+                }
+            });
+
+            generateCommunityBtn.addEventListener('click', async () => {
+                const userCommunity = communityInput.value;
+                if (!userCommunity) {
+                    communityResult.innerHTML = '<p class="text-red-500">Por favor, descreva um evento da história.</p>';
+                    return;
+                }
+                const fullPrompt = `Aja como um gestor de comunidade para uma história de ficção interativa. Baseado no seguinte evento da história, gere 3 perguntas abertas e instigantes para postar num servidor de Discord e fomentar a discussão e teorias dos fãs. Formate como uma lista com marcadores simples. Evento: "${userCommunity}"`;
+
+                const textResult = await callGemini(fullPrompt, communityResult, generateCommunityBtn);
+                if(textResult) {
+                    communityResult.innerHTML = `<ul class="list-disc list-inside space-y-2">${formatListResult(textResult)}</ul>`;
+                }
+            });
+
+            generateArcBtn.addEventListener('click', async () => {
+                const userArc = arcInput.value;
+                if (!userArc) {
+                    arcResult.innerHTML = '<p class="text-red-500">Por favor, insira um conceito para a história.</p>';
+                    return;
+                }
+                const fullPrompt = `Aja como um roteirista profissional. Baseado no seguinte conceito de história, delineie uma estrutura clássica de três atos (Ato 1: Apresentação, Ato 2: Confronto, Ato 3: Resolução). Para cada ato, forneça 2-3 pontos-chave do enredo. Formate a resposta de forma clara com títulos para cada ato. Conceito: "${userArc}"`;
+
+                const textResult = await callGemini(fullPrompt, arcResult, generateArcBtn);
+                if(textResult) {
+                    arcResult.innerHTML = `<ul>${formatListResult(textResult)}</ul>`;
                 }
             });
         });
@@ -308,4 +540,3 @@
 
 </body>
 </html>
-
